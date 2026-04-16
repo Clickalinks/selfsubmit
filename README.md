@@ -11,22 +11,23 @@ UK self-employed **Making Tax Digital (MTD)**-oriented product: monthly income &
 
 ## Local development
 
-**Frontend**
+From the **repository root** (`c:\selfsubmit`), after installing dependencies inside each app once:
 
 ```bash
-cd frontend
-npm install
-npm run dev
+cd frontend && npm install && cd ..
+# optional: cd backend && npm install && cd ..
+npm run dev          # Next.js — http://localhost:3000
+npm run dev:backend  # API — uses backend/package.json "start"
 ```
 
-**Backend**
+Or run inside each folder as usual:
 
 ```bash
-cd backend
-npm install
-# copy .env.example to .env and fill values
-npm start
+cd frontend && npm install && npm run dev
+cd backend && npm install && npm start
 ```
+
+There is **no** `package.json` in the root except the small shim above — real dependencies live under `frontend/` and `backend/`.
 
 ## Legal
 
