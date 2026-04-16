@@ -1,0 +1,36 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground: #000000;
+  --page-base: #f5faf7;
+  --page-mid: #eaf6ef;
+  --page-deep: #dff0e6;
+  --glow-green: rgba(0, 176, 80, 0.16);
+  --glow-forest: rgba(0, 143, 69, 0.12);
+  --glow-mint: rgba(232, 247, 237, 0.85);
+}
+
+html {
+  min-height: 100%;
+}
+
+/**
+ * Site-wide ambient background: soft botanical mesh, corner glows, fine dot texture.
+ * Translucent header/footer and transparent section shells let this show through.
+ */
+body {
+  color: var(--foreground);
+  min-height: 100vh;
+  background-color: var(--page-base);
+  background-image:
+    radial-gradient(ellipse 130% 90% at 50% -35%, var(--glow-green), transparent 58%),
+    radial-gradient(ellipse 85% 65% at 110% 5%, var(--glow-forest), transparent 52%),
+    radial-gradient(ellipse 75% 55% at -15% 78%, var(--glow-mint), transparent 55%),
+    radial-gradient(ellipse 50% 42% at 88% 96%, rgba(0, 200, 95, 0.07), transparent 48%),
+    linear-gradient(168deg, #fdfffe 0%, var(--page-base) 38%, var(--page-mid) 72%, var(--page-deep) 100%),
+    radial-gradient(circle at 1px 1px, rgba(0, 0, 0, 0.038) 1px, transparent 1.5px);
+  background-size: auto, auto, auto, auto, auto, 26px 26px;
+  background-attachment: scroll;
+}
