@@ -29,6 +29,10 @@ import {
   getTemplateIcon,
 } from "@/data/tradeIcons";
 import { HmrcSimplifiedMileageNotice } from "@/components/forms/HmrcSimplifiedMileageNotice";
+import { StickerIconFrame } from "@/components/ui/StickerIconFrame";
+import { getProfessionStickerTone, getTemplateStickerTone } from "@/data/professionStickerTones";
+import { stickerToneForLedgerLine } from "@/data/stickerCardTheme";
+import type { StickerCardTone } from "@/data/stickerCardTheme";
 
 function cx(...parts: (string | false | undefined)[]) {
   return parts.filter(Boolean).join(" ");
@@ -366,6 +370,8 @@ export function MonthlyExpenseForm({ initialTrade }: MonthlyExpenseFormProps) {
 
   const TradeIcon = PROFESSION_ICONS[trade] ?? DEFAULT_PROFESSION_ICON;
   const TemplateIcon = getTemplateIcon(template.id);
+  const tradeStickerTone = getProfessionStickerTone(trade);
+  const templateStickerTone = getTemplateStickerTone(template.id);
   const cisConstruction = isCisConstructionTrade(trade);
 
   const cisDeductionParsed = useMemo(
@@ -535,9 +541,9 @@ export function MonthlyExpenseForm({ initialTrade }: MonthlyExpenseFormProps) {
             Business / profession
           </label>
           <div className="mt-2 flex flex-col gap-3 min-[520px]:flex-row min-[520px]:items-stretch">
-            <div className="flex shrink-0 items-center justify-center rounded-2xl border border-black/10 bg-gradient-to-b from-brand-green-bright to-brand-green-dark p-4 text-white shadow-inner ring-2 ring-white/30 min-[520px]:w-[88px]">
-              <TradeIcon className="h-9 w-9" strokeWidth={1.6} aria-hidden />
-            </div>
+            <StickerIconFrame tone={tradeStickerTone} size="md" className="min-[520px]:self-stretch">
+              <TradeIcon strokeWidth={2.35} aria-hidden />
+            </StickerIconFrame>
             <select
               id="profession"
               value={trade}
@@ -552,9 +558,9 @@ export function MonthlyExpenseForm({ initialTrade }: MonthlyExpenseFormProps) {
             </select>
           </div>
           <p className="mt-2 flex flex-wrap items-center gap-2 text-xs text-brand-muted">
-            <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-brand-mint text-brand-green">
-              <TemplateIcon className="h-4 w-4" aria-hidden />
-            </span>
+            <StickerIconFrame tone={templateStickerTone} size="sm" className="inline-flex">
+              <TemplateIcon strokeWidth={2.35} aria-hidden />
+            </StickerIconFrame>
             <span>
               Template: <span className="font-medium text-brand-black">{template.title}</span>
             </span>
@@ -640,11 +646,12 @@ export function MonthlyExpenseForm({ initialTrade }: MonthlyExpenseFormProps) {
               (money you received — turnover, fees, tips; not business costs)
             </span>
           </h2>
-          {template.incomeLineItems.map((item) => (
+          {template.incomeLineItems.map((item, idx) => (
             <LedgerRow
               key={item.id}
               item={item}
               Icon={getLineItemIcon(item.id)}
+              stickerTone={stickerToneForLedgerLine("income", item.id, idx)}
               state={incomeRows[item.id] ?? { amount: "", saved: false }}
               onAmountChange={setIncomeAmount}
               onSave={saveIncome}
@@ -659,9 +666,9 @@ export function MonthlyExpenseForm({ initialTrade }: MonthlyExpenseFormProps) {
             aria-labelledby="cis-heading"
           >
             <div className="flex flex-wrap items-start gap-3">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-amber-900">
-                <HardHat className="h-5 w-5" aria-hidden />
-              </span>
+              <StickerIconFrame tone="cream" size="sm" className="shrink-0">
+                <HardHat strokeWidth={2.35} aria-hidden />
+              </StickerIconFrame>
               <div className="min-w-0 flex-1">
                 <h2 id="cis-heading" className="text-lg font-bold text-brand-black">
                   Construction Industry Scheme (CIS)
@@ -851,11 +858,12 @@ export function MonthlyExpenseForm({ initialTrade }: MonthlyExpenseFormProps) {
               (money you spent on the business — costs only, not sales)
             </span>
           </h2>
-          {visibleExpenseItems.map((item) => (
+          {visibleExpenseItems.map((item, idx) => (
             <LedgerRow
               key={item.id}
               item={item}
               Icon={getLineItemIcon(item.id)}
+              stickerTone={stickerToneForLedgerLine("expense", item.id, idx)}
               state={expenseRows[item.id] ?? { amount: "", saved: false }}
               onAmountChange={setExpenseAmount}
               onSave={saveExpense}
@@ -868,10 +876,10 @@ export function MonthlyExpenseForm({ initialTrade }: MonthlyExpenseFormProps) {
           className="mt-12 max-w-2xl rounded-2xl border border-black/10 bg-white px-4 py-5 shadow-card min-[900px]:px-6 min-[900px]:py-6"
           aria-labelledby="receipts-heading"
         >
-          <div className="flex flex-wrap items-center gap-3">
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-mint text-brand-green">
-              <Receipt className="h-5 w-5" aria-hidden />
-            </span>
+          <div className="flex flex-wrap items-start gap-3">
+            <StickerIconFrame tone="mint" size="sm" className="shrink-0">
+              <Receipt strokeWidth={2.35} aria-hidden />
+            </StickerIconFrame>
             <div>
               <h2 id="receipts-heading" className="text-lg font-bold text-brand-black">
                 Receipts &amp; petty cash
@@ -1248,6 +1256,7 @@ export function MonthlyExpenseForm({ initialTrade }: MonthlyExpenseFormProps) {
 function LedgerRow({
   item,
   Icon,
+  stickerTone,
   state,
   onAmountChange,
   onSave,
@@ -1255,6 +1264,7 @@ function LedgerRow({
 }: {
   item: MoneyLineItem;
   Icon: LucideIcon;
+  stickerTone: StickerCardTone;
   state: RowState;
   onAmountChange: (id: string, v: string) => void;
   onSave: (id: string) => void;
@@ -1271,16 +1281,9 @@ function LedgerRow({
       <div className="flex flex-col gap-4 min-[900px]:flex-row min-[900px]:items-start min-[900px]:justify-between">
         <div className="min-w-0 flex-1">
           <div className="flex gap-3">
-            <span
-              className={cx(
-                "mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl shadow-inner ring-2 ring-white/80",
-                saved
-                  ? "bg-neutral-200/90 text-neutral-600"
-                  : "bg-gradient-to-b from-brand-green-bright to-brand-green-dark text-white",
-              )}
-            >
-              <Icon className="h-5 w-5" strokeWidth={1.65} aria-hidden />
-            </span>
+            <StickerIconFrame tone={stickerTone} size="sm" muted={saved} className="mt-0.5">
+              <Icon strokeWidth={2.35} aria-hidden />
+            </StickerIconFrame>
             <div className="min-w-0 flex-1">
               <div className="font-semibold text-brand-black">{item.label}</div>
               {item.hint ? <p className="mt-1 text-sm text-brand-muted">{item.hint}</p> : null}
