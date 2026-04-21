@@ -78,6 +78,7 @@ export function LegalFooterNav() {
     { href: "/how-it-works", label: "How it works" },
     { href: "/about", label: "About us" },
     { href: "/contact", label: "Contact" },
+    { href: "/sign-in", label: "Sign in" },
     { href: "/privacy", label: "Privacy" },
     { href: "/terms", label: "Terms" },
     { href: "/cookies", label: "Cookies" },

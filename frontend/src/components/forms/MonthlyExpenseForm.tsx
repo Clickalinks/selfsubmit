@@ -1,6 +1,9 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
+import type { LucideIcon } from "lucide-react";
+import { HardHat, ImagePlus, ListPlus, Receipt, Upload } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import {
@@ -15,9 +18,16 @@ import {
   computeSimplifiedMileageClaimGbp,
   getTemplateForProfession,
   getVisibleExpenseLineItems,
+  isCisConstructionTrade,
   usesBusinessVehicleTemplate,
   vehicleSimplifiedMileageAllowed,
 } from "@/data/expenseCategories";
+import {
+  DEFAULT_PROFESSION_ICON,
+  PROFESSION_ICONS,
+  getLineItemIcon,
+  getTemplateIcon,
+} from "@/data/tradeIcons";
 import { HmrcSimplifiedMileageNotice } from "@/components/forms/HmrcSimplifiedMileageNotice";
 
 function cx(...parts: (string | false | undefined)[]) {
@@ -75,6 +85,26 @@ function sumSavedLines(rows: Record<string, RowState>, items: MoneyLineItem[]): 
   }, 0);
 }
 
+/** Sum every line where the amount field parses (saved or not) — live preview. */
+function sumParsedLineAmounts(rows: Record<string, RowState>, items: MoneyLineItem[]): number {
+  return items.reduce((sum, li) => {
+    const p = parseAmount(rows[li.id]?.amount ?? "");
+    return sum + (p.ok ? p.value : 0);
+  }, 0);
+}
+
+const OTHER_EXPENSE_LINE_ID = "other";
+
+type ManualReceiptLine = { id: string; description: string; amount: string };
+
+type UploadReceiptLine = {
+  id: string;
+  amount: string;
+  note: string;
+  file: File | null;
+  previewUrl: string | null;
+};
+
 type MonthlyExpenseFormProps = {
   initialTrade: string;
 };
@@ -97,6 +127,11 @@ export function MonthlyExpenseForm({ initialTrade }: MonthlyExpenseFormProps) {
 
   const [showConfirm, setShowConfirm] = useState(false);
 
+  const [receiptCaptureTab, setReceiptCaptureTab] = useState<"upload" | "manual">("manual");
+  const [manualReceiptLines, setManualReceiptLines] = useState<ManualReceiptLine[]>([]);
+  const [uploadReceiptLines, setUploadReceiptLines] = useState<UploadReceiptLine[]>([]);
+  const [receiptApplyMessage, setReceiptApplyMessage] = useState<string | undefined>(undefined);
+
   const [periodFrom, setPeriodFrom] = useState(() => defaultPeriodFromCalendarMonth().from);
   const [periodTo, setPeriodTo] = useState(() => defaultPeriodFromCalendarMonth().to);
 
@@ -104,6 +139,8 @@ export function MonthlyExpenseForm({ initialTrade }: MonthlyExpenseFormProps) {
   const [mileageVehicle, setMileageVehicle] = useState<MileageVehicleKind>("car_or_goods_vehicle");
   const [mileageBand, setMileageBand] = useState<MileageAnnualBand>("within_first_10000");
   const [mileageApplyError, setMileageApplyError] = useState<string | undefined>(undefined);
+
+  const [cisDeductionThisPeriod, setCisDeductionThisPeriod] = useState("");
 
   const visibleExpenseItems = useMemo(
     () => getVisibleExpenseLineItems(template, vehicleCostMethod, trade),
@@ -118,6 +155,15 @@ export function MonthlyExpenseForm({ initialTrade }: MonthlyExpenseFormProps) {
     setMileageVehicle("car_or_goods_vehicle");
     setMileageBand("within_first_10000");
     setMileageApplyError(undefined);
+    setManualReceiptLines([]);
+    setUploadReceiptLines((prev) => {
+      prev.forEach((l) => {
+        if (l.previewUrl) URL.revokeObjectURL(l.previewUrl);
+      });
+      return [];
+    });
+    setReceiptApplyMessage(undefined);
+    setCisDeductionThisPeriod("");
   }, []);
 
   const onTradeChange = (next: string) => {
@@ -266,6 +312,68 @@ export function MonthlyExpenseForm({ initialTrade }: MonthlyExpenseFormProps) {
     return { income, expenses, net };
   }, [allSaved, incomeRows, expenseRows, template, visibleExpenseItems]);
 
+  const liveTotals = useMemo(() => {
+    const income = sumParsedLineAmounts(incomeRows, template.incomeLineItems);
+    const expenses = sumParsedLineAmounts(expenseRows, visibleExpenseItems);
+    return { income, expenses, net: income - expenses };
+  }, [incomeRows, expenseRows, template, visibleExpenseItems]);
+
+  const receiptTotal = useMemo(() => {
+    let s = 0;
+    for (const r of manualReceiptLines) {
+      const p = parseAmount(r.amount);
+      if (p.ok) s += p.value;
+    }
+    for (const r of uploadReceiptLines) {
+      const p = parseAmount(r.amount);
+      if (p.ok) s += p.value;
+    }
+    return Math.round(s * 100) / 100;
+  }, [manualReceiptLines, uploadReceiptLines]);
+
+  const hasOtherExpenseLine = visibleExpenseItems.some((li) => li.id === OTHER_EXPENSE_LINE_ID);
+
+  const applyReceiptTotalToOther = () => {
+    setReceiptApplyMessage(undefined);
+    if (receiptTotal <= 0) {
+      setReceiptApplyMessage("Enter at least one receipt amount greater than zero.");
+      return;
+    }
+    if (!hasOtherExpenseLine) {
+      setReceiptApplyMessage('This template has no "Other allowable expenses" line to merge into.');
+      return;
+    }
+    const cell = expenseRows[OTHER_EXPENSE_LINE_ID];
+    const baseParsed = parseAmount(cell?.amount ?? "");
+    const base = baseParsed.ok ? baseParsed.value : 0;
+    const merged = Math.round((base + receiptTotal) * 100) / 100;
+    patchExpense(OTHER_EXPENSE_LINE_ID, {
+      amount: formatDisplayAmount(merged),
+      saved: true,
+      error: undefined,
+    });
+    setManualReceiptLines([]);
+    setUploadReceiptLines((prev) => {
+      prev.forEach((l) => {
+        if (l.previewUrl) URL.revokeObjectURL(l.previewUrl);
+      });
+      return [];
+    });
+    setReceiptApplyMessage(
+      `Added ${formatMoney(receiptTotal)} to Other allowable expenses (now ${formatMoney(merged)}).`,
+    );
+  };
+
+  const TradeIcon = PROFESSION_ICONS[trade] ?? DEFAULT_PROFESSION_ICON;
+  const TemplateIcon = getTemplateIcon(template.id);
+  const cisConstruction = isCisConstructionTrade(trade);
+
+  const cisDeductionParsed = useMemo(
+    () => parseAmount(cisDeductionThisPeriod),
+    [cisDeductionThisPeriod],
+  );
+  const cisDeductionAmount = cisDeductionParsed.ok ? cisDeductionParsed.value : 0;
+
   const periodValid =
     periodFrom !== "" &&
     periodTo !== "" &&
@@ -318,6 +426,25 @@ export function MonthlyExpenseForm({ initialTrade }: MonthlyExpenseFormProps) {
       income: incomePayload,
       expenses: expensePayload,
       totals,
+      receiptCapture: {
+        tab: receiptCaptureTab,
+        manualLines: manualReceiptLines,
+        uploadMeta: uploadReceiptLines.map((row) => ({
+          id: row.id,
+          amount: row.amount,
+          note: row.note,
+          fileName: row.file?.name ?? null,
+        })),
+      },
+      cis:
+        cisConstruction && cisDeductionThisPeriod.trim() !== ""
+          ? {
+              deductionsThisPeriodGbp: cisDeductionParsed.ok ? cisDeductionParsed.value : null,
+              rawInput: cisDeductionThisPeriod,
+            }
+          : cisConstruction
+            ? { deductionsThisPeriodGbp: null, rawInput: "" }
+            : null,
     });
     alert("Submitted (demo). Connect your API to persist.");
   };
@@ -403,24 +530,34 @@ export function MonthlyExpenseForm({ initialTrade }: MonthlyExpenseFormProps) {
           ) : null}
         </section>
 
-        <div className="mt-8 max-w-xl">
+        <div className="mt-8 max-w-2xl">
           <label htmlFor="profession" className="block text-sm font-semibold text-brand-black">
             Business / profession
           </label>
-          <select
-            id="profession"
-            value={trade}
-            onChange={(e) => onTradeChange(e.target.value)}
-            className="mt-2 w-full rounded-xl border border-black/15 bg-white px-4 py-3 text-sm font-medium text-brand-black shadow-sm focus:border-brand-green focus:outline-none focus:ring-2 focus:ring-brand-green/25"
-          >
-            {ALL_PROFESSIONS.map((p) => (
-              <option key={p} value={p}>
-                {p}
-              </option>
-            ))}
-          </select>
-          <p className="mt-1 text-xs text-brand-muted">
-            Template: <span className="font-medium text-brand-black">{template.title}</span>
+          <div className="mt-2 flex flex-col gap-3 min-[520px]:flex-row min-[520px]:items-stretch">
+            <div className="flex shrink-0 items-center justify-center rounded-2xl border border-black/10 bg-gradient-to-b from-brand-green-bright to-brand-green-dark p-4 text-white shadow-inner ring-2 ring-white/30 min-[520px]:w-[88px]">
+              <TradeIcon className="h-9 w-9" strokeWidth={1.6} aria-hidden />
+            </div>
+            <select
+              id="profession"
+              value={trade}
+              onChange={(e) => onTradeChange(e.target.value)}
+              className="min-h-[52px] w-full flex-1 rounded-xl border border-black/15 bg-white px-4 py-3 text-sm font-medium text-brand-black shadow-sm focus:border-brand-green focus:outline-none focus:ring-2 focus:ring-brand-green/25"
+            >
+              {ALL_PROFESSIONS.map((p) => (
+                <option key={p} value={p}>
+                  {p}
+                </option>
+              ))}
+            </select>
+          </div>
+          <p className="mt-2 flex flex-wrap items-center gap-2 text-xs text-brand-muted">
+            <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-brand-mint text-brand-green">
+              <TemplateIcon className="h-4 w-4" aria-hidden />
+            </span>
+            <span>
+              Template: <span className="font-medium text-brand-black">{template.title}</span>
+            </span>
           </p>
         </div>
 
@@ -507,6 +644,7 @@ export function MonthlyExpenseForm({ initialTrade }: MonthlyExpenseFormProps) {
             <LedgerRow
               key={item.id}
               item={item}
+              Icon={getLineItemIcon(item.id)}
               state={incomeRows[item.id] ?? { amount: "", saved: false }}
               onAmountChange={setIncomeAmount}
               onSave={saveIncome}
@@ -514,6 +652,61 @@ export function MonthlyExpenseForm({ initialTrade }: MonthlyExpenseFormProps) {
             />
           ))}
         </section>
+
+        {cisConstruction ? (
+          <section
+            className="mt-10 max-w-2xl rounded-2xl border border-amber-200/70 bg-amber-50/50 px-4 py-5 min-[900px]:px-6 min-[900px]:py-6"
+            aria-labelledby="cis-heading"
+          >
+            <div className="flex flex-wrap items-start gap-3">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-amber-900">
+                <HardHat className="h-5 w-5" aria-hidden />
+              </span>
+              <div className="min-w-0 flex-1">
+                <h2 id="cis-heading" className="text-lg font-bold text-brand-black">
+                  Construction Industry Scheme (CIS)
+                </h2>
+                <p className="mt-1 text-sm text-brand-muted">
+                  For payments from contractors who operate CIS, they may deduct tax before paying you. Enter your
+                  income lines above as <strong className="text-brand-black">gross</strong> (before CIS). The field
+                  below is only the tax <strong className="text-brand-black">withheld</strong> this period — it is not
+                  an allowable expense and does not reduce your taxable profit; on Self Assessment it usually counts
+                  toward your Income Tax and National Insurance bill.
+                </p>
+                <p className="mt-2 text-xs text-brand-muted">
+                  <a
+                    href="https://www.gov.uk/what-is-the-construction-industry-scheme"
+                    className="font-medium text-brand-green underline-offset-2 hover:underline"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    CIS for subcontractors (GOV.UK)
+                  </a>
+                </p>
+                <div className="mt-4">
+                  <label htmlFor="cis-deductions-period" className="block text-sm font-semibold text-brand-black">
+                    Total CIS tax deducted by contractors this period (£)
+                  </label>
+                  <input
+                    id="cis-deductions-period"
+                    type="text"
+                    inputMode="decimal"
+                    autoComplete="off"
+                    value={cisDeductionThisPeriod}
+                    onChange={(e) => setCisDeductionThisPeriod(e.target.value)}
+                    placeholder="0 if none or not applicable"
+                    className="mt-2 w-full max-w-xs rounded-xl border border-black/15 bg-white px-4 py-3 text-sm font-medium tabular-nums text-brand-black shadow-sm focus:border-brand-green focus:outline-none focus:ring-2 focus:ring-brand-green/25"
+                  />
+                  {cisDeductionThisPeriod.trim() !== "" && !cisDeductionParsed.ok ? (
+                    <p className="mt-2 text-sm text-red-600" role="alert">
+                      Enter a valid amount (0 or more), or leave blank.
+                    </p>
+                  ) : null}
+                </div>
+              </div>
+            </div>
+          </section>
+        ) : null}
 
         {showSimplifiedMileageStep ? (
           <section className="mt-12 max-w-2xl" aria-labelledby="mileage-step-heading">
@@ -662,6 +855,7 @@ export function MonthlyExpenseForm({ initialTrade }: MonthlyExpenseFormProps) {
             <LedgerRow
               key={item.id}
               item={item}
+              Icon={getLineItemIcon(item.id)}
               state={expenseRows[item.id] ?? { amount: "", saved: false }}
               onAmountChange={setExpenseAmount}
               onSave={saveExpense}
@@ -670,52 +864,345 @@ export function MonthlyExpenseForm({ initialTrade }: MonthlyExpenseFormProps) {
           ))}
         </section>
 
+        <section
+          className="mt-12 max-w-2xl rounded-2xl border border-black/10 bg-white px-4 py-5 shadow-card min-[900px]:px-6 min-[900px]:py-6"
+          aria-labelledby="receipts-heading"
+        >
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-mint text-brand-green">
+              <Receipt className="h-5 w-5" aria-hidden />
+            </span>
+            <div>
+              <h2 id="receipts-heading" className="text-lg font-bold text-brand-black">
+                Receipts &amp; petty cash
+              </h2>
+              <p className="text-sm text-brand-muted">
+                Upload a photo for your records and type the total from the receipt, or add manual lines. Amounts sum
+                automatically; you can merge the total into <strong className="text-brand-black">Other allowable expenses</strong>.
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-5 flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => setReceiptCaptureTab("manual")}
+              className={cx(
+                "inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition",
+                receiptCaptureTab === "manual"
+                  ? "bg-brand-green text-white shadow-btn-green"
+                  : "border border-black/15 bg-neutral-50 text-brand-muted hover:bg-neutral-100",
+              )}
+            >
+              <ListPlus className="h-4 w-4" aria-hidden />
+              Manual lines
+            </button>
+            <button
+              type="button"
+              onClick={() => setReceiptCaptureTab("upload")}
+              className={cx(
+                "inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition",
+                receiptCaptureTab === "upload"
+                  ? "bg-brand-green text-white shadow-btn-green"
+                  : "border border-black/15 bg-neutral-50 text-brand-muted hover:bg-neutral-100",
+              )}
+            >
+              <Upload className="h-4 w-4" aria-hidden />
+              Receipt photos
+            </button>
+          </div>
+
+          {receiptCaptureTab === "manual" ? (
+            <div className="mt-5 space-y-3">
+              {manualReceiptLines.length === 0 ? (
+                <p className="rounded-xl border border-dashed border-black/15 bg-neutral-50/80 px-4 py-4 text-sm text-brand-muted">
+                  Add one row per receipt: what you bought and how much. Totals update as you type.
+                </p>
+              ) : (
+                manualReceiptLines.map((row) => (
+                  <div
+                    key={row.id}
+                    className="flex flex-col gap-2 rounded-xl border border-black/10 bg-neutral-50/80 p-3 min-[600px]:flex-row min-[600px]:items-end"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <label className="text-xs font-semibold text-brand-black">Description</label>
+                      <input
+                        type="text"
+                        value={row.description}
+                        onChange={(e) =>
+                          setManualReceiptLines((prev) =>
+                            prev.map((r) => (r.id === row.id ? { ...r, description: e.target.value } : r)),
+                          )
+                        }
+                        placeholder="e.g. Screwfix — drill bits"
+                        className="mt-1 w-full rounded-lg border border-black/15 bg-white px-3 py-2 text-sm text-brand-black focus:border-brand-green focus:outline-none focus:ring-2 focus:ring-brand-green/20"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs font-semibold text-brand-black">Amount (£)</label>
+                      <input
+                        type="text"
+                        inputMode="decimal"
+                        value={row.amount}
+                        onChange={(e) =>
+                          setManualReceiptLines((prev) =>
+                            prev.map((r) => (r.id === row.id ? { ...r, amount: e.target.value } : r)),
+                          )
+                        }
+                        placeholder="0.00"
+                        className="mt-1 w-full min-w-[7rem] rounded-lg border border-black/15 bg-white px-3 py-2 text-sm tabular-nums text-brand-black focus:border-brand-green focus:outline-none focus:ring-2 focus:ring-brand-green/20 min-[600px]:w-28"
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setManualReceiptLines((prev) => prev.filter((r) => r.id !== row.id))
+                      }
+                      className="rounded-lg border border-black/15 bg-white px-3 py-2 text-sm font-semibold text-brand-black hover:bg-neutral-50 min-[600px]:shrink-0"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ))
+              )}
+              <button
+                type="button"
+                onClick={() =>
+                  setManualReceiptLines((prev) => [
+                    ...prev,
+                    { id: crypto.randomUUID(), description: "", amount: "" },
+                  ])
+                }
+                className="rounded-full border border-brand-green/40 bg-brand-mint px-4 py-2 text-sm font-semibold text-brand-green hover:bg-emerald-100/80"
+              >
+                + Add manual line
+              </button>
+            </div>
+          ) : (
+            <div className="mt-5 space-y-3">
+              {uploadReceiptLines.length === 0 ? (
+                <p className="rounded-xl border border-dashed border-black/15 bg-neutral-50/80 px-4 py-4 text-sm text-brand-muted">
+                  Attach a clear photo, then enter the total you read from the receipt. We do not run OCR in the browser;
+                  the amount you type is what gets summed.
+                </p>
+              ) : (
+                uploadReceiptLines.map((row) => (
+                  <div key={row.id} className="rounded-xl border border-black/10 bg-neutral-50/80 p-3">
+                    <div className="flex flex-col gap-3 min-[640px]:flex-row">
+                      <label className="flex min-h-[140px] w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-black/15 bg-white px-3 py-4 text-center text-sm text-brand-muted transition hover:border-brand-green/40 hover:bg-brand-mint/30 min-[640px]:w-44">
+                        <ImagePlus className="mb-1 h-8 w-8 opacity-60" aria-hidden />
+                        <span className="font-medium text-brand-black">Choose photo</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="sr-only"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0] ?? null;
+                            setUploadReceiptLines((prev) =>
+                              prev.map((r) => {
+                                if (r.id !== row.id) return r;
+                                if (r.previewUrl) URL.revokeObjectURL(r.previewUrl);
+                                if (!file) return { ...r, file: null, previewUrl: null };
+                                return { ...r, file, previewUrl: URL.createObjectURL(file) };
+                              }),
+                            );
+                            e.target.value = "";
+                          }}
+                        />
+                      </label>
+                      {row.previewUrl ? (
+                        <Image
+                          src={row.previewUrl}
+                          alt={row.note || "Receipt preview"}
+                          width={384}
+                          height={384}
+                          unoptimized
+                          className="h-40 w-full rounded-lg border border-black/10 object-contain bg-neutral-900/5 min-[640px]:h-auto min-[640px]:max-h-48 min-[640px]:w-48 min-[640px]:shrink-0"
+                        />
+                      ) : null}
+                      <div className="flex min-w-0 flex-1 flex-col gap-2">
+                        <div>
+                          <label className="text-xs font-semibold text-brand-black">Note (optional)</label>
+                          <input
+                            type="text"
+                            value={row.note}
+                            onChange={(e) =>
+                              setUploadReceiptLines((prev) =>
+                                prev.map((r) => (r.id === row.id ? { ...r, note: e.target.value } : r)),
+                              )
+                            }
+                            placeholder="e.g. Tesco fuel — 12 Mar"
+                            className="mt-1 w-full rounded-lg border border-black/15 bg-white px-3 py-2 text-sm text-brand-black focus:border-brand-green focus:outline-none focus:ring-2 focus:ring-brand-green/20"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-xs font-semibold text-brand-black">Amount from receipt (£)</label>
+                          <input
+                            type="text"
+                            inputMode="decimal"
+                            value={row.amount}
+                            onChange={(e) =>
+                              setUploadReceiptLines((prev) =>
+                                prev.map((r) => (r.id === row.id ? { ...r, amount: e.target.value } : r)),
+                              )
+                            }
+                            placeholder="0.00"
+                            className="mt-1 w-full max-w-xs rounded-lg border border-black/15 bg-white px-3 py-2 text-sm tabular-nums text-brand-black focus:border-brand-green focus:outline-none focus:ring-2 focus:ring-brand-green/20"
+                          />
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setUploadReceiptLines((prev) => {
+                              const hit = prev.find((r) => r.id === row.id);
+                              if (hit?.previewUrl) URL.revokeObjectURL(hit.previewUrl);
+                              return prev.filter((r) => r.id !== row.id);
+                            })
+                          }
+                          className="self-start rounded-lg border border-black/15 bg-white px-3 py-2 text-sm font-semibold text-brand-black hover:bg-neutral-50"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+              <button
+                type="button"
+                onClick={() =>
+                  setUploadReceiptLines((prev) => [
+                    ...prev,
+                    { id: crypto.randomUUID(), amount: "", note: "", file: null, previewUrl: null },
+                  ])
+                }
+                className="rounded-full border border-brand-green/40 bg-brand-mint px-4 py-2 text-sm font-semibold text-brand-green hover:bg-emerald-100/80"
+              >
+                + Add receipt photo
+              </button>
+            </div>
+          )}
+
+          <div className="mt-6 rounded-xl border border-brand-green/20 bg-brand-mint/50 px-4 py-3">
+            <div className="flex flex-col gap-3 min-[560px]:flex-row min-[560px]:items-center min-[560px]:justify-between">
+              <p className="text-sm font-semibold text-brand-black">
+                Receipt total (live):{" "}
+                <span className="tabular-nums text-brand-green">{formatMoney(receiptTotal)}</span>
+              </p>
+              <button
+                type="button"
+                onClick={applyReceiptTotalToOther}
+                disabled={!hasOtherExpenseLine || receiptTotal <= 0}
+                className={cx(
+                  "rounded-full px-5 py-2.5 text-sm font-bold text-white shadow-btn-green transition",
+                  hasOtherExpenseLine && receiptTotal > 0
+                    ? "bg-gradient-to-b from-brand-green-bright to-brand-green-dark hover:brightness-105"
+                    : "cursor-not-allowed bg-neutral-300 text-neutral-500 shadow-none",
+                )}
+              >
+                Add total to &quot;Other&quot; expenses
+              </button>
+            </div>
+            {!hasOtherExpenseLine ? (
+              <p className="mt-2 text-xs text-amber-800">This trade&apos;s expense list has no &quot;Other&quot; line.</p>
+            ) : null}
+            {receiptApplyMessage ? (
+              <p className="mt-2 text-sm text-brand-black" role="status">
+                {receiptApplyMessage}
+              </p>
+            ) : null}
+          </div>
+        </section>
+
         <section className="mt-12" aria-labelledby="totals-heading">
           <h2 id="totals-heading" className="text-lg font-bold text-brand-black">
             Totals
           </h2>
-          {totals ? (
-            <div className="mt-4 rounded-2xl border border-brand-green/25 bg-brand-mint/60 px-5 py-5 shadow-card min-[900px]:px-8 min-[900px]:py-6">
-              <dl className="grid gap-4 min-[900px]:grid-cols-3">
-                <div>
-                  <dt className="text-sm font-medium text-brand-muted">Total income</dt>
-                  <dd className="mt-1 text-2xl font-bold tabular-nums text-brand-black">{formatMoney(totals.income)}</dd>
-                </div>
-                <div>
-                  <dt className="text-sm font-medium text-brand-muted">Total expenses</dt>
-                  <dd className="mt-1 text-2xl font-bold tabular-nums text-brand-black">{formatMoney(totals.expenses)}</dd>
-                </div>
-                <div>
-                  <dt className="text-sm font-medium text-brand-muted">Net (profit)</dt>
-                  <dd
-                    className={cx(
-                      "mt-1 text-2xl font-bold tabular-nums",
-                      totals.net >= 0 ? "text-brand-green" : "text-red-600",
-                    )}
-                  >
-                    {formatMoney(totals.net)}
-                  </dd>
-                </div>
-              </dl>
-            </div>
-          ) : (
-            <p className="mt-4 rounded-2xl border border-dashed border-black/15 bg-neutral-50 px-4 py-6 text-center text-sm text-brand-muted">
+          {!allSaved ? (
+            <p className="mt-2 text-sm text-brand-muted">
+              Running totals update <strong className="text-brand-black">automatically</strong> from every amount you
+              type (you still need to save each line before submit).
+            </p>
+          ) : null}
+          <div className="mt-4 rounded-2xl border border-black/10 bg-white px-5 py-5 shadow-card min-[900px]:px-8 min-[900px]:py-6">
+            <p className="text-xs font-semibold uppercase tracking-wide text-brand-muted">
+              {!allSaved ? "Live preview" : "Confirmed (all lines saved)"}
+            </p>
+            <dl className="mt-3 grid gap-4 min-[900px]:grid-cols-3">
+              <div>
+                <dt className="text-sm font-medium text-brand-muted">Total income</dt>
+                <dd className="mt-1 text-2xl font-bold tabular-nums text-brand-black">
+                  {formatMoney(allSaved ? (totals?.income ?? liveTotals.income) : liveTotals.income)}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-sm font-medium text-brand-muted">Total expenses</dt>
+                <dd className="mt-1 text-2xl font-bold tabular-nums text-brand-black">
+                  {formatMoney(allSaved ? (totals?.expenses ?? liveTotals.expenses) : liveTotals.expenses)}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-sm font-medium text-brand-muted">Net (profit)</dt>
+                <dd
+                  className={cx(
+                    "mt-1 text-2xl font-bold tabular-nums",
+                    (allSaved ? (totals?.net ?? liveTotals.net) : liveTotals.net) >= 0
+                      ? "text-brand-green"
+                      : "text-red-600",
+                  )}
+                >
+                  {formatMoney(allSaved ? (totals?.net ?? liveTotals.net) : liveTotals.net)}
+                </dd>
+              </div>
+            </dl>
+            {cisConstruction ? (
+              <div className="mt-5 border-t border-black/10 pt-4">
+                <p className="text-xs font-semibold uppercase tracking-wide text-brand-muted">CIS (same period)</p>
+                {cisDeductionParsed.ok && cisDeductionAmount > 0 ? (
+                  <dl className="mt-2 space-y-2 text-sm">
+                    <div className="flex flex-wrap justify-between gap-2">
+                      <dt className="text-brand-muted">CIS tax withheld by contractors</dt>
+                      <dd className="font-semibold tabular-nums text-amber-900">{formatMoney(cisDeductionAmount)}</dd>
+                    </div>
+                    <p className="text-xs leading-relaxed text-brand-muted">
+                      Not included in expenses above. Indicative cash after CIS (gross income − CIS − expenses):{" "}
+                      <span className="font-semibold text-brand-black">
+                        {formatMoney(
+                          Math.round(
+                            ((allSaved ? (totals?.income ?? liveTotals.income) : liveTotals.income) -
+                              cisDeductionAmount -
+                              (allSaved ? (totals?.expenses ?? liveTotals.expenses) : liveTotals.expenses)) *
+                              100,
+                          ) / 100,
+                        )}
+                      </span>
+                      . Your Self Assessment will credit CIS against tax and NIC due.
+                    </p>
+                  </dl>
+                ) : (
+                  <p className="mt-2 text-xs text-brand-muted">
+                    If contractors deducted CIS this month, enter the total in the CIS section under Income.
+                  </p>
+                )}
+              </div>
+            ) : null}
+          </div>
+          {!allSaved ? (
+            <p className="mt-4 rounded-2xl border border-dashed border-black/15 bg-neutral-50 px-4 py-5 text-center text-sm text-brand-muted">
               {showSimplifiedMileageStep ? (
                 <>
                   Save <strong className="text-brand-black">every income line</strong>, apply{" "}
-                  <strong className="text-brand-black">business mileage</strong> in the section above for your
-                  simplified vehicle cost, then save <strong className="text-brand-black">every expense line</strong> —
-                  your totals will appear here automatically.
+                  <strong className="text-brand-black">business mileage</strong> if you use simplified vehicle costs, then
+                  save <strong className="text-brand-black">every expense line</strong> to enable submit.
                 </>
               ) : (
                 <>
                   Save <strong className="text-brand-black">every income line</strong> and{" "}
-                  <strong className="text-brand-black">every expense line</strong> — your totals will appear here
-                  automatically.
+                  <strong className="text-brand-black">every expense line</strong> to enable submit.
                 </>
               )}
             </p>
-          )}
+          ) : null}
         </section>
 
         <div className="mt-10 rounded-2xl border border-amber-200/80 bg-amber-50/80 px-4 py-3 text-sm text-brand-black">
@@ -760,12 +1247,14 @@ export function MonthlyExpenseForm({ initialTrade }: MonthlyExpenseFormProps) {
 
 function LedgerRow({
   item,
+  Icon,
   state,
   onAmountChange,
   onSave,
   onEdit,
 }: {
   item: MoneyLineItem;
+  Icon: LucideIcon;
   state: RowState;
   onAmountChange: (id: string, v: string) => void;
   onSave: (id: string) => void;
@@ -781,8 +1270,22 @@ function LedgerRow({
     >
       <div className="flex flex-col gap-4 min-[900px]:flex-row min-[900px]:items-start min-[900px]:justify-between">
         <div className="min-w-0 flex-1">
-          <div className="font-semibold text-brand-black">{item.label}</div>
-          {item.hint ? <p className="mt-1 text-sm text-brand-muted">{item.hint}</p> : null}
+          <div className="flex gap-3">
+            <span
+              className={cx(
+                "mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl shadow-inner ring-2 ring-white/80",
+                saved
+                  ? "bg-neutral-200/90 text-neutral-600"
+                  : "bg-gradient-to-b from-brand-green-bright to-brand-green-dark text-white",
+              )}
+            >
+              <Icon className="h-5 w-5" strokeWidth={1.65} aria-hidden />
+            </span>
+            <div className="min-w-0 flex-1">
+              <div className="font-semibold text-brand-black">{item.label}</div>
+              {item.hint ? <p className="mt-1 text-sm text-brand-muted">{item.hint}</p> : null}
+            </div>
+          </div>
         </div>
         <div className="flex flex-col gap-2 min-[900px]:items-end">
           <div className="flex flex-wrap items-center gap-2">

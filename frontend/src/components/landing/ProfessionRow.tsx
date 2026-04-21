@@ -1,52 +1,10 @@
 import Link from "next/link";
-import type { LucideIcon } from "lucide-react";
-import {
-  Activity,
-  BookOpen,
-  Briefcase,
-  Brush,
-  Camera,
-  Car,
-  Code,
-  Dumbbell,
-  GraduationCap,
-  Hammer,
-  HardHat,
-  Package,
-  Palette,
-  Scissors,
-  Sparkles,
-  Truck,
-  Wrench,
-  Zap,
-} from "lucide-react";
 
 import { PROFESSIONS_FOR_LANDING } from "@/data/expenseCategories";
-
-const PROFESSION_ICONS: Record<string, LucideIcon> = {
-  "Taxi Driver": Car,
-  "Private Hire Driver (Uber/Bolt)": Car,
-  "Delivery Driver (Amazon, Uber Eats)": Truck,
-  "Courier / Van Driver": Package,
-  Barber: Scissors,
-  Hairdresser: Sparkles,
-  "Beautician (nails, lashes, etc.)": Sparkles,
-  "Massage Therapist": Activity,
-  Electrician: Zap,
-  Plumber: Wrench,
-  Carpenter: Hammer,
-  "Painter & Decorator": Brush,
-  Handyman: HardHat,
-  "Driving Instructor": GraduationCap,
-  "Tutor (academic or private)": BookOpen,
-  "Personal Trainer": Dumbbell,
-  "Graphic Designer": Palette,
-  "Web Developer": Code,
-  "Social Media Manager": Briefcase,
-  "Photographer / Videographer": Camera,
-};
-
-const DefaultIcon = Briefcase;
+import {
+  DEFAULT_PROFESSION_ICON,
+  PROFESSION_ICONS,
+} from "@/data/tradeIcons";
 
 export function ProfessionRow() {
   return (
@@ -61,7 +19,7 @@ export function ProfessionRow() {
       </p>
       <div className="mx-auto mt-10 grid w-full max-w-[1400px] grid-cols-2 gap-2.5 min-[480px]:grid-cols-3 min-[768px]:grid-cols-4 min-[900px]:mt-12 min-[900px]:gap-3 min-[1024px]:grid-cols-5 min-[1180px]:grid-cols-7">
         {PROFESSIONS_FOR_LANDING.map((label) => {
-          const Icon = PROFESSION_ICONS[label] ?? DefaultIcon;
+          const Icon = PROFESSION_ICONS[label] ?? DEFAULT_PROFESSION_ICON;
           return (
             <Link
               key={label}

@@ -155,9 +155,21 @@ export const EXPENSE_TEMPLATES: Record<string, TradeFormTemplate> = {
     id: "trades",
     title: "Trades & construction",
     incomeLineItems: [
-      { id: "income_labour", label: "Labour, day rates & hourly rates" },
-      { id: "income_callout", label: "Call-out & emergency fees" },
-      { id: "income_fixed_install", label: "Fixed-price jobs, installations & fitting" },
+      {
+        id: "income_labour",
+        label: "Labour, day rates & hourly rates",
+        hint: "Use gross amounts before CIS if contractors deducted tax under the Construction Industry Scheme.",
+      },
+      {
+        id: "income_callout",
+        label: "Call-out & emergency fees",
+        hint: "Gross before CIS if applicable — record CIS withheld in the CIS section below.",
+      },
+      {
+        id: "income_fixed_install",
+        label: "Fixed-price jobs, installations & fitting",
+        hint: "Gross before CIS if applicable.",
+      },
       { id: "income_materials_resale", label: "Materials mark-up / resale charged to client" },
       {
         id: "income_testing_cert",
@@ -174,7 +186,11 @@ export const EXPENSE_TEMPLATES: Record<string, TradeFormTemplate> = {
         label: "Decorating, wallpaper, spray & specialist finishes",
         hint: "0 if not applicable",
       },
-      { id: "income_other", label: "Other trade income" },
+      {
+        id: "income_other",
+        label: "Other trade income",
+        hint: "Gross before CIS if your payer operated the scheme.",
+      },
     ],
     expenseLineItems: [
       { id: "van_lease_finance", label: "Van lease, hire purchase or loan repayments" },
@@ -413,6 +429,14 @@ export function getTemplateForProfession(trade: string): TradeFormTemplate {
 export function getTemplateIdForProfession(trade: string): string {
   const key = trade.trim();
   return PROFESSION_TO_TEMPLATE[key] ?? DEFAULT_TEMPLATE_ID;
+}
+
+/** Template id for trades that typically register for CIS as subcontractors (construction-related). */
+export const CIS_CONSTRUCTION_TEMPLATE_ID = "trades" as const;
+
+/** Electrician, plumber, carpenter, painter & decorator, handyman — CIS may apply to payments from contractors. */
+export function isCisConstructionTrade(trade: string): boolean {
+  return getTemplateIdForProfession(trade) === CIS_CONSTRUCTION_TEMPLATE_ID;
 }
 
 /** How vehicle running costs are claimed for this return (when the trade uses a business vehicle). */

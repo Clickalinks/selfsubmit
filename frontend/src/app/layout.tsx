@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 
+import { Providers } from "@/app/providers";
+
 import "./globals.css";
 
 const inter = Inter({
@@ -21,8 +23,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en-GB" className={inter.variable}>
-      <body className="min-h-screen font-sans antialiased">{children}</body>
-    </html>
+    <Providers>
+      <html lang="en-GB" className={inter.variable}>
+        <body className="min-h-screen font-sans antialiased">{children}</body>
+      </html>
+    </Providers>
   );
 }

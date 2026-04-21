@@ -13,10 +13,13 @@ import {
   Calculator,
   ChevronDown,
   ChevronUp,
+  HardHat,
   Info,
   Minus,
   Plus,
 } from "lucide-react";
+
+import { isCisConstructionTrade } from "@/data/expenseCategories";
 
 export interface TaxCalculation {
   /** Annual turnover (gross self-employment income). */
@@ -41,7 +44,25 @@ export interface TaxCalculation {
 
   pensionContribution: number;
 
+  /** Income Tax + Class 2/4 NIC + student loan (before CIS offset). */
+
   totalTaxDue: number;
+
+  /** CIS deductions suffered in the year (construction subcontractors). */
+
+  cisDeductionsAnnual: number;
+
+  /** CIS credited against tax and NIC due (cannot exceed totalTaxDue in this model). */
+
+  cisOffsetApplied: number;
+
+  /** CIS above tax/NIC/loan may be refunded via Self Assessment. */
+
+  cisSurplusOverTax: number;
+
+  /** Tax and NIC still payable after CIS offset. */
+
+  taxPayableAfterCis: number;
 
   effectiveTaxRate: number;
 
@@ -283,6 +304,8 @@ function buildTaxCalculation(
   pensionPercentOfProfit: number,
 
   studentLoan: StudentLoanChoice,
+
+  cisDeductionsAnnual: number,
 ): TaxCalculation {
   const tradingProfit = Math.round((annualTurnover - annualCosts) * 100) / 100;
 
@@ -306,6 +329,8 @@ function buildTaxCalculation(
   if (netProfit <= 0) {
     const totalTaxDue = 0;
 
+    const cisAnnual = Math.max(0, cisDeductionsAnnual);
+
     return {
       totalIncome: annualTurnover,
 
@@ -328,6 +353,14 @@ function buildTaxCalculation(
       pensionContribution,
 
       totalTaxDue,
+
+      cisDeductionsAnnual: cisAnnual,
+
+      cisOffsetApplied: 0,
+
+      cisSurplusOverTax: Math.round(Math.max(0, cisAnnual - totalTaxDue) * 100) / 100,
+
+      taxPayableAfterCis: 0,
 
       effectiveTaxRate: 0,
 
@@ -367,11 +400,26 @@ function buildTaxCalculation(
     Math.round((incomeTax + class2Nic + class4Nic + studentLoanAmount) * 100) /
     100;
 
+  const cisAnnual = Math.max(0, cisDeductionsAnnual);
+
+  const cisOffsetApplied =
+    Math.round(Math.min(cisAnnual, Math.max(0, totalTaxDue)) * 100) / 100;
+
+  const taxPayableAfterCis =
+    Math.round((totalTaxDue - cisOffsetApplied) * 100) / 100;
+
+  const cisSurplusOverTax =
+    Math.round(Math.max(0, cisAnnual - totalTaxDue) * 100) / 100;
+
   const takeHomePay =
-    Math.round((tradingProfit - pensionContribution - totalTaxDue) * 100) / 100;
+    Math.round(
+      (tradingProfit - pensionContribution - taxPayableAfterCis) * 100,
+    ) / 100;
 
   const effectiveTaxRate =
-    netProfit > 0 ? Math.round((totalTaxDue / netProfit) * 10_000) / 100 : 0;
+    netProfit > 0
+      ? Math.round((taxPayableAfterCis / netProfit) * 10_000) / 100
+      : 0;
 
   return {
     totalIncome: annualTurnover,
@@ -395,6 +443,14 @@ function buildTaxCalculation(
     pensionContribution,
 
     totalTaxDue,
+
+    cisDeductionsAnnual: cisAnnual,
+
+    cisOffsetApplied,
+
+    cisSurplusOverTax,
+
+    taxPayableAfterCis,
 
     effectiveTaxRate,
 
@@ -563,13 +619,16 @@ function SummaryTable({
   }
 
   rows.push({
-    label: "Total tax, NIC & loan",
+    label:
+      tax.cisDeductionsAnnual > 0
+        ? "Total tax, NIC & loan (after CIS)"
+        : "Total tax, NIC & loan",
 
-    yearly: -tax.totalTaxDue,
+    yearly: -tax.taxPayableAfterCis,
 
-    monthly: -tax.totalTaxDue / 12,
+    monthly: -tax.taxPayableAfterCis / 12,
 
-    weekly: -tax.totalTaxDue / 52,
+    weekly: -tax.taxPayableAfterCis / 52,
   });
 
   rows.push({
@@ -643,7 +702,7 @@ function SummaryTable({
       </table>
 
       <p className="sr-only" aria-live="polite">
-        Total tax, NIC and loan: {formatCurrency(tax.totalTaxDue)} per year.
+        Total tax, NIC and loan after CIS: {formatCurrency(tax.taxPayableAfterCis)} per year.
       </p>
     </div>
   );
@@ -688,6 +747,14 @@ export function TaxCalculator({
 
   const [studentLoan, setStudentLoan] = useState<StudentLoanChoice>("none");
 
+  const [cisDeductionsAnnual, setCisDeductionsAnnual] = useState(0);
+
+  const cisConstruction = isCisConstructionTrade(profession);
+
+  useEffect(() => {
+    if (!cisConstruction) setCisDeductionsAnnual(0);
+  }, [cisConstruction]);
+
   useEffect(() => {
     if (expensesTotal <= 0) return;
 
@@ -715,6 +782,7 @@ export function TaxCalculator({
         rates,
         pensionPercent,
         studentLoan,
+        cisConstruction ? cisDeductionsAnnual : 0,
       ),
 
     [
@@ -724,6 +792,8 @@ export function TaxCalculator({
       rates,
       pensionPercent,
       studentLoan,
+      cisConstruction,
+      cisDeductionsAnnual,
     ],
   );
 
@@ -887,6 +957,60 @@ export function TaxCalculator({
             </div>
           </div>
         </div>
+
+        {cisConstruction ? (
+          <div className="rounded-xl border border-amber-200/80 bg-amber-50/80 p-4">
+            <div className="flex items-start gap-3">
+              <HardHat className="mt-0.5 h-5 w-5 shrink-0 text-amber-900" aria-hidden />
+              <div className="min-w-0 flex-1 space-y-2">
+                <p className="text-sm font-semibold text-brand-black">
+                  Construction Industry Scheme (CIS)
+                </p>
+                <p className="text-xs leading-relaxed text-brand-muted">
+                  Use <strong className="text-brand-black">gross</strong> turnover above (before contractors deducted
+                  CIS). Enter the total CIS tax you suffered in the full tax year — it is credited against Income Tax
+                  and Class 4 NIC in this estimate. Any CIS above that bill may be repaid via Self Assessment.
+                </p>
+                <label
+                  htmlFor="tc-cis-annual"
+                  className="block text-xs font-semibold text-brand-black"
+                >
+                  Annual CIS tax suffered (£)
+                </label>
+                <div className="flex max-w-md items-stretch gap-2">
+                  <button
+                    type="button"
+                    aria-label="Decrease CIS suffered"
+                    onClick={() => bump(setCisDeductionsAnnual, -step)}
+                    className="flex w-11 shrink-0 items-center justify-center rounded-xl border border-black/15 bg-white text-brand-black hover:bg-amber-100/80"
+                  >
+                    <Minus className="h-4 w-4" aria-hidden />
+                  </button>
+                  <input
+                    id="tc-cis-annual"
+                    type="number"
+                    min={0}
+                    step="any"
+                    value={cisDeductionsAnnual === 0 ? "" : cisDeductionsAnnual}
+                    onChange={(e) =>
+                      setCisDeductionsAnnual(parseFloat(e.target.value) || 0)
+                    }
+                    placeholder="0"
+                    className="min-w-0 flex-1 rounded-xl border border-black/15 bg-white px-4 py-3 text-lg font-medium text-brand-black shadow-sm focus:border-brand-green focus:outline-none focus:ring-2 focus:ring-brand-green/25"
+                  />
+                  <button
+                    type="button"
+                    aria-label="Increase CIS suffered"
+                    onClick={() => bump(setCisDeductionsAnnual, step)}
+                    className="flex w-11 shrink-0 items-center justify-center rounded-xl border border-black/15 bg-white text-brand-black hover:bg-amber-100/80"
+                  >
+                    <Plus className="h-4 w-4" aria-hidden />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : null}
 
         <div>
           <span className="mb-2 block text-sm font-semibold text-brand-black">
@@ -1164,12 +1288,52 @@ export function TaxCalculator({
                 ) : null}
 
                 <div className="flex justify-between border-t border-black/10 pt-2 font-bold text-brand-black">
-                  <span>Total tax, NIC &amp; loan</span>
+                  <span>
+                    {tax.cisDeductionsAnnual > 0
+                      ? "Total tax, NIC & loan (before CIS)"
+                      : "Total tax, NIC & loan"}
+                  </span>
 
                   <span className="tabular-nums text-red-700">
                     {formatCurrency(tax.totalTaxDue)}
                   </span>
                 </div>
+
+                {tax.cisOffsetApplied > 0 ? (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-brand-muted">CIS credited (capped at bill)</span>
+
+                    <span className="tabular-nums font-semibold text-emerald-700">
+                      −{formatCurrency(tax.cisOffsetApplied)}
+                    </span>
+                  </div>
+                ) : null}
+
+                {tax.cisDeductionsAnnual > 0 ? (
+                  <div className="flex justify-between border-t border-black/10 pt-2 font-bold text-brand-black">
+                    <span>Still payable after CIS</span>
+
+                    <span className="tabular-nums text-red-700">
+                      {formatCurrency(tax.taxPayableAfterCis)}
+                    </span>
+                  </div>
+                ) : null}
+
+                {tax.cisSurplusOverTax > 0 ? (
+                  <p className="text-xs leading-relaxed text-brand-muted">
+                    CIS suffered exceeds this headline tax bill by{" "}
+                    {formatCurrency(tax.cisSurplusOverTax)}. You may be due a repayment on Self Assessment — confirm on{" "}
+                    <a
+                      href="https://www.gov.uk/what-is-the-construction-industry-scheme"
+                      className="font-medium text-brand-green underline-offset-2 hover:underline"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      GOV.UK
+                    </a>
+                    .
+                  </p>
+                ) : null}
 
                 <div className="flex justify-between text-xs text-brand-muted">
                   <span>Effective rate (of profit used for tax)</span>
@@ -1184,11 +1348,15 @@ export function TaxCalculator({
             <div className="flex flex-col justify-between gap-3 min-[500px]:flex-row min-[500px]:items-center">
               <div>
                 <p className="text-sm font-medium text-brand-black">
-                  Take-home (profit less tax, NIC &amp; loan)
+                  Take-home (profit less tax, NIC &amp; loan
+                  {tax.cisDeductionsAnnual > 0 ? ", after CIS credit" : ""})
                 </p>
 
                 <p className="text-xs text-brand-muted">
                   Pension already deducted from profit above.
+                  {tax.cisDeductionsAnnual > 0
+                    ? " CIS reduces tax still payable, not your declared profit."
+                    : ""}
                 </p>
               </div>
 
@@ -1229,7 +1397,8 @@ export function TaxCalculator({
 
         <p>
           Estimate only: simplified self-employment model, no PA taper above
-          £100k, no Marriage Allowance, no CIS credits. Student loan and pension
+          £100k, no Marriage Allowance. CIS offset for construction trades is
+          capped at headline tax + NIC + loan in this model. Student loan and pension
           are illustrative. Rates change — confirm on{" "}
           <a
             href="https://www.gov.uk/income-tax-rates"

@@ -44,6 +44,11 @@ export function SiteFooter() {
                     Contact
                   </Link>
                 </li>
+                <li>
+                  <Link href="/sign-in" className="transition hover:text-brand-green">
+                    Sign in
+                  </Link>
+                </li>
               </ul>
             </div>
             <div>

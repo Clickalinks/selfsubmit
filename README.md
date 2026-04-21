@@ -17,14 +17,14 @@ From the **repository root** (`c:\selfsubmit`), after installing dependencies in
 cd frontend && npm install && cd ..
 # optional: cd backend && npm install && cd ..
 npm run dev          # Next.js — http://localhost:3000
-npm run dev:backend  # API — uses backend/package.json "start"
+npm run dev:backend  # API — backend `dev` script (Node --watch)
 ```
 
 Or run inside each folder as usual:
 
 ```bash
 cd frontend && npm install && npm run dev
-cd backend && npm install && npm start
+cd backend && npm install && npm run dev
 ```
 
 There is **no** `package.json` in the root except the small shim above — real dependencies live under `frontend/` and `backend/`.
