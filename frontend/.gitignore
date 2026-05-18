@@ -33,8 +33,8 @@ yarn-error.log*
 /.clerk/
 
 # prisma local db
-/prisma/*.db
-/prisma/*.db-journal
+/prisma/**/*.db
+/prisma/**/*.db-journal
 
 # receipt uploads (local dev)
 /uploads/
