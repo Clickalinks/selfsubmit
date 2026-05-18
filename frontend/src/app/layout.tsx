@@ -1,9 +1,14 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
+import { ClerkProvider } from "@clerk/nextjs";
 import { Inter } from "next/font/google";
 
-import { Providers } from "@/app/providers";
-
 import "./globals.css";
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
 
 const inter = Inter({
   subsets: ["latin"],
@@ -23,10 +28,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <Providers>
-      <html lang="en-GB" className={inter.variable}>
-        <body className="min-h-screen font-sans antialiased">{children}</body>
-      </html>
-    </Providers>
+    <html lang="en-GB" className={inter.variable}>
+      <body className="min-h-screen font-sans antialiased">
+        <ClerkProvider
+          signInUrl="/sign-in"
+          signUpUrl="/sign-up"
+          signInFallbackRedirectUrl="/dashboard"
+          signUpFallbackRedirectUrl="/onboarding"
+          afterSignOutUrl="/"
+        >
+          {children}
+        </ClerkProvider>
+      </body>
+    </html>
   );
 }

@@ -4,12 +4,16 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
-    "@clerk/nextjs": "^7.2.2",
+    "@clerk/nextjs": "^7.2.3",
+    "@prisma/client": "^6.4.1",
+    "archiver": "^8.0.0",
+    "getaddress-api": "^2.3.1",
     "lucide-react": "^0.477.0",
     "next": "^15.2.4",
     "react": "^19.0.0",
@@ -17,6 +21,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
+    "@types/archiver": "^7.0.0",
     "@types/node": "^20.17.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
@@ -24,6 +29,7 @@
     "eslint": "^9.21.0",
     "eslint-config-next": "^15.2.4",
     "postcss": "^8.5.3",
+    "prisma": "^6.4.1",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.7.3"
   }

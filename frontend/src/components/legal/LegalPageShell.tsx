@@ -1,15 +1,20 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
+import { HeaderAuth } from "@/components/auth/HeaderAuth";
+
 export function LegalPageShell({
   title,
   description,
   lastUpdated,
+  articleMaxWidthClassName = "max-w-prose",
   children,
 }: {
   title: string;
   description?: string;
   lastUpdated?: string;
+  /** Override default narrow prose width (e.g. `max-w-6xl` for layouts with imagery). */
+  articleMaxWidthClassName?: string;
   children: ReactNode;
 }) {
   return (
@@ -19,9 +24,12 @@ export function LegalPageShell({
           <Link href="/" className="text-sm font-semibold text-brand-green underline-offset-4 hover:underline">
             ← Home
           </Link>
+          <HeaderAuth />
         </div>
       </div>
-      <article className="mx-auto max-w-prose px-5 py-10 min-[900px]:py-14">
+      <article
+        className={`mx-auto px-5 py-10 min-[900px]:py-14 ${articleMaxWidthClassName}`.trim()}
+      >
         <h1 className="text-3xl font-bold tracking-tight text-brand-black min-[900px]:text-4xl">{title}</h1>
         {description ? (
           <p className="mt-3 text-base leading-relaxed text-brand-muted min-[900px]:text-lg">{description}</p>

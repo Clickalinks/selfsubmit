@@ -1,0 +1,71 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+/// Clerk user id as primary key (e.g. user_xxx)
+model User {
+  id          String         @id
+  plan        String?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  businesses  Business[]
+  profile     ClientProfile?
+  receipts    Receipt[]
+  submissions Submission[]
+}
+
+model ClientProfile {
+  userId             String   @id
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  firstName          String
+  lastName           String
+  homeAddress        String
+  email              String
+  phone              String
+  businessAddress    String
+  businessName       String?
+  businessSameAsHome Boolean  @default(false)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+model Business {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String
+  category  String
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model Receipt {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fileName    String
+  storagePath String
+  mimeType    String?
+  title       String?
+  uploadedAt  DateTime @default(now())
+
+  @@index([userId])
+}
+
+model Submission {
+  id             String   @id @default(cuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  submissionType String
+  status         String
+  submittedAt    DateTime @default(now())
+  details        String?
+
+  @@index([userId])
+}

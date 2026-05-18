@@ -30,6 +30,11 @@ export function SiteFooter() {
                   </Link>
                 </li>
                 <li>
+                  <Link href="/pricing" className="transition hover:text-brand-green">
+                    Pricing
+                  </Link>
+                </li>
+                <li>
                   <Link href="/tax-calculator" className="transition hover:text-brand-green">
                     Tax calculator
                   </Link>

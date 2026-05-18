@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { LucideIcon } from "lucide-react";
-import { HardHat, ImagePlus, ListPlus, Receipt, Upload } from "lucide-react";
+import { HardHat, ImagePlus, ListPlus, PoundSterling, Upload } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import {
@@ -28,6 +28,7 @@ import {
   getLineItemIcon,
   getTemplateIcon,
 } from "@/data/tradeIcons";
+import { HeaderAuth } from "@/components/auth/HeaderAuth";
 import { HmrcSimplifiedMileageNotice } from "@/components/forms/HmrcSimplifiedMileageNotice";
 import { StickerIconFrame } from "@/components/ui/StickerIconFrame";
 import { getProfessionStickerTone, getTemplateStickerTone } from "@/data/professionStickerTones";
@@ -462,7 +463,12 @@ export function MonthlyExpenseForm({ initialTrade }: MonthlyExpenseFormProps) {
           <Link href="/" className="text-sm font-semibold text-brand-green underline-offset-4 hover:underline">
             ← Home
           </Link>
-          <span className="text-sm font-medium text-brand-muted">Monthly income &amp; expenses</span>
+          <div className="flex min-w-0 flex-1 items-center justify-end gap-3">
+            <span className="hidden truncate text-sm font-medium text-brand-muted min-[520px]:inline">
+              Monthly income &amp; expenses
+            </span>
+            <HeaderAuth />
+          </div>
         </div>
       </div>
 
@@ -557,14 +563,14 @@ export function MonthlyExpenseForm({ initialTrade }: MonthlyExpenseFormProps) {
               ))}
             </select>
           </div>
-          <p className="mt-2 flex flex-wrap items-center gap-2 text-xs text-brand-muted">
+          <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-brand-muted">
             <StickerIconFrame tone={templateStickerTone} size="sm" className="inline-flex">
               <TemplateIcon strokeWidth={2.35} aria-hidden />
             </StickerIconFrame>
             <span>
               Template: <span className="font-medium text-brand-black">{template.title}</span>
             </span>
-          </p>
+          </div>
         </div>
 
         {usesBusinessVehicleTemplate(template.id) ? (
@@ -878,7 +884,7 @@ export function MonthlyExpenseForm({ initialTrade }: MonthlyExpenseFormProps) {
         >
           <div className="flex flex-wrap items-start gap-3">
             <StickerIconFrame tone="mint" size="sm" className="shrink-0">
-              <Receipt strokeWidth={2.35} aria-hidden />
+              <PoundSterling strokeWidth={2.35} aria-hidden />
             </StickerIconFrame>
             <div>
               <h2 id="receipts-heading" className="text-lg font-bold text-brand-black">

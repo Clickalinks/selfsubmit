@@ -14,6 +14,7 @@
 
 html {
   min-height: 100%;
+  overflow-x: hidden;
 }
 
 /**
@@ -23,6 +24,7 @@ html {
 body {
   color: var(--foreground);
   min-height: 100vh;
+  overflow-x: hidden;
   background-color: var(--page-base);
   background-image:
     radial-gradient(ellipse 130% 90% at 50% -35%, var(--glow-green), transparent 58%),

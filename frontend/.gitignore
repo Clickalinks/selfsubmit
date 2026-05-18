@@ -31,3 +31,10 @@ yarn-error.log*
 
 # clerk configuration (can include secrets)
 /.clerk/
+
+# prisma local db
+/prisma/*.db
+/prisma/*.db-journal
+
+# receipt uploads (local dev)
+/uploads/

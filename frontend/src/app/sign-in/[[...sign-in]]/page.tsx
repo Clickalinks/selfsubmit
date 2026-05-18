@@ -25,9 +25,9 @@ const clerkAppearance = {
 
 export default function SignInPage() {
   return (
-    <div className="min-h-screen pb-20">
+    <div className="min-h-screen pb-16 sm:pb-20">
       <div className="border-b border-black/10 bg-white/80 shadow-sm shadow-black/[0.04] backdrop-blur-md backdrop-saturate-150 supports-[backdrop-filter]:bg-white/70">
-        <div className="mx-auto flex max-w-content items-center justify-between gap-4 px-5 py-4 min-[900px]:px-10">
+        <div className="mx-auto flex max-w-content items-center justify-between gap-4 px-4 py-3 sm:px-6 sm:py-4 lg:px-10">
           <Link href="/" className="text-sm font-semibold text-brand-green underline-offset-4 hover:underline">
             ← Home
           </Link>
@@ -35,13 +35,21 @@ export default function SignInPage() {
         </div>
       </div>
 
-      <div className="mx-auto flex max-w-content justify-center px-5 py-10 min-[900px]:px-10 min-[900px]:py-14">
-        <SignIn
-          appearance={clerkAppearance}
-          signUpUrl="/sign-up"
-          fallbackRedirectUrl="/"
-          forceRedirectUrl="/"
-        />
+      <div className="mx-auto flex w-full max-w-content justify-center px-4 py-8 sm:px-6 sm:py-10 lg:px-10 lg:py-14">
+        <div className="w-full max-w-md [&_.cl-rootBox]:mx-auto [&_.cl-card]:w-full">
+          <p className="mb-4 text-center text-sm text-brand-muted sm:mb-6">
+            Returning client? Sign in below.{" "}
+            <Link href="/sign-up" className="font-semibold text-brand-green hover:underline">
+              New here? Register as a client
+            </Link>
+          </p>
+          <SignIn
+            appearance={clerkAppearance}
+            signUpUrl="/sign-up"
+            fallbackRedirectUrl="/dashboard"
+            forceRedirectUrl="/dashboard"
+          />
+        </div>
       </div>
     </div>
   );

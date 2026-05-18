@@ -39,7 +39,7 @@ import {
   PiggyBank,
   Plug,
   Plane,
-  Receipt,
+  PoundSterling,
   Route,
   Ruler,
   Scissors,
@@ -94,7 +94,7 @@ export const TEMPLATE_ICONS: Record<string, LucideIcon> = {
 };
 
 const DEFAULT_INCOME_ICON = TrendingUp;
-const DEFAULT_EXPENSE_ICON = Receipt;
+const DEFAULT_EXPENSE_ICON = PoundSterling;
 
 const LINE_ITEM_ICONS: Record<string, LucideIcon> = {
   income_meter_card: Banknote,

@@ -6,20 +6,63 @@ import { LegalFooterNav, LegalH2, LegalP, LegalPageShell, LegalUl } from "@/comp
 export const metadata: Metadata = {
   title: "About us — SelfSubmit",
   description:
-    "What SelfSubmit is building: simpler monthly income and expense capture for UK self-employed trades, with clarity on what is demo today.",
+    "Why SelfSubmit exists: straightforward monthly records and submission for UK self-employed people, built from real experience with clarity on what the demo includes today.",
 };
 
 export default function AboutPage() {
   return (
     <LegalPageShell
       title="About us"
-      description="SelfSubmit is a UK-focused product concept for self-employed people who want a calmer, clearer way to keep on top of money in and money out."
-      lastUpdated="16 April 2026"
+      description="Making tax submission straightforward for the self-employed — with simple tools instead of complicated accounting software."
+      lastUpdated="21 April 2026"
     >
       <LegalP>
-        We are designing flows around real trades (taxi and private hire, barbers, driving instructors, and others) so
-        templates, wording, and vehicle options match how people actually work—not generic “business expenses” lists
-        that miss the point.
+        At <strong>SelfSubmit</strong>, we believe that managing your taxes shouldn&apos;t be complicated, stressful, or
+        time-consuming — especially if you&apos;re self-employed.
+      </LegalP>
+
+      <LegalP>
+        SelfSubmit was created by someone who understands the reality of self-employment firsthand. Like many others, we
+        faced the same challenges: keeping records, understanding expenses, and making sure everything is submitted
+        correctly and on time. It often felt like too much time was spent on paperwork instead of focusing on the actual
+        work that earns a living.
+      </LegalP>
+
+      <LegalP>That&apos;s where the idea for SelfSubmit began.</LegalP>
+
+      <LegalP>
+        Working closely with an experienced and trusted accountant, we set out to build a simple, practical solution
+        designed specifically for self-employed professionals. Our goal was clear: create a system that removes
+        confusion, reduces errors, and makes monthly income submission straightforward and accessible to everyone.
+      </LegalP>
+
+      <LegalP>
+        SelfSubmit is built to support a wide range of self-employed individuals — from drivers and barbers to
+        tradespeople and freelancers. Instead of complex accounting tools, we provide clean, easy-to-use forms tailored
+        to your type of work, with your most common expenses already included.
+      </LegalP>
+
+      <LegalH2 id="focus">We focus on what matters most</LegalH2>
+      <LegalUl>
+        <li>Simplicity over complexity</li>
+        <li>Clarity over confusion</li>
+        <li>Efficiency over wasted time</li>
+      </LegalUl>
+
+      <LegalP>
+        Our mission is to help you stay organised, remain compliant, and submit your records with confidence — without
+        needing to become an expert in accounting.
+      </LegalP>
+
+      <LegalP>
+        At the end of the day, you should be able to spend your time growing your business, serving your customers, and
+        doing what you do best.
+      </LegalP>
+
+      <LegalP>We&apos;ll take care of making the submission process simple.</LegalP>
+
+      <LegalP>
+        <strong>SelfSubmit — making tax submission straightforward for the self-employed.</strong>
       </LegalP>
 
       <LegalH2>What you can use today</LegalH2>
@@ -44,8 +87,9 @@ export default function AboutPage() {
       <LegalH2>What is still roadmap</LegalH2>
       <LegalP>
         Account sign-in, cloud save, payments, and live HMRC submission are not wired in the public demo. Anything
-        described on marketing copy as “MTD compliant” or “submit” reflects the <strong>intended direction</strong> of
-        the product, not a certified integration unless we state otherwise on a dated release note.
+        described on marketing copy as &quot;MTD compliant&quot; or &quot;submit&quot; reflects the{" "}
+        <strong>intended direction</strong> of the product, not a certified integration unless we state otherwise on a
+        dated release note.
       </LegalP>
 
       <LegalH2>Contact</LegalH2>

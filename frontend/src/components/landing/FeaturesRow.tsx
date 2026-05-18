@@ -22,11 +22,11 @@ export function FeaturesRow() {
   return (
     <section
       id="how-it-works"
-      className="scroll-mt-24 bg-transparent px-5 pb-16 min-[900px]:px-10 min-[900px]:pb-20"
+      className="scroll-mt-24 bg-transparent px-4 pb-12 sm:px-6 sm:pb-16 lg:px-10 lg:pb-20"
       aria-label="How it works"
     >
-      <div className="mx-auto max-w-content rounded-[2rem] border border-black/5 bg-gradient-to-b from-brand-mint via-white to-brand-mint px-6 py-12 shadow-panel min-[900px]:rounded-[2.25rem] min-[900px]:px-14 min-[900px]:py-16">
-        <div className="grid gap-10 min-[900px]:grid-cols-3 min-[900px]:gap-12">
+      <div className="mx-auto max-w-content rounded-2xl border border-black/5 bg-gradient-to-b from-brand-mint via-white to-brand-mint px-5 py-10 shadow-panel sm:rounded-[2rem] sm:px-8 sm:py-12 lg:rounded-[2.25rem] lg:px-14 lg:py-16">
+        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 sm:gap-10 lg:grid-cols-3 lg:gap-12">
           {FEATURES.map(({ title, body, icon: Icon }) => (
             <div key={title} className="flex flex-col items-center text-center">
               <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-b from-brand-green-bright to-brand-green-dark text-white shadow-md ring-4 ring-white/80">

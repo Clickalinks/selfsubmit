@@ -1,44 +1,20 @@
 "use client";
 
-import { useAuth, UserButton } from "@clerk/nextjs";
+import { useAuth } from "@clerk/nextjs";
 import Image from "next/image";
 import Link from "next/link";
 
-import { HashLink } from "@/components/landing/HashLink";
+import { HeaderAuth } from "@/components/auth/HeaderAuth";
 
 const linkClass =
   "rounded-full px-3 py-2 text-[15px] font-medium text-brand-black/80 no-underline transition hover:bg-brand-mint hover:text-brand-green";
 
-const signInBtnClass =
-  "rounded-full border border-black/20 bg-white px-4 py-2.5 text-[14px] font-semibold text-brand-black shadow-sm transition hover:border-black/35 hover:bg-neutral-50 min-[900px]:px-5 min-[900px]:text-[15px]";
-
-function AuthActions({ compact }: { compact?: boolean }) {
-  const { isLoaded, isSignedIn } = useAuth();
-
-  if (!isLoaded) {
-    return (
-      <div
-        className={compact ? "h-8 w-16 animate-pulse rounded-full bg-neutral-200/90" : "h-9 w-24 animate-pulse rounded-full bg-neutral-200/90"}
-        aria-hidden
-      />
-    );
-  }
-
-  if (isSignedIn) {
-    return (
-      <UserButton
-        appearance={{
-          elements: {
-            avatarBox: "h-9 w-9 ring-2 ring-brand-green/20",
-          },
-        }}
-      />
-    );
-  }
-
+function AddBusinessNavLink({ className }: { className: string }) {
+  const { isLoaded, userId } = useAuth();
+  if (!isLoaded || !userId) return null;
   return (
-    <Link href="/sign-in" className={compact ? `${linkClass} text-sm` : signInBtnClass}>
-      Sign in
+    <Link href="/add-business" className={className}>
+      Add business
     </Link>
   );
 }
@@ -46,34 +22,37 @@ function AuthActions({ compact }: { compact?: boolean }) {
 export function SiteHeader() {
   return (
     <header className="border-b border-slate-200/60 bg-white/75 shadow-sm shadow-black/[0.03] backdrop-blur-md backdrop-saturate-150 supports-[backdrop-filter]:bg-white/65">
-      <div className="mx-auto flex max-w-content items-center justify-between gap-4 px-5 py-4 min-[900px]:px-10">
+      <div className="mx-auto flex max-w-content items-center justify-between gap-2 px-4 py-3 sm:gap-3 sm:px-6 sm:py-4 lg:px-10">
         <Logo />
-        <div className="flex items-center gap-2 min-[900px]:gap-3">
-          <nav className="hidden items-center gap-0.5 sm:flex" aria-label="Primary">
+        <div className="flex min-w-0 flex-1 items-center justify-end gap-2 min-[640px]:gap-3">
+          <nav className="hidden min-w-0 items-center gap-0.5 md:flex" aria-label="Primary">
             <Link href="/how-it-works" className={linkClass}>
               How it works
             </Link>
-            <HashLink href="/#pricing" className={linkClass}>
+            <Link href="/pricing" className={linkClass}>
               Pricing
-            </HashLink>
+            </Link>
+            <AddBusinessNavLink className={linkClass} />
             <Link href="/tax-calculator" className={linkClass}>
               Tax calculator
             </Link>
           </nav>
-          <AuthActions />
+          <div className="flex items-center gap-1.5 sm:gap-2 md:border-l md:border-slate-200/80 md:pl-4 lg:gap-2.5 lg:pl-5">
+            <HeaderAuth />
+          </div>
         </div>
       </div>
-      <nav className="flex flex-wrap justify-center gap-1 border-t border-slate-100 px-4 pb-3 pt-1 sm:hidden" aria-label="Primary mobile">
+      <nav className="flex flex-wrap justify-center gap-1 border-t border-slate-100 px-3 pb-3 pt-1 md:hidden" aria-label="Primary mobile">
         <Link href="/how-it-works" className={`${linkClass} text-sm`}>
           How it works
         </Link>
-        <HashLink href="/#pricing" className={`${linkClass} text-sm`}>
+        <Link href="/pricing" className={`${linkClass} text-sm`}>
           Pricing
-        </HashLink>
+        </Link>
+        <AddBusinessNavLink className={`${linkClass} text-sm`} />
         <Link href="/tax-calculator" className={`${linkClass} text-sm`}>
           Tax calculator
         </Link>
-        <AuthActions compact />
       </nav>
     </header>
   );

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 
+import { HeaderAuth } from "@/components/auth/HeaderAuth";
 import { TaxCalculator } from "@/components/tax/TaxCalculator";
 import { ALL_PROFESSIONS } from "@/data/expenseCategories";
 
@@ -21,9 +22,12 @@ export default function TaxCalculatorPage() {
           >
             ← Home
           </Link>
-          <span className="text-sm font-medium text-brand-muted">
-            Tax calculator
-          </span>
+          <div className="flex min-w-0 flex-1 items-center justify-end gap-3">
+            <span className="hidden truncate text-sm font-medium text-brand-muted min-[520px]:inline">
+              Tax calculator
+            </span>
+            <HeaderAuth />
+          </div>
         </div>
       </div>
 
