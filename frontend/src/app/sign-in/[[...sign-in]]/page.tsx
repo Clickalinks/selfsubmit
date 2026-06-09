@@ -48,6 +48,8 @@ export default function SignInPage() {
           <LoginProtectionGuard>
             <SignIn
               appearance={clerkAppearance}
+              routing="path"
+              path="/sign-in"
               signUpUrl="/sign-up"
               fallbackRedirectUrl="/dashboard"
               forceRedirectUrl="/dashboard"

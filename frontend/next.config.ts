@@ -1,13 +1,35 @@
 import type { NextConfig } from "next";
 
+/** Clerk FAPI + accounts hosts for dev (*.clerk.accounts.dev) and production (clerk.yourdomain.com). */
+function clerkCspOrigins(): string[] {
+  const origins = ["https://*.clerk.accounts.dev", "https://*.clerk.com"];
+
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL;
+  if (!appUrl) return origins;
+
+  try {
+    const apex = new URL(appUrl).hostname.replace(/^www\./, "");
+    if (apex !== "localhost" && apex !== "127.0.0.1") {
+      origins.push(`https://clerk.${apex}`, `https://accounts.${apex}`);
+    }
+  } catch {
+    // ignore invalid NEXT_PUBLIC_APP_URL
+  }
+
+  return origins;
+}
+
+const clerkOrigins = clerkCspOrigins().join(" ");
+
 const csp = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.clerk.accounts.dev https://*.clerk.com https://challenges.cloudflare.com",
+  `script-src 'self' 'unsafe-inline' 'unsafe-eval' ${clerkOrigins} https://challenges.cloudflare.com`,
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob: https:",
+  "img-src 'self' data: blob: https: https://img.clerk.com",
   "font-src 'self' data:",
-  "connect-src 'self' https://*.clerk.accounts.dev https://*.clerk.com https://api.stripe.com https://*.sentry.io",
-  "frame-src 'self' https://*.clerk.accounts.dev https://*.clerk.com https://js.stripe.com https://challenges.cloudflare.com",
+  `connect-src 'self' ${clerkOrigins} https://api.stripe.com https://*.sentry.io https://clerk-telemetry.com https://*.clerk-telemetry.com`,
+  `frame-src 'self' ${clerkOrigins} https://js.stripe.com https://challenges.cloudflare.com`,
+  "worker-src 'self' blob:",
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self'",

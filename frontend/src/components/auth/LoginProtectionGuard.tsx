@@ -1,6 +1,6 @@
 "use client";
 
-import { useSignIn } from "@clerk/nextjs/legacy";
+import { useSignIn } from "@clerk/nextjs";
 import { ShieldAlert } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
