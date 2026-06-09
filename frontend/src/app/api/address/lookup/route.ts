@@ -11,15 +11,19 @@ export type { AddressOption } from "@/lib/address-providers";
 
 export async function GET(req: Request) {
   const ip = getRequestIp(req);
-  const limited = await checkApiRateLimit({
-    key: rateLimitKey("address-lookup", ip),
-    ...API_RATE_LIMITS.addressLookup,
-  });
-  if (!limited.allowed) {
-    return NextResponse.json(
-      { error: "Too many requests. Please wait and try again." },
-      { status: 429, headers: { "Retry-After": String(limited.retryAfterSec) } },
-    );
+  try {
+    const limited = await checkApiRateLimit({
+      key: rateLimitKey("address-lookup", ip),
+      ...API_RATE_LIMITS.addressLookup,
+    });
+    if (!limited.allowed) {
+      return NextResponse.json(
+        { error: "Too many requests. Please wait and try again." },
+        { status: 429, headers: { "Retry-After": String(limited.retryAfterSec) } },
+      );
+    }
+  } catch {
+    // Allow lookup if rate-limit store is unavailable (e.g. DB misconfigured on deploy).
   }
 
   const { searchParams } = new URL(req.url);
@@ -48,8 +52,8 @@ export async function GET(req: Request) {
       area,
       addresses: [],
       provider: null,
-      error: "Postcode verified. Add IDEAL_POSTCODES_API_KEY to .env.local to enable address search.",
-      hint: "Sign up at https://ideal-postcodes.co.uk (pay-as-you-go), copy your API key, restart npm run dev.",
+      error: "Postcode verified. Add IDEAL_POSTCODES_API_KEY to enable address search.",
+      hint: "Local: frontend/.env.local — Production: Vercel → Settings → Environment Variables. Get a key at https://ideal-postcodes.co.uk",
       code: "not_configured",
     });
   }

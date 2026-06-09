@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Show, UserButton } from "@clerk/nextjs";
+import { useAuth, UserButton } from "@clerk/nextjs";
 
 const clerkUserButtonAppearance = {
   elements: {
@@ -19,26 +19,34 @@ const dashboardLinkClass =
   "hidden rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-brand-black transition hover:bg-brand-mint min-[480px]:inline-flex";
 
 export function HeaderAuth() {
+  const { isSignedIn, isLoaded } = useAuth();
+
+  // Show sign-in links while Clerk loads or if signed out (avoids empty header on slow/failed init).
+  const showGuestLinks = !isLoaded || !isSignedIn;
+
   return (
     <div className="flex shrink-0 items-center gap-2 sm:gap-3">
-      <Show when="signed-out">
-        <Link href="/sign-in" className={signInBtnClass}>
-          Sign in
-        </Link>
-        <Link href="/sign-up" className={signUpBtnClass}>
-          Sign up
-        </Link>
-      </Show>
-      <Show when="signed-in">
-        <Link href="/dashboard" className={dashboardLinkClass}>
-          Dashboard
-        </Link>
-        <UserButton
-          appearance={clerkUserButtonAppearance}
-          userProfileMode="navigation"
-          userProfileUrl="/dashboard"
-        />
-      </Show>
+      {showGuestLinks ? (
+        <>
+          <Link href="/sign-in" className={signInBtnClass}>
+            Sign in
+          </Link>
+          <Link href="/sign-up" className={signUpBtnClass}>
+            Sign up
+          </Link>
+        </>
+      ) : (
+        <>
+          <Link href="/dashboard" className={dashboardLinkClass}>
+            Dashboard
+          </Link>
+          <UserButton
+            appearance={clerkUserButtonAppearance}
+            userProfileMode="navigation"
+            userProfileUrl="/dashboard"
+          />
+        </>
+      )}
     </div>
   );
 }

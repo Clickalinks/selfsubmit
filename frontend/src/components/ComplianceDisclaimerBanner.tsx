@@ -1,4 +1,4 @@
-import { ShieldCheck } from "lucide-react";
+import { AlertTriangle } from "lucide-react";
 
 const DISCLAIMER =
   "SelfSubmit is designed to help you stay compliant with HMRC Making Tax Digital requirements. You remain responsible for ensuring the information you submit is accurate.";
@@ -10,12 +10,12 @@ type Props = {
 export function ComplianceDisclaimerBanner({ className = "" }: Props) {
   return (
     <div
-      className={`border-b border-brand-green/15 bg-brand-mint/80 px-4 py-2.5 text-brand-forest backdrop-blur-sm ${className}`}
+      className={`border-b border-red-200 bg-red-50 px-4 py-2.5 text-red-900 backdrop-blur-sm ${className}`}
       role="note"
       aria-label="HMRC compliance notice"
     >
-      <p className="mx-auto flex max-w-6xl items-start justify-center gap-2 text-center text-xs leading-relaxed sm:items-center sm:text-sm">
-        <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-brand-green sm:mt-0" aria-hidden />
+      <p className="mx-auto flex max-w-[1400px] flex-wrap items-center justify-center gap-2 px-2 text-center text-xs font-bold leading-snug sm:text-sm">
+        <AlertTriangle className="h-4 w-4 shrink-0 text-red-600" aria-hidden />
         <span>{DISCLAIMER}</span>
       </p>
     </div>

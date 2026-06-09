@@ -8,6 +8,7 @@ const isProtectedPage = createRouteMatcher([
 ]);
 
 const isPublicApi = createRouteMatcher([
+  "/api/address(.*)",
   "/api/auth/login-protection(.*)",
   "/api/webhooks/clerk(.*)",
   "/api/webhooks/stripe(.*)",

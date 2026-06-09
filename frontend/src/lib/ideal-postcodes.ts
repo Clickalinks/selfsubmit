@@ -61,7 +61,7 @@ export function idealPostcodeErrorMessage(data: IdealPostcodeResponse, httpStatu
   const msg = data.message ?? "Ideal Postcodes lookup failed";
 
   if (code === 4010 || httpStatus === 401) {
-    return "Invalid Ideal Postcodes API key. Check IDEAL_POSTCODES_API_KEY in .env.local and restart the dev server.";
+    return "Invalid Ideal Postcodes API key. Check IDEAL_POSTCODES_API_KEY in .env.local (dev) or Vercel env vars (production), then redeploy.";
   }
   if (code === 4020 || httpStatus === 402) {
     return "Ideal Postcodes account has no credit left. Top up at ideal-postcodes.co.uk or enter your address manually.";
