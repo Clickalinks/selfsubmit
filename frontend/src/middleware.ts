@@ -1,15 +1,19 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
-/** Clerk proxy + live keys are for selfsubmit.co.uk — not ephemeral *.vercel.app preview URLs. */
-function isSelfSubmitProductionHost(hostname: string): boolean {
-  return (
+/** Hosts where NEXT_PUBLIC_CLERK_PROXY_URL=/__clerk must be actively proxied. */
+function isClerkProxyHost(hostname: string): boolean {
+  if (
     hostname === "localhost" ||
     hostname === "127.0.0.1" ||
     hostname === "selfsubmit.co.uk" ||
     hostname === "www.selfsubmit.co.uk" ||
     hostname.endsWith(".selfsubmit.co.uk")
-  );
+  ) {
+    return true;
+  }
+  // Preview deploys inherit NEXT_PUBLIC_CLERK_PROXY_URL from Production env vars.
+  return hostname.endsWith(".vercel.app") && hostname.includes("selfsubmit");
 }
 
 const isProtectedPage = createRouteMatcher([
@@ -49,9 +53,9 @@ export default clerkMiddleware(
     return forwardWithPathname(req, pathname);
   },
   {
-    // Proxies /__clerk/v1/* to Clerk FAPI on production hosts only.
+    // Proxies /__clerk/* (FAPI + clerk-js bundles) to Clerk.
     frontendApiProxy: {
-      enabled: (url) => isSelfSubmitProductionHost(url.hostname),
+      enabled: (url) => isClerkProxyHost(url.hostname),
     },
   },
 );
