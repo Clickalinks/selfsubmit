@@ -10,6 +10,7 @@ export async function requireMfaEnabled(userId: string, returnTo: string): Promi
   if (!isMfaEnforcementEnabled()) return;
 
   const enabled = await userHasMfaEnabled(userId);
+  if (enabled === null) return;
   if (enabled) return;
 
   const params = new URLSearchParams({ mfa: "required", return_url: returnTo });

@@ -1,4 +1,5 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
 
 const isProtectedPage = createRouteMatcher([
   "/submit(.*)",
@@ -14,13 +15,26 @@ const isPublicApi = createRouteMatcher([
   "/api/webhooks/stripe(.*)",
 ]);
 
+function forwardWithPathname(req: Request, pathname: string) {
+  const requestHeaders = new Headers(req.headers);
+  requestHeaders.set("x-pathname", pathname);
+  return NextResponse.next({
+    request: { headers: requestHeaders },
+  });
+}
+
 export default clerkMiddleware(async (auth, req) => {
+  const pathname = req.nextUrl.pathname;
+
   if (isPublicApi(req)) {
-    return;
+    return forwardWithPathname(req, pathname);
   }
+
   if (isProtectedPage(req)) {
     await auth.protect();
   }
+
+  return forwardWithPathname(req, pathname);
 });
 
 export const config = {

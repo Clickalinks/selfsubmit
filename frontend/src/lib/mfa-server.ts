@@ -1,13 +1,14 @@
 import { clerkClient } from "@clerk/nextjs/server";
 
-/** Returns true when the Clerk user has at least one second factor enabled. */
-export async function userHasMfaEnabled(userId: string): Promise<boolean> {
+/** Returns true/false when known; null when Clerk could not be reached (avoid false MFA redirects). */
+export async function userHasMfaEnabled(userId: string): Promise<boolean | null> {
   try {
     const client = await clerkClient();
     const user = await client.users.getUser(userId);
     return user.twoFactorEnabled === true;
-  } catch {
-    return false;
+  } catch (err) {
+    console.error("[mfa-server] Clerk user lookup failed", userId, err);
+    return null;
   }
 }
 

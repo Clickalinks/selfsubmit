@@ -29,10 +29,17 @@ async function resolveUserEmail(clerkUserId: string): Promise<string | null> {
 }
 
 export async function POST(request: NextRequest) {
+  const signingSecret = process.env.CLERK_WEBHOOK_SIGNING_SECRET?.trim();
+  if (!signingSecret) {
+    console.error("[clerk-webhook] CLERK_WEBHOOK_SIGNING_SECRET is not configured");
+    return NextResponse.json({ error: "Webhook signing secret not configured" }, { status: 500 });
+  }
+
   let event: Awaited<ReturnType<typeof verifyWebhook>>;
   try {
-    event = await verifyWebhook(request);
-  } catch {
+    event = await verifyWebhook(request, { signingSecret });
+  } catch (err) {
+    console.error("[clerk-webhook] signature verification failed", err);
     return NextResponse.json({ error: "Invalid webhook signature" }, { status: 400 });
   }
 
@@ -66,7 +73,8 @@ export async function POST(request: NextRequest) {
     }
   } catch (err) {
     console.error("[clerk-webhook]", event.type, err);
-    return NextResponse.json({ error: "Webhook handler failed" }, { status: 500 });
+    // Acknowledge so Clerk does not retry indefinitely on transient DB errors.
+    return NextResponse.json({ received: true, warning: "handler_error_logged" });
   }
 
   return NextResponse.json({ received: true });

@@ -57,9 +57,12 @@ function clerkCspOrigins(): string[] {
 
 const clerkOrigins = clerkCspOrigins().join(" ");
 
+const scriptSources = `'self' 'unsafe-inline' 'unsafe-eval' ${clerkOrigins}`;
+
 const csp = [
   "default-src 'self'",
-  `script-src 'self' 'unsafe-inline' 'unsafe-eval' ${clerkOrigins}`,
+  `script-src ${scriptSources}`,
+  `script-src-elem ${scriptSources}`,
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https: https://img.clerk.com",
   "font-src 'self' data:",

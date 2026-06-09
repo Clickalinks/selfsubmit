@@ -19,6 +19,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Email is required." }, { status: 400 });
   }
 
+  // Only accept plausible emails — reduces abuse of the public failure endpoint.
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254) {
+    return NextResponse.json({ error: "Invalid email." }, { status: 400 });
+  }
+
   try {
     await recordRateLimitHit(ip);
     const preCheck = await checkLoginAllowed(email, ip);
