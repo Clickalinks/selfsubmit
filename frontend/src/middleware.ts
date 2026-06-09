@@ -1,6 +1,17 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
+/** Clerk proxy + live keys are for selfsubmit.co.uk — not ephemeral *.vercel.app preview URLs. */
+function isSelfSubmitProductionHost(hostname: string): boolean {
+  return (
+    hostname === "localhost" ||
+    hostname === "127.0.0.1" ||
+    hostname === "selfsubmit.co.uk" ||
+    hostname === "www.selfsubmit.co.uk" ||
+    hostname.endsWith(".selfsubmit.co.uk")
+  );
+}
+
 const isProtectedPage = createRouteMatcher([
   "/submit(.*)",
   "/add-business(.*)",
@@ -38,9 +49,9 @@ export default clerkMiddleware(
     return forwardWithPathname(req, pathname);
   },
   {
-    // Proxies /__clerk/v1/* to Clerk FAPI — fixes 404 on sign-in/sign-up API calls.
+    // Proxies /__clerk/v1/* to Clerk FAPI on production hosts only.
     frontendApiProxy: {
-      enabled: true,
+      enabled: (url) => isSelfSubmitProductionHost(url.hostname),
     },
   },
 );

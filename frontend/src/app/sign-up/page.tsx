@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 
 import { SignUpWizard } from "@/components/auth/SignUpWizard";
 import { resolveAuthenticatedDestination } from "@/lib/auth-redirect";
+import { getOptionalUserId } from "@/lib/safe-auth";
 
 export const metadata: Metadata = {
   title: "Create account — SelfSubmit",
@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 };
 
 export default async function SignUpPage() {
-  const { userId } = await auth();
+  const userId = await getOptionalUserId();
   if (userId) {
     redirect(await resolveAuthenticatedDestination(userId));
   }
