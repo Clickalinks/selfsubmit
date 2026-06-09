@@ -6,7 +6,7 @@ import { ComplianceDisclaimerBanner } from "@/components/ComplianceDisclaimerBan
 
 import "./globals.css";
 
-/** Clerk proxy + provider need request-time rendering (avoids window is not defined during SSG). */
+/** Avoid Clerk touching `window` during static generation of MTD pages. */
 export const dynamic = "force-dynamic";
 
 export const viewport: Viewport = {
