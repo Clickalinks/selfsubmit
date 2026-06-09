@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, ExternalLink } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 import { MTD_CATEGORIES } from "@/data/mtdCategories";
 
@@ -7,7 +7,7 @@ export function MtdCategoriesSection() {
   return (
     <section
       id="mtd-categories"
-      className="relative left-1/2 flex min-h-[calc(100dvh-3.75rem)] w-screen max-w-[100vw] -translate-x-1/2 scroll-mt-20 flex-col border-b border-brand-green/15 bg-gradient-to-b from-[#0d5c36] via-[#0f6b3f] to-[#0a4d2e]"
+      className="relative flex w-full scroll-mt-28 flex-col border-b border-brand-green/15 bg-gradient-to-b from-[#0d5c36] via-[#0f6b3f] to-[#0a4d2e] md:min-h-[calc(100dvh-6.5rem)]"
       aria-labelledby="mtd-categories-heading"
     >
       <div
@@ -19,7 +19,7 @@ export function MtdCategoriesSection() {
         aria-hidden
       />
 
-      <div className="relative flex flex-1 flex-col px-4 py-8 sm:px-8 sm:py-10 lg:px-12 lg:py-12">
+      <div className="relative flex flex-1 flex-col px-3 py-6 sm:px-8 sm:py-10 lg:px-12 lg:py-12">
         <div className="mx-auto w-full max-w-[1600px] text-center">
           <p className="text-xs font-bold uppercase tracking-[0.25em] text-emerald-200/95 sm:text-sm">
             Making Tax Digital
@@ -35,12 +35,12 @@ export function MtdCategoriesSection() {
           </p>
         </div>
 
-        <div className="mx-auto mt-8 grid w-full max-w-[1600px] flex-1 auto-rows-fr grid-cols-2 gap-3 sm:mt-10 sm:gap-4 md:grid-cols-4 lg:grid-cols-5 lg:gap-5">
+        <div className="mx-auto mt-6 grid w-full max-w-[1600px] flex-1 auto-rows-fr grid-cols-1 gap-3 min-[420px]:grid-cols-2 sm:mt-10 sm:gap-4 md:grid-cols-4 lg:grid-cols-5 lg:gap-5">
           {MTD_CATEGORIES.map((item) => {
             const Icon = item.icon;
             const external = item.href.startsWith("http");
             const className =
-              "group flex min-h-[7.5rem] flex-col rounded-xl border border-white/15 bg-white/95 p-4 shadow-lg shadow-black/10 transition hover:-translate-y-0.5 hover:border-white/40 hover:bg-white hover:shadow-xl sm:min-h-[8.5rem] sm:p-5 lg:min-h-[9.5rem]";
+              "group flex min-h-[6.5rem] flex-col rounded-xl border border-white/15 bg-white/95 p-3.5 shadow-lg shadow-black/10 transition active:scale-[0.99] hover:-translate-y-0.5 hover:border-white/40 hover:bg-white hover:shadow-xl sm:min-h-[8.5rem] sm:p-5 lg:min-h-[9.5rem]";
 
             const inner = (
               <>
@@ -52,10 +52,10 @@ export function MtdCategoriesSection() {
                 <p className="mt-3 text-left text-xs font-bold leading-snug text-brand-black sm:text-sm">
                   <span className="text-brand-muted">{item.id}.</span> {item.title}
                 </p>
-                <p className="mt-1.5 hidden flex-1 text-left text-xs leading-relaxed text-brand-muted lg:line-clamp-2 lg:block">
+                <p className="mt-1.5 flex-1 text-left text-xs leading-relaxed text-brand-muted line-clamp-2 sm:line-clamp-none lg:line-clamp-2">
                   {item.summary}
                 </p>
-                <span className="mt-auto hidden items-center gap-1 pt-3 text-xs font-semibold text-brand-green lg:inline-flex">
+                <span className="mt-auto inline-flex items-center gap-1 pt-2 text-xs font-semibold text-brand-green sm:pt-3">
                   Open guide
                   <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-0.5" />
                 </span>
@@ -71,7 +71,6 @@ export function MtdCategoriesSection() {
                 className={className}
               >
                 {inner}
-                <ExternalLink className="mt-2 h-3.5 w-3.5 text-brand-muted lg:hidden" aria-hidden />
               </a>
             ) : (
               <Link key={item.id} href={item.href} className={className}>

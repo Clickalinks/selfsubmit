@@ -19,14 +19,14 @@ const HMRC_POINTS = [
 export function MtdCtaBanner() {
   return (
     <section
-      className="relative left-1/2 w-screen max-w-[100vw] -translate-x-1/2 bg-[#1a1d1f]"
+      className="relative w-full bg-[#1a1d1f]"
       aria-label="Get started"
     >
       <div className="relative w-full overflow-hidden sm:min-h-[360px]">
         {/* Solid dark panel — no light hero image behind white text */}
         <div className="absolute inset-0 bg-gradient-to-br from-brand-ink via-[#0f1214] to-brand-forest" />
 
-        <div className="relative grid gap-10 px-6 py-12 sm:px-12 sm:py-16 lg:grid-cols-2 lg:items-center lg:gap-14 lg:py-20">
+        <div className="relative grid gap-8 px-4 py-10 sm:gap-10 sm:px-12 sm:py-16 lg:grid-cols-2 lg:items-center lg:gap-14 lg:py-20">
           <div className="text-center lg:text-left">
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-brand-green/20 ring-1 ring-brand-green/40 lg:mx-0">
               <Check className="h-8 w-8 text-brand-green" strokeWidth={2.5} />

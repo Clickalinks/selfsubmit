@@ -45,7 +45,7 @@ export function MtdInsightsSection() {
   return (
     <section
       id="mtd-insights"
-      className="relative left-1/2 w-screen max-w-[100vw] -translate-x-1/2 border-t border-slate-200/80 bg-gradient-to-b from-slate-50 to-white px-4 py-14 sm:px-8 sm:py-16 lg:px-12 lg:py-20"
+      className="relative w-full border-t border-slate-200/80 bg-gradient-to-b from-slate-50 to-white px-3 py-10 sm:px-8 sm:py-16 lg:px-12 lg:py-20"
       aria-labelledby="mtd-insights-heading"
     >
       <div className="mx-auto w-full max-w-[1400px]">

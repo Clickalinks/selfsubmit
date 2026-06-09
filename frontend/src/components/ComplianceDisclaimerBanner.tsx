@@ -10,7 +10,7 @@ type Props = {
 export function ComplianceDisclaimerBanner({ className = "" }: Props) {
   return (
     <div
-      className={`border-b border-red-200 bg-red-50 px-4 py-2.5 text-red-900 backdrop-blur-sm ${className}`}
+      className={`border-b border-red-200 bg-red-50 px-3 py-2 text-red-900 backdrop-blur-sm supports-[padding:max(0px)]:px-[max(0.75rem,env(safe-area-inset-left))] supports-[padding:max(0px)]:pr-[max(0.75rem,env(safe-area-inset-right))] ${className}`}
       role="note"
       aria-label="HMRC compliance notice"
     >

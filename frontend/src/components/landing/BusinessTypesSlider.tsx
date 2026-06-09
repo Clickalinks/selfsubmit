@@ -30,7 +30,7 @@ export function BusinessTypesSlider() {
 
   return (
     <section
-      className="relative left-1/2 w-screen max-w-[100vw] -translate-x-1/2 border-y border-brand-green/15 bg-gradient-to-br from-[#0d5c36] via-[#0f6b3f] to-[#14a44d]"
+      className="relative w-full border-y border-brand-green/15 bg-gradient-to-br from-[#0d5c36] via-[#0f6b3f] to-[#14a44d]"
       aria-label="Business types we support"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}

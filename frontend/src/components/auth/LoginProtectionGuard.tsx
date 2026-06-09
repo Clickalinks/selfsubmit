@@ -1,6 +1,7 @@
 "use client";
 
-import { useSignIn } from "@clerk/nextjs";
+import { useAuth } from "@clerk/nextjs";
+import { useSignIn } from "@clerk/nextjs/legacy";
 import { ShieldAlert } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
@@ -28,7 +29,8 @@ async function postProtection(
 }
 
 export function LoginProtectionGuard({ children }: { children: React.ReactNode }) {
-  const { signIn, isLoaded } = useSignIn();
+  const { isLoaded } = useAuth();
+  const { signIn } = useSignIn();
   const [blockMessage, setBlockMessage] = useState<string | null>(null);
   const lastIdentifier = useRef<string | null>(null);
   const recordedFailureKeys = useRef<Set<string>>(new Set());
