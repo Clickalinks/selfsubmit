@@ -4,6 +4,8 @@
  * Line items are aligned with common UK self-employment declarations (taxi, trades, etc.).
  */
 
+import { SELF_EMPLOYED_PROFESSIONS } from "@/data/selfEmployedProfessions";
+
 export type MoneyLineItem = {
   id: string;
   label: string;
@@ -351,74 +353,167 @@ export const EXPENSE_TEMPLATES: Record<string, TradeFormTemplate> = {
       { id: "other", label: "Other allowable expenses" },
     ],
   },
+  online_sellers: {
+    id: "online_sellers",
+    title: "Online selling & market trading",
+    incomeLineItems: [
+      { id: "income_product_sales", label: "Product sales (gross turnover before fees)" },
+      { id: "income_shipping_charged", label: "Shipping / delivery charged to buyers", hint: "0 if not applicable" },
+      { id: "income_platform_bonuses", label: "Platform incentives, vouchers & promotional credits (taxable)", hint: "0 if not applicable" },
+      { id: "income_wholesale_b2b", label: "Wholesale or trade sales", hint: "0 if not applicable" },
+      { id: "income_affiliate", label: "Affiliate, referral & collaboration income", hint: "0 if not applicable" },
+      { id: "income_other", label: "Other online selling income" },
+    ],
+    expenseLineItems: [
+      { id: "cost_of_goods", label: "Cost of goods sold (stock, materials, wholesale purchases)" },
+      { id: "platform_fees", label: "Marketplace & platform fees (Amazon, Etsy, eBay, TikTok Shop, etc.)" },
+      { id: "payment_processing", label: "Payment processing fees (PayPal, Stripe, etc.)" },
+      { id: "postage_courier", label: "Postage, courier & delivery costs" },
+      { id: "packaging", label: "Packaging, labels & consumables" },
+      { id: "storage_fulfilment", label: "Storage, FBA / fulfilment & warehouse fees", hint: "0 if not applicable" },
+      { id: "returns_refunds", label: "Returns, refunds & write-offs", hint: "0 if not applicable" },
+      { id: "advertising", label: "Advertising, PPC & promoted listings" },
+      { id: "software", label: "Seller tools, inventory & listing software" },
+      { id: "equipment", label: "Equipment (printer, scales, photography kit)", hint: "0 if not applicable" },
+      { id: "travel", label: "Travel to suppliers, markets or post office (business)" },
+      { id: "home_office", label: "Home office costs (simplified or actual %)" },
+      { id: "professional_insurance", label: "Public / product liability insurance", hint: "0 if not applicable" },
+      { id: "phone_internet", label: "Phone & internet (business use %)" },
+      { id: "accountant", label: "Accountant or bookkeeping software fees" },
+      { id: "other", label: "Other allowable expenses" },
+    ],
+  },
+  property_income: {
+    id: "property_income",
+    title: "Property & rental income",
+    incomeLineItems: [
+      { id: "income_rent", label: "Rent received from tenants" },
+      { id: "income_short_term_lets", label: "Short-term / holiday let income (Airbnb, etc.)" },
+      { id: "income_service_charges", label: "Service charges & ground rent recovered from tenants", hint: "0 if not applicable" },
+      { id: "income_deposits_forfeited", label: "Deposits or premiums (taxable portion)", hint: "0 if not applicable" },
+      { id: "income_other", label: "Other property income" },
+    ],
+    expenseLineItems: [
+      { id: "repairs_maintenance", label: "Repairs & maintenance (not improvements)" },
+      { id: "letting_agent", label: "Letting agent, management & platform fees" },
+      { id: "insurance", label: "Landlord / buildings / contents insurance" },
+      { id: "safety_certificates", label: "Gas safety, EICR, EPC & compliance certificates" },
+      { id: "cleaning_linen", label: "Cleaning, laundry & turnover costs (short-term lets)", hint: "0 if not applicable" },
+      { id: "utilities_council", label: "Utilities & council tax (if you pay them)", hint: "0 if tenant pays" },
+      { id: "mortgage_interest", label: "Finance costs (mortgage interest — enter allowable amount)", hint: "Rules differ for residential lets" },
+      { id: "travel", label: "Travel to properties (business)" },
+      { id: "accountant", label: "Accountant or bookkeeping software fees" },
+      { id: "legal_professional", label: "Legal & professional fees (letting, not purchase)", hint: "0 if not applicable" },
+      { id: "other", label: "Other allowable expenses" },
+    ],
+  },
 };
 
 export const PROFESSION_TO_TEMPLATE: Record<string, keyof typeof EXPENSE_TEMPLATES> = {
+  // Transport & driving
   "Taxi Driver": "transport_driving",
+  "Uber Driver": "transport_driving",
   "Private Hire Driver (Uber/Bolt)": "transport_driving",
+  "Delivery Driver": "transport_driving",
   "Delivery Driver (Amazon, Uber Eats)": "transport_driving",
   "Courier / Van Driver": "transport_driving",
-  "Delivery Driver": "transport_driving",
+  "HGV / Lorry Driver": "transport_driving",
 
+  // Automotive
+  "Mobile Mechanic": "trades",
+  "Car Repair Garage": "trades",
+
+  // Hair, beauty & wellbeing
   Barber: "personal_services",
   Hairdresser: "personal_services",
+  Beautician: "personal_services",
   "Beautician (nails, lashes, etc.)": "personal_services",
+  "Nail Technician": "personal_services",
   "Massage Therapist": "personal_services",
 
+  // Construction & trades
   Electrician: "trades",
   Plumber: "trades",
   Carpenter: "trades",
   "Painter & Decorator": "trades",
   Handyman: "trades",
+  Roofer: "trades",
+  Builder: "trades",
+  Bricklayer: "trades",
+  "Builder / Bricklayer": "trades",
+  Locksmith: "trades",
+  Gardener: "trades",
+  Landscaper: "trades",
+  "Gardener / Landscaper": "trades",
+  "Window Cleaner": "trades",
 
+  // Teaching, fitness & childcare
   "Driving Instructor": "teaching_training",
+  "Private Tutor": "teaching_training",
   "Tutor (academic or private)": "teaching_training",
   "Personal Trainer": "teaching_training",
+  "Gym Coach": "teaching_training",
+  "Fitness Instructor": "teaching_training",
+  "Music Teacher": "teaching_training",
+  Childminder: "teaching_training",
 
+  // Creative, tech & professional
+  "Graphic Designer (Freelance)": "freelancers",
+  "Web Developer (Freelance)": "freelancers",
   "Graphic Designer": "freelancers",
   "Web Developer": "freelancers",
+  "Cybersecurity Consultant": "freelancers",
   "Social Media Manager": "freelancers",
+  "Photographer (Freelance)": "freelancers",
+  Videographer: "freelancers",
+  "Wedding Photographer": "freelancers",
   "Photographer / Videographer": "freelancers",
+  "IT Consultant": "freelancers",
+  "Management Consultant": "freelancers",
+  "Freelance Consultant": "freelancers",
+  Bookkeeper: "freelancers",
+  "Freelancer (General)": "freelancers",
+  "Tradesperson (General)": "trades",
+  "Small Sole Trader": "freelancers",
+  "Side-hustle Business": "freelancers",
+
+  // Online selling & content
+  "Amazon Seller": "online_sellers",
+  "Etsy Seller": "online_sellers",
+  "TikTok Shop Seller": "online_sellers",
+  "Market Trader": "online_sellers",
+  "Online Seller": "online_sellers",
+  "Freelance Content Creator": "freelancers",
+  Influencer: "freelancers",
+
+  // Property income
+  "Landlord (Rental Income)": "property_income",
+  "Airbnb Host": "property_income",
+  "Property Income Earner": "property_income",
+
+  // Other services
+  "Cleaner (Domestic & Commercial)": "freelancers",
+  "Cleaner (domestic & commercial)": "freelancers",
+  "Dog Walker / Pet Sitter": "freelancers",
+  "Caterer / Personal Chef": "freelancers",
 };
 
 export const DEFAULT_TEMPLATE_ID = "freelancers" as const;
 
-/**
- * Exact labels as in `PROFESSION_TO_TEMPLATE`, in a sensible browse order for the landing page (20 trades).
- * Omits the generic `"Delivery Driver"` alias so the grid matches the standard 20 self‑employment types.
- */
-export const PROFESSIONS_FOR_LANDING: readonly string[] = [
-  "Taxi Driver",
-  "Private Hire Driver (Uber/Bolt)",
-  "Delivery Driver (Amazon, Uber Eats)",
-  "Courier / Van Driver",
-  "Barber",
-  "Hairdresser",
-  "Beautician (nails, lashes, etc.)",
-  "Massage Therapist",
-  "Electrician",
-  "Plumber",
-  "Carpenter",
-  "Painter & Decorator",
-  "Handyman",
-  "Driving Instructor",
-  "Tutor (academic or private)",
-  "Personal Trainer",
-  "Graphic Designer",
-  "Web Developer",
-  "Social Media Manager",
-  "Photographer / Videographer",
-] as const;
+/** All self-employed types (sign-up + submit form + landing). */
+export const PROFESSIONS_FOR_LANDING: readonly string[] = SELF_EMPLOYED_PROFESSIONS;
 
-const _landingSet = new Set(PROFESSIONS_FOR_LANDING);
+/** Profession picker options (canonical list only — legacy labels still resolve via PROFESSION_TO_TEMPLATE). */
+export const ALL_PROFESSIONS: string[] = [...SELF_EMPLOYED_PROFESSIONS];
 
-/** Same 20 trades as the landing grid first, then any extra template keys (e.g. legacy aliases). */
-export const ALL_PROFESSIONS: string[] = [
-  ...PROFESSIONS_FOR_LANDING,
-  ...Object.keys(PROFESSION_TO_TEMPLATE)
-    .filter((k) => !_landingSet.has(k))
-    .sort((a, b) => a.localeCompare(b)),
-];
+/** True if the label is in the picker list or a supported legacy alias. */
+export function isKnownProfession(trade: string): boolean {
+  const key = trade.trim();
+  if (!key) return false;
+  return (
+    (SELF_EMPLOYED_PROFESSIONS as readonly string[]).includes(key) || key in PROFESSION_TO_TEMPLATE
+  );
+}
 
 export function getTemplateForProfession(trade: string): TradeFormTemplate {
   const key = trade.trim();

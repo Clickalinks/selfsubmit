@@ -7,6 +7,8 @@ export const TEMPLATE_STICKER_TONE: Record<string, StickerCardTone> = {
   trades: "cream",
   teaching_training: "mint",
   freelancers: "sky",
+  online_sellers: "cream",
+  property_income: "mint",
 };
 
 export function getTemplateStickerTone(templateId: string): StickerCardTone {

@@ -112,6 +112,8 @@ function parseProfileBody(body: unknown): ProfileInput | null {
   ) {
     return null;
   }
+  if (typeof b.primaryProfession !== "string") return null;
+
   return {
     firstName: b.firstName,
     lastName: b.lastName,
@@ -121,5 +123,6 @@ function parseProfileBody(body: unknown): ProfileInput | null {
     businessAddress: b.businessAddress,
     businessName: typeof b.businessName === "string" ? b.businessName : null,
     businessSameAsHome: Boolean(b.businessSameAsHome),
+    primaryProfession: b.primaryProfession,
   };
 }

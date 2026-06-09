@@ -1,26 +1,19 @@
 import { mkdir, readdir, rm, unlink, writeFile } from "fs/promises";
 import path from "path";
 
+import { UPLOAD_ALLOWED_MIME, UPLOAD_MAX_BYTES } from "@/lib/file-validation";
+
 const UPLOAD_ROOT = path.join(process.cwd(), "uploads", "receipts");
 
-export const RECEIPT_MAX_BYTES = 10 * 1024 * 1024;
-
-export const RECEIPT_ALLOWED_MIME = new Set([
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-  "image/heic",
-  "image/heif",
-  "application/pdf",
-]);
+export const RECEIPT_MAX_BYTES = UPLOAD_MAX_BYTES;
+export const RECEIPT_ALLOWED_MIME = UPLOAD_ALLOWED_MIME;
 
 const EXT_BY_MIME: Record<string, string> = {
   "image/jpeg": ".jpg",
   "image/png": ".png",
-  "image/webp": ".webp",
-  "image/heic": ".heic",
-  "image/heif": ".heif",
   "application/pdf": ".pdf",
+  "text/csv": ".csv",
+  "application/csv": ".csv",
 };
 
 export function receiptUploadDir(userId: string): string {
@@ -55,7 +48,6 @@ export async function deleteReceiptFile(userId: string, storageKey: string): Pro
   }
 }
 
-/** Remove all receipt files for a user (e.g. on account deletion). */
 export async function deleteAllReceiptFiles(userId: string): Promise<void> {
   const dir = receiptUploadDir(userId);
   try {

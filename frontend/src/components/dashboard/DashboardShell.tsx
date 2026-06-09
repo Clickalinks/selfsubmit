@@ -18,7 +18,7 @@ export function DashboardShell({ profile, title, children }: Props) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <div className="flex min-h-screen bg-slate-50">
+    <div className="flex min-h-screen bg-brand-mint/40">
       <DashboardSidebar
         profile={profile}
         mobileOpen={mobileOpen}
@@ -50,7 +50,7 @@ export function DashboardShell({ profile, title, children }: Props) {
           </button>
           <UserButton
             appearance={{
-              elements: { avatarBox: "h-9 w-9 ring-2 ring-indigo-200" },
+              elements: { avatarBox: "h-9 w-9 ring-2 ring-brand-green/25" },
             }}
           />
         </header>

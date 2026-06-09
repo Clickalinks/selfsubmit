@@ -7,6 +7,10 @@
     "build": "npm run build --prefix frontend",
     "start": "npm run start --prefix frontend",
     "lint": "npm run lint --prefix frontend",
-    "dev:backend": "npm start --prefix backend"
+    "dev:backend": "npm run dev --prefix backend",
+    "db:generate": "npm run db:generate --prefix frontend",
+    "db:migrate": "npm run db:migrate --prefix frontend",
+    "db:push": "npm run db:push --prefix frontend",
+    "db:studio": "npm run db:studio --prefix frontend"
   }
 }

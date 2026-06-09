@@ -1,7 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Camera, ImagePlus, Loader2, Trash2, Upload } from "lucide-react";
+import { Camera, Download, FileSpreadsheet, ImagePlus, Loader2, Trash2, Upload } from "lucide-react";
+
+import { downloadCsvTemplate } from "@/lib/csv-import";
 
 type ReceiptRow = {
   id: string;
@@ -11,7 +13,8 @@ type ReceiptRow = {
   uploadedAt: string;
 };
 
-const ACCEPT = "image/jpeg,image/png,image/webp,image/heic,image/heif,application/pdf";
+const ACCEPT =
+  "image/jpeg,image/png,application/pdf,text/csv,.csv,application/csv";
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("en-GB", {
@@ -142,19 +145,19 @@ export function ReceiptUploadPanel() {
         onDragLeave={() => setDragOver(false)}
         onDrop={onDrop}
         className={`rounded-2xl border-2 border-dashed px-6 py-10 text-center transition ${
-          dragOver ? "border-indigo-400 bg-indigo-50/50" : "border-slate-200 bg-slate-50"
+          dragOver ? "border-brand-green-bright bg-brand-mint/50" : "border-slate-200 bg-slate-50"
         }`}
       >
-        <Upload className="mx-auto h-8 w-8 text-indigo-500" strokeWidth={1.75} />
+        <Upload className="mx-auto h-8 w-8 text-brand-green" strokeWidth={1.75} />
         <p className="mt-3 text-sm font-semibold text-slate-800">Drop a receipt here</p>
-        <p className="mt-1 text-xs text-slate-500">JPEG, PNG, WebP, HEIC, or PDF — up to 10 MB</p>
+        <p className="mt-1 text-xs text-slate-500">PDF, JPG, PNG, or CSV — up to 10 MB</p>
 
         <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
           <button
             type="button"
             disabled={uploading}
             onClick={() => fileInputRef.current?.click()}
-            className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-indigo-600/25 transition hover:bg-indigo-700 disabled:cursor-wait disabled:opacity-70"
+            className="inline-flex items-center gap-2 rounded-xl bg-brand-green px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-brand-green/25 transition hover:bg-brand-green-dark disabled:cursor-wait disabled:opacity-70"
           >
             {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ImagePlus className="h-4 w-4" />}
             {uploading ? "Uploading…" : "Upload receipt"}
@@ -169,6 +172,28 @@ export function ReceiptUploadPanel() {
             Take photo
           </button>
         </div>
+      </div>
+
+      <div className="rounded-2xl border border-slate-200 bg-white p-4">
+        <p className="flex items-center gap-2 text-sm font-bold text-slate-900">
+          <FileSpreadsheet className="h-4 w-4 text-brand-green" aria-hidden />
+          CSV income &amp; expense files
+        </p>
+        <p className="mt-2 text-xs leading-relaxed text-slate-600 sm:text-sm">
+          Store CSV exports here for your records, or import amounts directly on the{" "}
+          <a href="/submit" className="font-semibold text-brand-green hover:underline">
+            Submit to HMRC
+          </a>{" "}
+          page using Import from CSV.
+        </p>
+        <button
+          type="button"
+          onClick={downloadCsvTemplate}
+          className="mt-3 inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-white"
+        >
+          <Download className="h-3.5 w-3.5" />
+          Download CSV template
+        </button>
       </div>
 
       {error ? (
@@ -199,6 +224,8 @@ export function ReceiptUploadPanel() {
                       alt={r.title ?? r.fileName}
                       className="h-full w-full object-cover"
                     />
+                  ) : r.mimeType?.includes("csv") ? (
+                    <FileSpreadsheet className="h-6 w-6 text-brand-green" aria-hidden />
                   ) : (
                     <span className="text-xs font-bold text-slate-500">PDF</span>
                   )}
@@ -210,7 +237,7 @@ export function ReceiptUploadPanel() {
                     href={`/api/receipts/${r.id}/file`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="mt-1 inline-block text-xs font-semibold text-indigo-600 hover:underline"
+                    className="mt-1 inline-block text-xs font-semibold text-brand-green hover:underline"
                   >
                     View file
                   </a>

@@ -5,7 +5,9 @@ import { useUser } from "@clerk/nextjs";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Check, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 
+import { ProfessionSelect } from "@/components/forms/ProfessionSelect";
 import { UkAddressLookup } from "@/components/forms/UkAddressLookup";
+import { SELF_EMPLOYED_PROFESSIONS } from "@/data/selfEmployedProfessions";
 import {
   hasErrors,
   validateProfileFields,
@@ -16,7 +18,7 @@ import {
 const STEPS = ["Your details", "Business"] as const;
 
 const inputClass =
-  "mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20";
+  "mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-brand-green focus:ring-2 focus:ring-brand-green/20";
 const labelClass = "block text-sm font-semibold text-slate-800";
 
 function FieldError({ message }: { message?: string }) {
@@ -43,6 +45,7 @@ export function OnboardingWizard() {
   const [businessSameAsHome, setBusinessSameAsHome] = useState(false);
   const [businessAddress, setBusinessAddress] = useState("");
   const [businessName, setBusinessName] = useState("");
+  const [primaryProfession, setPrimaryProfession] = useState<string>(SELF_EMPLOYED_PROFESSIONS[0]);
 
   useEffect(() => {
     if (!user) return;
@@ -62,8 +65,9 @@ export function OnboardingWizard() {
       businessAddress: businessSameAsHome ? homeAddress : businessAddress,
       businessName: businessName || null,
       businessSameAsHome,
+      primaryProfession,
     }),
-    [firstName, lastName, homeAddress, email, phone, businessAddress, businessName, businessSameAsHome],
+    [firstName, lastName, homeAddress, email, phone, businessAddress, businessName, businessSameAsHome, primaryProfession],
   );
 
   const goNext = useCallback(() => {
@@ -140,7 +144,7 @@ export function OnboardingWizard() {
 
   return (
     <div className="mx-auto w-full max-w-xl">
-      <p className="mb-6 rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-3 text-sm text-indigo-950">
+      <p className="mb-6 rounded-xl border border-brand-green/20 bg-brand-mint px-4 py-3 text-sm text-brand-forest">
         You&apos;re signed in{user?.externalAccounts.length ? " with Google or another provider" : ""}. Complete your
         SelfSubmit details below to open the dashboard.
       </p>
@@ -148,8 +152,8 @@ export function OnboardingWizard() {
       <div className="mb-8 flex gap-2">
         {STEPS.map((label, i) => (
           <div key={label} className="flex flex-1 flex-col gap-2">
-            <div className={`h-1.5 rounded-full transition-all ${i <= step ? "bg-indigo-600" : "bg-slate-200"}`} />
-            <p className={`text-center text-xs font-medium ${i === step ? "text-indigo-600" : "text-slate-400"}`}>
+            <div className={`h-1.5 rounded-full transition-all ${i <= step ? "bg-brand-green" : "bg-slate-200"}`} />
+            <p className={`text-center text-xs font-medium ${i === step ? "text-brand-green" : "text-slate-400"}`}>
               {label}
             </p>
           </div>
@@ -228,10 +232,10 @@ export function OnboardingWizard() {
         ) : (
           <div className="space-y-4">
             <h2 className="text-lg font-bold text-slate-900">Business information</h2>
-            <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 transition hover:border-indigo-200">
+            <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 transition hover:border-brand-green/20">
               <input
                 type="checkbox"
-                className="mt-1 h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                className="mt-1 h-4 w-4 rounded border-slate-300 text-brand-green focus:ring-brand-green"
                 checked={businessSameAsHome}
                 onChange={(e) => onSameAddressChange(e.target.checked)}
               />
@@ -248,10 +252,15 @@ export function OnboardingWizard() {
                 error={fieldErrors.businessAddress}
               />
             ) : (
-              <p className="rounded-xl bg-indigo-50 px-4 py-3 text-sm text-indigo-900">
+              <p className="rounded-xl bg-brand-mint px-4 py-3 text-sm text-brand-forest">
                 Your home address will be used as your business address.
               </p>
             )}
+            <ProfessionSelect
+              value={primaryProfession}
+              onChange={setPrimaryProfession}
+              error={fieldErrors.primaryProfession}
+            />
             <div>
               <label className={labelClass} htmlFor="ob-businessName">
                 Business name <span className="font-normal text-slate-400">(optional)</span>
@@ -291,7 +300,7 @@ export function OnboardingWizard() {
             <button
               type="button"
               onClick={goNext}
-              className="inline-flex items-center justify-center gap-1 rounded-xl bg-indigo-600 px-6 py-3 text-sm font-bold text-white shadow-md shadow-indigo-600/30 transition hover:bg-indigo-700"
+              className="inline-flex items-center justify-center gap-1 rounded-xl bg-brand-green px-6 py-3 text-sm font-bold text-white shadow-md shadow-brand-green/30 transition hover:bg-brand-green-dark"
             >
               Continue
               <ChevronRight className="h-4 w-4" />
@@ -301,7 +310,7 @@ export function OnboardingWizard() {
               type="button"
               onClick={() => void submit()}
               disabled={loading}
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-6 py-3 text-sm font-bold text-white shadow-md shadow-indigo-600/30 transition hover:bg-indigo-700 disabled:opacity-60"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-green px-6 py-3 text-sm font-bold text-white shadow-md shadow-brand-green/30 transition hover:bg-brand-green-dark disabled:opacity-60"
             >
               {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
               {loading ? "Saving…" : "Save and open dashboard"}

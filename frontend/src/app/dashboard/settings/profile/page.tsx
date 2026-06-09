@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 export default function EditProfilePage() {
   return (
     <div className="mx-auto max-w-3xl space-y-4">
-      <Link href="/dashboard/settings" className="text-sm font-semibold text-indigo-600 hover:underline">
+      <Link href="/dashboard/settings" className="text-sm font-semibold text-brand-green hover:underline">
         ← Back to settings
       </Link>
       <DashboardCard title="Edit profile" description="Update your personal and business details.">

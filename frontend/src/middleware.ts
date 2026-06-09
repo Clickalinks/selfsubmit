@@ -7,7 +7,16 @@ const isProtectedPage = createRouteMatcher([
   "/onboarding(.*)",
 ]);
 
+const isPublicApi = createRouteMatcher([
+  "/api/auth/login-protection(.*)",
+  "/api/webhooks/clerk(.*)",
+  "/api/webhooks/stripe(.*)",
+]);
+
 export default clerkMiddleware(async (auth, req) => {
+  if (isPublicApi(req)) {
+    return;
+  }
   if (isProtectedPage(req)) {
     await auth.protect();
   }

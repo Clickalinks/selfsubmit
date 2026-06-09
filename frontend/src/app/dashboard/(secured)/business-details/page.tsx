@@ -28,7 +28,7 @@ export default async function BusinessDetailsPage() {
             <dd className="mt-1 whitespace-pre-wrap font-medium text-slate-900">{profile.businessAddress}</dd>
           </div>
           {profile.businessSameAsHome ? (
-            <p className="rounded-xl bg-indigo-50 px-4 py-3 text-sm text-indigo-900">
+            <p className="rounded-xl bg-brand-mint px-4 py-3 text-sm text-brand-forest">
               Business address matches your home address (selected at registration).
             </p>
           ) : null}
@@ -43,7 +43,7 @@ export default async function BusinessDetailsPage() {
         </dl>
         <Link
           href="/dashboard/settings/profile"
-          className="mt-6 inline-flex rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-bold text-white shadow-md transition hover:bg-indigo-700"
+          className="mt-6 inline-flex rounded-xl bg-brand-green px-5 py-2.5 text-sm font-bold text-white shadow-md transition hover:bg-brand-green-dark"
         >
           Edit business information
         </Link>

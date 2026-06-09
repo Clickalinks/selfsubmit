@@ -1,19 +1,56 @@
 /**
  * Central plan limits — swap for Stripe price metadata later without changing call sites.
  */
-export const PLAN_IDS = ["starter", "standard", "pro"] as const;
+export const PLAN_IDS = ["solo", "business_plus", "professional", "unlimited"] as const;
 export type PlanId = (typeof PLAN_IDS)[number];
 
 export const PLAN_LIMITS: Record<PlanId, number> = {
-  starter: 1,
-  standard: 3,
-  pro: Number.POSITIVE_INFINITY,
+  solo: 1,
+  business_plus: 2,
+  professional: 3,
+  unlimited: Number.POSITIVE_INFINITY,
+};
+
+export const PLAN_DISPLAY_NAMES: Record<PlanId, string> = {
+  solo: "Solo",
+  business_plus: "Business Plus",
+  professional: "Professional",
+  unlimited: "Unlimited",
+};
+
+/** Legacy plan ids from earlier product iterations. */
+const LEGACY_PLAN_MAP: Record<string, PlanId> = {
+  starter: "solo",
+  standard: "professional",
+  pro: "unlimited",
 };
 
 export function isPlanId(value: string): value is PlanId {
   return (PLAN_IDS as readonly string[]).includes(value);
 }
 
+export function normalizePlanId(value: string | null | undefined): PlanId | null {
+  if (!value) return null;
+  if (isPlanId(value)) return value;
+  return LEGACY_PLAN_MAP[value] ?? null;
+}
+
 export function maxBusinessesForPlan(plan: PlanId): number {
   return PLAN_LIMITS[plan];
 }
+
+/** Features included in every plan (plain English for pricing UI). */
+export const PLAN_INCLUDED_FEATURES = [
+  "Income tracking",
+  "Expense tracking",
+  "Receipt uploads",
+  "CSV uploads",
+  "Quarterly MTD submissions",
+  "Final declaration support",
+  "Deadline reminders",
+  "MTD compliance dashboard",
+  "Submission history",
+  "Secure document storage",
+  "Email support",
+  "Mobile access",
+] as const;

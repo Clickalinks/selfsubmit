@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Inter } from "next/font/google";
 
+import { ComplianceDisclaimerBanner } from "@/components/ComplianceDisclaimerBanner";
+
 import "./globals.css";
 
 export const viewport: Viewport = {
@@ -37,6 +39,7 @@ export default function RootLayout({
           signUpFallbackRedirectUrl="/onboarding"
           afterSignOutUrl="/"
         >
+          <ComplianceDisclaimerBanner />
           {children}
         </ClerkProvider>
       </body>

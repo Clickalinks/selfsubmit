@@ -3,20 +3,37 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+/// App roles — enforced server-side on every protected API route.
+enum UserRole {
+  user
+  support
+  admin
+  super_admin
 }
 
 /// Clerk user id as primary key (e.g. user_xxx)
 model User {
-  id          String         @id
-  plan        String?
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
-  businesses  Business[]
-  profile     ClientProfile?
-  receipts    Receipt[]
-  submissions Submission[]
+  id                       String                 @id
+  role                     UserRole               @default(user)
+  plan                     String?
+  stripeCustomerId         String?                @unique
+  stripeSubscriptionId     String?                @unique
+  stripeSubscriptionStatus String?
+  stripeCurrentPeriodEnd   DateTime?
+  createdAt                DateTime               @default(now())
+  updatedAt                DateTime               @updatedAt
+  businesses               Business[]
+  profile                  ClientProfile?
+  receipts                 Receipt[]
+  submissions              Submission[]
+  loginAttempts            LoginAttempt[]
+  securityNotifications    SecurityNotification[]
+  auditLogs                AuditLog[]
+  hmrcConnection           HmrcConnection?
 }
 
 model ClientProfile {
@@ -30,6 +47,11 @@ model ClientProfile {
   businessAddress    String
   businessName       String?
   businessSameAsHome Boolean  @default(false)
+  primaryProfession  String?
+  /// AES-256-GCM encrypted at rest when ENCRYPTION_KEY is set
+  utrEncrypted       String?
+  /// AES-256-GCM encrypted at rest when ENCRYPTION_KEY is set
+  niNumberEncrypted  String?
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
 }
@@ -46,26 +68,122 @@ model Business {
 }
 
 model Receipt {
-  id          String   @id @default(cuid())
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  fileName    String
-  storagePath String
-  mimeType    String?
-  title       String?
-  uploadedAt  DateTime @default(now())
+  id           String      @id @default(cuid())
+  userId       String
+  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  submissionId String?
+  submission   Submission? @relation(fields: [submissionId], references: [id], onDelete: SetNull)
+  fileName     String
+  storagePath  String
+  mimeType     String?
+  title        String?
+  amountGbp    Float?
+  uploadedAt   DateTime    @default(now())
+
+  @@index([userId])
+  @@index([submissionId])
+}
+
+model Submission {
+  id               String    @id @default(cuid())
+  userId           String
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  businessId       String?
+  trade            String
+  periodFrom       DateTime
+  periodTo         DateTime
+  templateId       String
+  submissionType   String    @default("monthly_return")
+  status           String    @default("submitted")
+  payloadJson      String
+  totalIncomeGbp   Float
+  totalExpensesGbp Float
+  netProfitGbp     Float
+  hmrcReference    String?
+  hmrcStatus       String?
+  hmrcMessage      String?
+  submittedAt      DateTime  @default(now())
+  details          String?
+  receipts         Receipt[]
 
   @@index([userId])
 }
 
-model Submission {
-  id             String   @id @default(cuid())
-  userId         String
-  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  submissionType String
-  status         String
-  submittedAt    DateTime @default(now())
-  details        String?
+/// HMRC OAuth tokens — encrypted, server-side only. Never expose to browsers.
+model HmrcConnection {
+  userId              String   @id
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessTokenEncrypted  String
+  refreshTokenEncrypted String
+  tokenExpiresAt      DateTime?
+  hmrcUserId          String?
+  scopes              String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
 
-  @@index([userId])
+/// Immutable security audit trail (append-only in application code).
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  actorRole  UserRole?
+  action     String
+  resource   String?
+  resourceId String?
+  ipAddress  String?
+  userAgent  String?
+  metadata   String?
+  createdAt  DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([action, createdAt])
+}
+
+/// Audit log for sign-in attempts (success and failure).
+model LoginAttempt {
+  id            String   @id @default(cuid())
+  identifier    String
+  userId        String?
+  user          User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  ipAddress     String?
+  userAgent     String?
+  success       Boolean
+  failureReason String?
+  suspicious    Boolean  @default(false)
+  createdAt     DateTime @default(now())
+
+  @@index([identifier, createdAt])
+  @@index([ipAddress, createdAt])
+  @@index([userId, createdAt])
+}
+
+/// Temporary lockouts for accounts (by email) or IPs after repeated failures.
+model AccountLockout {
+  id          String    @id @default(cuid())
+  key         String    @unique
+  lockType    String
+  failedCount Int       @default(0)
+  lockedUntil DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([lockedUntil])
+}
+
+/// In-app alerts for suspicious logins and lockouts.
+model SecurityNotification {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  email     String
+  type      String
+  title     String
+  message   String
+  read      Boolean  @default(false)
+  metadata  String?
+  createdAt DateTime @default(now())
+
+  @@index([userId, read, createdAt])
+  @@index([email, createdAt])
 }

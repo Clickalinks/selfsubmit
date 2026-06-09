@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Check, ChevronRight } from "lucide-react";
 
 import { TIERS } from "@/data/pricingTiers";
+import { PLAN_INCLUDED_FEATURES } from "@/lib/plan-config";
 
 type PricingBannerProps = {
   /** When set, replaces the default “Get started” row (e.g. plan picker on /pricing). */
@@ -16,16 +17,24 @@ export function PricingBanner({ footer }: PricingBannerProps) {
         <div className="mx-auto max-w-3xl text-center">
           <p className="text-xs font-bold uppercase tracking-[0.2em] text-brand-green sm:text-sm">Subscriptions</p>
           <h2 className="mt-3 text-xl font-bold tracking-tight text-white sm:text-2xl lg:text-3xl">
-            Tiered by income streams
+            Simple plans for self-employed MTD
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-white/78 lg:text-base">
-            Instead of charging per business in the abstract, plans follow{" "}
-            <strong className="font-semibold text-white">how many income streams</strong> you need to track — the same
-            idea as multiple sources of income under MTD for Income Tax. Pick the tier that matches your complexity.
+            Every plan includes income and expense tracking, receipt uploads, quarterly MTD submissions, deadline
+            reminders, and secure document storage — with no payroll, invoicing, or complex bookkeeping.
           </p>
         </div>
 
-        <div className="mx-auto mt-8 grid max-w-5xl grid-cols-1 gap-4 sm:mt-10 sm:gap-5 md:grid-cols-2 lg:mt-12 lg:grid-cols-3 lg:gap-6">
+        <ul className="mx-auto mt-6 flex max-w-4xl flex-wrap justify-center gap-x-4 gap-y-2 text-xs text-white/70 sm:text-sm">
+          {PLAN_INCLUDED_FEATURES.slice(0, 6).map((feature) => (
+            <li key={feature} className="flex items-center gap-1.5">
+              <Check className="h-3.5 w-3.5 text-brand-green" strokeWidth={2.5} aria-hidden />
+              {feature}
+            </li>
+          ))}
+        </ul>
+
+        <div className="mx-auto mt-8 grid max-w-6xl grid-cols-1 gap-4 sm:mt-10 sm:gap-5 md:grid-cols-2 lg:mt-12 lg:grid-cols-4 lg:gap-5">
           {TIERS.map((tier) => (
             <div
               key={tier.id}
@@ -41,8 +50,8 @@ export function PricingBanner({ footer }: PricingBannerProps) {
                 </div>
               ) : null}
               <p className="text-xs font-bold uppercase tracking-wide text-brand-green">{tier.name}</p>
-              <p className="mt-2 text-lg font-bold text-white lg:text-xl">{tier.streamsLabel}</p>
-              <p className="mt-2 text-sm leading-relaxed text-white/65">{tier.streamsDetail}</p>
+              <p className="mt-2 text-lg font-bold text-white lg:text-xl">{tier.businessesLabel}</p>
+              <p className="mt-2 text-sm leading-relaxed text-white/65">{tier.businessesDetail}</p>
               <div className="mt-6 flex items-baseline gap-1 border-t border-white/10 pt-6">
                 <span className="text-3xl font-bold tabular-nums text-white lg:text-4xl">£{tier.price}</span>
                 <span className="text-sm font-medium text-white/55">/ month</span>

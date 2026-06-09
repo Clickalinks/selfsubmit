@@ -2,10 +2,9 @@
 
 import { useEffect } from "react";
 
-import { FeaturesRow } from "@/components/landing/FeaturesRow";
-import { HeroSection } from "@/components/landing/HeroSection";
-import { PricingBanner } from "@/components/landing/PricingBanner";
-import { ProfessionRow } from "@/components/landing/ProfessionRow";
+import { MtdCategoriesSection } from "@/components/landing/MtdCategoriesSection";
+import { MtdCtaBanner } from "@/components/landing/MtdCtaBanner";
+import { MtdInsightsSection } from "@/components/landing/MtdInsightsSection";
 import { SiteFooter } from "@/components/landing/SiteFooter";
 import { SiteHeader } from "@/components/landing/SiteHeader";
 
@@ -22,15 +21,12 @@ export function LandingView() {
   }, []);
 
   return (
-    <>
-      <div className="min-h-screen">
-        <SiteHeader />
-        <HeroSection />
-        <ProfessionRow />
-        <FeaturesRow />
-        <PricingBanner />
-        <SiteFooter />
-      </div>
-    </>
+    <div className="flex min-h-screen flex-col overflow-x-hidden bg-white">
+      <SiteHeader />
+      <MtdCategoriesSection />
+      <MtdInsightsSection />
+      <MtdCtaBanner />
+      <SiteFooter />
+    </div>
   );
 }

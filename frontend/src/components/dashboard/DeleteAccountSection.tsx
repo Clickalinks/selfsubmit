@@ -77,7 +77,7 @@ export function DeleteAccountSection() {
     <section className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm shadow-slate-200/50">
       <header className="border-b border-slate-100 px-5 py-4 min-[900px]:px-6">
         <div className="flex items-start gap-3">
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-indigo-600 text-sm font-bold text-white">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-green text-sm font-bold text-white">
             6
           </span>
           <div>
@@ -118,8 +118,8 @@ export function DeleteAccountSection() {
             ))}
           </ul>
 
-          <div className="mt-4 rounded-xl border border-indigo-100 bg-indigo-50/60 px-4 py-4">
-            <p className="text-sm text-indigo-950">
+          <div className="mt-4 rounded-xl border border-brand-mint bg-brand-mint/60 px-4 py-4">
+            <p className="text-sm text-brand-forest">
               Before you leave, download a copy of your profile, receipt photos, and submission history. The ZIP file
               includes everything we store for your account.
             </p>
@@ -127,7 +127,7 @@ export function DeleteAccountSection() {
               type="button"
               disabled={exporting}
               onClick={() => void downloadData()}
-              className="mt-3 inline-flex items-center gap-2 rounded-xl border border-indigo-200 bg-white px-4 py-2.5 text-sm font-semibold text-indigo-700 shadow-sm transition hover:bg-indigo-50 disabled:opacity-60"
+              className="mt-3 inline-flex items-center gap-2 rounded-xl border border-brand-green/20 bg-white px-4 py-2.5 text-sm font-semibold text-brand-green-dark shadow-sm transition hover:bg-brand-mint disabled:opacity-60"
             >
               {exporting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
               {exporting ? "Preparing download…" : "Download my data"}

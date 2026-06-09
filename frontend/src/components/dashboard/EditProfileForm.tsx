@@ -4,7 +4,9 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { Loader2 } from "lucide-react";
 
+import { ProfessionSelect } from "@/components/forms/ProfessionSelect";
 import { UkAddressLookup } from "@/components/forms/UkAddressLookup";
+import { SELF_EMPLOYED_PROFESSIONS } from "@/data/selfEmployedProfessions";
 import {
   hasErrors,
   validateProfileFields,
@@ -13,7 +15,7 @@ import {
 } from "@/lib/profile-validation";
 
 const inputClass =
-  "mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20";
+  "mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-brand-green focus:ring-2 focus:ring-brand-green/20";
 const labelClass = "block text-sm font-semibold text-slate-800";
 
 function FieldError({ message }: { message?: string }) {
@@ -37,6 +39,7 @@ export function EditProfileForm() {
   const [businessSameAsHome, setBusinessSameAsHome] = useState(false);
   const [businessAddress, setBusinessAddress] = useState("");
   const [businessName, setBusinessName] = useState("");
+  const [primaryProfession, setPrimaryProfession] = useState<string>(SELF_EMPLOYED_PROFESSIONS[0]);
 
   useEffect(() => {
     void (async () => {
@@ -52,6 +55,7 @@ export function EditProfileForm() {
             businessAddress: string;
             businessName: string | null;
             businessSameAsHome: boolean;
+            primaryProfession: string | null;
           };
         };
         if (res.ok && data.profile) {
@@ -64,6 +68,7 @@ export function EditProfileForm() {
           setBusinessAddress(p.businessAddress);
           setBusinessName(p.businessName ?? "");
           setBusinessSameAsHome(p.businessSameAsHome);
+          if (p.primaryProfession) setPrimaryProfession(p.primaryProfession);
         }
       } finally {
         setLoading(false);
@@ -81,8 +86,9 @@ export function EditProfileForm() {
       businessAddress: businessSameAsHome ? homeAddress : businessAddress,
       businessName: businessName || null,
       businessSameAsHome,
+      primaryProfession,
     }),
-    [firstName, lastName, homeAddress, email, phone, businessAddress, businessName, businessSameAsHome],
+    [firstName, lastName, homeAddress, email, phone, businessAddress, businessName, businessSameAsHome, primaryProfession],
   );
 
   const submit = async (e: React.FormEvent) => {
@@ -174,7 +180,7 @@ export function EditProfileForm() {
         <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
           <input
             type="checkbox"
-            className="mt-1 h-4 w-4 rounded border-slate-300 text-indigo-600"
+            className="mt-1 h-4 w-4 rounded border-slate-300 text-brand-green"
             checked={businessSameAsHome}
             onChange={(e) => {
               const checked = e.target.checked;
@@ -200,6 +206,11 @@ export function EditProfileForm() {
             error={fieldErrors.businessAddress}
           />
         ) : null}
+        <ProfessionSelect
+          value={primaryProfession}
+          onChange={setPrimaryProfession}
+          error={fieldErrors.primaryProfession}
+        />
         <div>
           <label className={labelClass} htmlFor="ep-businessName">
             Business name
@@ -213,7 +224,7 @@ export function EditProfileForm() {
       <button
         type="submit"
         disabled={saving}
-        className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-6 py-3 text-sm font-bold text-white shadow-md hover:bg-indigo-700 disabled:opacity-60"
+        className="inline-flex items-center gap-2 rounded-xl bg-brand-green px-6 py-3 text-sm font-bold text-white shadow-md hover:bg-brand-green-dark disabled:opacity-60"
       >
         {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
         {saving ? "Saving…" : "Save changes"}

@@ -1,15 +1,16 @@
 import { prisma } from "@/lib/db";
-import { isPlanId, maxBusinessesForPlan, type PlanId } from "@/lib/plan-config";
+import { userHasActiveSubscription } from "@/lib/billing-server";
+import { isPlanId, maxBusinessesForPlan, normalizePlanId, type PlanId } from "@/lib/plan-config";
 
 export async function getUserPlan(userId: string): Promise<PlanId | null> {
+  const active = await userHasActiveSubscription(userId);
+  if (!active) return null;
+
   const row = await prisma.user.findUnique({
     where: { id: userId },
     select: { plan: true },
   });
-  if (!row?.plan || !isPlanId(row.plan)) {
-    return null;
-  }
-  return row.plan;
+  return normalizePlanId(row?.plan);
 }
 
 export async function getBusinessCount(userId: string): Promise<number> {

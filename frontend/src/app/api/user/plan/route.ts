@@ -19,7 +19,10 @@ export async function POST(req: Request) {
 
   const planRaw = body && typeof body === "object" ? (body as { plan?: unknown }).plan : undefined;
   if (typeof planRaw !== "string" || !isPlanId(planRaw)) {
-    return NextResponse.json({ error: 'Body must include plan: "starter" | "standard" | "pro"' }, { status: 400 });
+    return NextResponse.json(
+      { error: 'Body must include plan: "solo" | "business_plus" | "professional" | "unlimited"' },
+      { status: 400 },
+    );
   }
 
   const plan: PlanId = planRaw;

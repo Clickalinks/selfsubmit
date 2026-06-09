@@ -1,3 +1,7 @@
+import { isKnownProfession } from "@/data/expenseCategories";
+import { getPasswordPolicyError } from "@/lib/password-policy";
+import { isPlausibleUkAddress } from "@/lib/uk-address";
+
 export type ProfileInput = {
   firstName: string;
   lastName: string;
@@ -7,11 +11,10 @@ export type ProfileInput = {
   businessAddress: string;
   businessName?: string | null;
   businessSameAsHome: boolean;
+  primaryProfession: string;
 };
 
 export type FieldErrors = Partial<Record<keyof ProfileInput | "password" | "confirmPassword", string>>;
-
-import { isPlausibleUkAddress, isValidUkPostcode } from "@/lib/uk-address";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -28,6 +31,11 @@ export function validateProfileFields(input: ProfileInput): FieldErrors {
   if (!input.email.trim()) errors.email = "Email is required.";
   else if (!EMAIL_RE.test(input.email.trim())) errors.email = "Enter a valid email address.";
   if (!input.phone.trim()) errors.phone = "Phone number is required.";
+  if (!input.primaryProfession.trim()) {
+    errors.primaryProfession = "Select your business type.";
+  } else if (!isKnownProfession(input.primaryProfession)) {
+    errors.primaryProfession = "Choose a business type from the list.";
+  }
   if (!input.businessSameAsHome) {
     if (!input.businessAddress.trim()) {
       errors.businessAddress = "Enter your postcode and complete your business address.";
@@ -41,7 +49,8 @@ export function validateProfileFields(input: ProfileInput): FieldErrors {
 
 export function validatePassword(password: string, confirmPassword: string): FieldErrors {
   const errors: FieldErrors = {};
-  if (password.length < 8) errors.password = "Password must be at least 8 characters.";
+  const policyError = getPasswordPolicyError(password);
+  if (policyError) errors.password = policyError;
   if (password !== confirmPassword) errors.confirmPassword = "Passwords do not match.";
   return errors;
 }

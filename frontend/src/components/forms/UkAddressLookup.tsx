@@ -8,7 +8,7 @@ import { formatStructuredAddress } from "@/lib/address-providers";
 import { isValidUkPostcode, normalizePostcode } from "@/lib/uk-address";
 
 const inputClass =
-  "mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20";
+  "mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-brand-green focus:ring-2 focus:ring-brand-green/20";
 const labelClass = "block text-sm font-semibold text-slate-800";
 
 type PostcodeArea = {
@@ -93,6 +93,7 @@ export function UkAddressLookup({ idPrefix, label, value, onChange, error, disab
         fallback?: string;
         area?: PostcodeArea;
         postcode?: string;
+        code?: string;
       };
 
       setLookupDone(true);
@@ -116,7 +117,13 @@ export function UkAddressLookup({ idPrefix, label, value, onChange, error, disab
 
       if (!res.ok) {
         setLookupError(data.error ?? "Could not find addresses for this postcode.");
-        setStructuredMode(true);
+        if (data.hint) setLookupHint(data.hint);
+        if (data.area) {
+          setArea(data.area);
+          setStructuredMode(true);
+        } else {
+          setStructuredMode(true);
+        }
         return;
       }
 
@@ -161,7 +168,10 @@ export function UkAddressLookup({ idPrefix, label, value, onChange, error, disab
   return (
     <fieldset className="space-y-3" disabled={disabled}>
       <legend className={labelClass}>{label}</legend>
-      <FieldHint>Enter your postcode and click Find address. Pick your address from the list, or enter it below.</FieldHint>
+      <FieldHint>
+        Enter your postcode and click Find address. Addresses are loaded from Ideal Postcodes — pick yours from the list,
+        or enter it manually below.
+      </FieldHint>
 
       <div>
         <label className="text-xs font-semibold text-slate-600" htmlFor={`${idPrefix}-postcode`}>
@@ -198,7 +208,7 @@ export function UkAddressLookup({ idPrefix, label, value, onChange, error, disab
             Find address
           </button>
         </div>
-        {lookupHint ? <p className="mt-2 text-xs text-indigo-700">{lookupHint}</p> : null}
+        {lookupHint ? <p className="mt-2 text-xs text-brand-green-dark">{lookupHint}</p> : null}
         {lookupError && !error ? <FieldError message={lookupError} /> : null}
       </div>
 

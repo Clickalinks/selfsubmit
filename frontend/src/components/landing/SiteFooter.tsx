@@ -1,126 +1,114 @@
 import Link from "next/link";
+import { Facebook, Instagram, Linkedin } from "lucide-react";
+
+import { SelfSubmitLogo } from "@/components/brand/SelfSubmitLogo";
+
+function XIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+    </svg>
+  );
+}
+
+const linkClass = "text-sm text-gray-300 transition hover:text-brand-green";
 
 export function SiteFooter() {
   return (
-    <footer className="border-t border-slate-200/70 bg-white/80 backdrop-blur-md backdrop-saturate-150 supports-[backdrop-filter]:bg-white/70 px-5 py-8 min-[900px]:px-10">
-      <div className="mx-auto max-w-content">
-        <div className="flex flex-col gap-6 min-[900px]:flex-row min-[900px]:justify-between min-[900px]:gap-10">
+    <footer className="relative z-20 mt-auto w-full border-t border-white/10 bg-[#1a1d1f] text-white">
+      <div className="mx-auto max-w-[1400px] px-5 py-12 sm:px-8 sm:py-14 lg:px-10">
+        <div className="grid gap-10 lg:grid-cols-[1.35fr_2fr] lg:gap-14">
           <div>
-            <p className="text-sm font-semibold text-brand-black">SelfSubmit</p>
-            <p className="mt-2 max-w-sm text-sm leading-relaxed text-brand-muted">
-              UK self-employed income &amp; expenses — built for clarity. Some features are demo or illustrative; see{" "}
-              <Link href="/disclaimer" className="text-brand-green underline underline-offset-2 hover:no-underline">
-                disclaimer
-              </Link>
-              .
+            <Link href="/" className="inline-block" aria-label="SelfSubmit home">
+              <SelfSubmitLogo variant="light" className="scale-100 sm:scale-105" />
+            </Link>
+            <p className="mt-5 max-w-sm text-sm leading-relaxed text-gray-400">
+              Simple tax returns and MTD guidance for self-employed people and landlords across the UK.
             </p>
+            <div className="mt-6 flex gap-3">
+              {[
+                { label: "Facebook", href: "https://facebook.com", Icon: Facebook },
+                { label: "X", href: "https://x.com", Icon: XIcon },
+                { label: "Instagram", href: "https://instagram.com", Icon: Instagram },
+                { label: "LinkedIn", href: "https://linkedin.com", Icon: Linkedin },
+              ].map(({ label, href, Icon }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={label}
+                  className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-600 text-gray-200 transition hover:border-brand-green hover:bg-brand-green/10 hover:text-brand-green"
+                >
+                  <Icon className="h-4 w-4" />
+                </a>
+              ))}
+            </div>
           </div>
-          <nav className="grid grid-cols-2 gap-x-8 gap-y-6 text-sm sm:grid-cols-3" aria-label="Site and legal">
-            <div>
-              <p className="text-xs font-bold uppercase tracking-wide text-brand-black/70">Product</p>
-              <ul className="mt-3 space-y-2 text-brand-muted">
-                <li>
-                  <Link href="/how-it-works" className="transition hover:text-brand-green">
-                    How it works
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/about" className="transition hover:text-brand-green">
-                    About us
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/pricing" className="transition hover:text-brand-green">
-                    Pricing
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/tax-calculator" className="transition hover:text-brand-green">
-                    Tax calculator
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/submit" className="transition hover:text-brand-green">
-                    Monthly form
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/contact" className="transition hover:text-brand-green">
-                    Contact
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/sign-in" className="transition hover:text-brand-green">
-                    Sign in
-                  </Link>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <p className="text-xs font-bold uppercase tracking-wide text-brand-black/70">Legal &amp; trust</p>
-              <ul className="mt-3 space-y-2 text-brand-muted">
-                <li>
-                  <Link href="/privacy" className="transition hover:text-brand-green">
-                    Privacy
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/terms" className="transition hover:text-brand-green">
-                    Terms
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/cookies" className="transition hover:text-brand-green">
-                    Cookies
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/gdpr" className="transition hover:text-brand-green">
-                    GDPR &amp; data
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/disclaimer" className="transition hover:text-brand-green">
-                    Disclaimer &amp; illustrations
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/accessibility" className="transition hover:text-brand-green">
-                    Accessibility
-                  </Link>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <p className="text-xs font-bold uppercase tracking-wide text-brand-black/70">HMRC</p>
-              <ul className="mt-3 space-y-2 text-brand-muted">
-                <li>
-                  <Link href="/hmrc-agent" className="transition hover:text-brand-green">
-                    Recognised agent
-                  </Link>
-                </li>
-                <li>
-                  <a
-                    href="https://www.gov.uk"
-                    className="transition hover:text-brand-green"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    GOV.UK
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </nav>
+
+          <div className="grid grid-cols-2 gap-8 sm:grid-cols-4">
+            <FooterColumn
+              title="Quick links"
+              links={[
+                { href: "/", label: "Home" },
+                { href: "/how-it-works", label: "How it works" },
+                { href: "/pricing", label: "Pricing" },
+                { href: "/sign-up", label: "Sign up" },
+              ]}
+            />
+            <FooterColumn
+              title="MTD"
+              links={[
+                { href: "/mtd", label: "MTD categories" },
+                { href: "/submit", label: "Monthly submission" },
+                { href: "/tax-calculator", label: "Tax calculator" },
+                { href: "/hmrc-agent", label: "HMRC agent" },
+              ]}
+            />
+            <FooterColumn
+              title="Features"
+              links={[
+                { href: "/dashboard/receipts", label: "Receipts" },
+                { href: "/dashboard/submissions", label: "Submissions" },
+                { href: "/add-business", label: "Add business" },
+                { href: "/about", label: "About" },
+              ]}
+            />
+            <FooterColumn
+              title="Support"
+              links={[
+                { href: "/contact", label: "Contact" },
+                { href: "/privacy", label: "Privacy" },
+                { href: "/terms", label: "Terms" },
+                { href: "/accessibility", label: "Accessibility" },
+              ]}
+            />
+          </div>
         </div>
 
-        <div className="mt-10 border-t border-slate-200/80 pt-6 min-[900px]:mt-12 min-[900px]:pt-7">
-          <p className="mx-auto max-w-4xl text-center text-[11px] leading-relaxed text-brand-muted min-[900px]:text-xs">
-            © 2026 SelfSubmit. Clicado Media UK Ltd. “MTD compliant” reflects product direction for a future filing path —
-            not a guarantee for this demo.
+        <div className="mt-10 border-t border-gray-700 pt-6 text-center">
+          <p className="text-xs text-gray-500 sm:text-sm">
+            Selfsubmit.co.uk is part of Clicado Media UK Ltd. © {new Date().getFullYear()} SelfSubmit.
           </p>
         </div>
       </div>
     </footer>
+  );
+}
+
+function FooterColumn({ title, links }: { title: string; links: { href: string; label: string }[] }) {
+  return (
+    <div>
+      <p className="text-sm font-bold text-white">{title}</p>
+      <ul className="mt-3 space-y-2.5">
+        {links.map((link) => (
+          <li key={link.href}>
+            <Link href={link.href} className={linkClass}>
+              {link.label}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }

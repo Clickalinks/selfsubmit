@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 
 import { SiteFooter } from "@/components/landing/SiteFooter";
 import { SiteHeader } from "@/components/landing/SiteHeader";
-import { AddBusinessForm } from "@/components/subscription/AddBusinessForm";
+import { AddBusinessClientShell } from "@/components/subscription/AddBusinessClientShell";
 import { requireClerkUserId, requireUserPlan } from "@/server/subscription-guards";
+import { requireMfaEnabled } from "@/server/mfa-guards";
 
 export const metadata: Metadata = {
   title: "Add business — SelfSubmit",
@@ -12,6 +14,7 @@ export const metadata: Metadata = {
 
 export default async function AddBusinessPage() {
   const userId = await requireClerkUserId("/add-business");
+  await requireMfaEnabled(userId, "/add-business");
   await requireUserPlan(userId);
 
   return (
@@ -24,7 +27,9 @@ export default async function AddBusinessPage() {
           than your plan allows.
         </p>
         <div className="mt-10">
-          <AddBusinessForm />
+          <Suspense fallback={<p className="text-sm text-brand-muted">Loading…</p>}>
+            <AddBusinessClientShell />
+          </Suspense>
         </div>
       </main>
       <SiteFooter />

@@ -77,8 +77,8 @@ export default function DisclaimerPage() {
           by income streams) are indicative until checkout and contracts exist.
         </li>
         <li>
-          <strong className="text-brand-black">“Sign in”</strong> and similar CTAs may show a toast or placeholder
-          behaviour until authentication is implemented.
+          <strong className="text-brand-black">Account access</strong> uses Clerk for sign-in and sign-up. Some
+          product features (for example live HMRC filing) remain in development — see sections above.
         </li>
       </LegalUl>
 

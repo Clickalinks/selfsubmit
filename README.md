@@ -17,7 +17,7 @@ From the **repository root** (`c:\selfsubmit`), after installing dependencies in
 cd frontend && npm install && cd ..
 # optional: cd backend && npm install && cd ..
 npm run dev          # Next.js — http://localhost:3000
-npm run dev:backend  # API — backend `dev` script (Node --watch)
+npm run dev:backend  # Express API — http://localhost:3001 (Node --watch)
 ```
 
 Or run inside each folder as usual:

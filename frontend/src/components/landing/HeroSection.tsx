@@ -2,8 +2,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { CirclePlay } from "lucide-react";
 
-import { HashLink } from "@/components/landing/HashLink";
-
 const primaryCtaClass =
   "inline-flex w-full min-[480px]:w-auto items-center justify-center rounded-2xl bg-gradient-to-b from-brand-green-bright to-brand-green-dark px-10 py-4 text-base font-semibold text-white no-underline shadow-[0_8px_28px_rgba(0,176,80,0.38),0_1px_0_rgba(255,255,255,0.2)_inset] transition hover:brightness-[1.03] hover:shadow-[0_12px_36px_rgba(0,176,80,0.42)] active:scale-[0.99]";
 

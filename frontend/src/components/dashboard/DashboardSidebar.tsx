@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Building2, LayoutDashboard, Receipt, Send, Settings, X } from "lucide-react";
+import { Building2, ClipboardList, CreditCard, LayoutDashboard, Receipt, Send, Settings, X } from "lucide-react";
 
 import type { ClientProfileRecord } from "@/lib/profile-server";
 
@@ -15,9 +15,11 @@ type NavItem = {
 
 const NAV: NavItem[] = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, exact: true },
-  { href: "/dashboard/business-details", label: "Business Details", icon: Building2 },
+  { href: "/pricing", label: "Choose plan", icon: CreditCard },
+  { href: "/add-business", label: "Create business", icon: Building2 },
+  { href: "/submit", label: "Submit to HMRC", icon: Send },
   { href: "/dashboard/receipts", label: "Receipts", icon: Receipt },
-  { href: "/dashboard/submissions", label: "Submissions", icon: Send },
+  { href: "/dashboard/submissions", label: "Submission history", icon: ClipboardList },
   { href: "/dashboard/settings", label: "Settings", icon: Settings },
 ];
 
@@ -48,12 +50,12 @@ export function DashboardSidebar({ profile, mobileOpen, onCloseMobile }: Props) 
       />
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex w-[min(100vw,17.5rem)] flex-col bg-slate-900 transition-transform duration-300 ease-out lg:static lg:z-0 lg:w-64 lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 flex w-[min(100vw,17.5rem)] flex-col bg-brand-ink transition-transform duration-300 ease-out lg:static lg:z-0 lg:w-64 lg:translate-x-0 ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
         <div className="flex items-center gap-3 border-b border-white/10 px-5 py-5">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-500 text-sm font-bold text-white shadow-lg shadow-indigo-500/30">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-green text-sm font-bold text-white shadow-lg shadow-brand-green/30">
             SS
           </div>
           <div className="min-w-0 flex-1">
@@ -80,7 +82,7 @@ export function DashboardSidebar({ profile, mobileOpen, onCloseMobile }: Props) 
                 onClick={onCloseMobile}
                 className={`group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
                   active
-                    ? "bg-indigo-600 text-white shadow-md shadow-indigo-900/40"
+                    ? "bg-brand-green text-white shadow-md shadow-brand-green/30"
                     : "text-slate-300 hover:bg-white/10 hover:text-white"
                 }`}
               >
@@ -98,7 +100,7 @@ export function DashboardSidebar({ profile, mobileOpen, onCloseMobile }: Props) 
 
         <div className="border-t border-white/10 px-5 py-4">
           <div className="flex items-center gap-3 rounded-xl bg-white/5 px-3 py-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-indigo-400 to-indigo-600 text-sm font-bold text-white">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand-green-bright to-brand-green-dark text-sm font-bold text-white">
               {profile.firstName.charAt(0)}
               {profile.lastName.charAt(0)}
             </div>

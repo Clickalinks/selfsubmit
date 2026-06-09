@@ -11,6 +11,7 @@ export type ClientProfileRecord = {
   businessAddress: string;
   businessName: string | null;
   businessSameAsHome: boolean;
+  primaryProfession: string | null;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -30,11 +31,16 @@ export async function createClientProfile(userId: string, input: ProfileInput): 
 
   await prisma.user.upsert({
     where: { id: userId },
-    create: { id: userId, plan: "starter" },
+    create: { id: userId, plan: "solo" },
     update: {},
   });
 
-  return prisma.clientProfile.create({
+  const profession = input.primaryProfession.trim();
+  const displayName =
+    input.businessName?.trim() ||
+    `${input.firstName.trim()} ${input.lastName.trim()} — ${profession}`.slice(0, 120);
+
+  const profile = await prisma.clientProfile.create({
     data: {
       userId,
       firstName: input.firstName.trim(),
@@ -45,8 +51,22 @@ export async function createClientProfile(userId: string, input: ProfileInput): 
       businessAddress,
       businessName: input.businessName?.trim() || null,
       businessSameAsHome: input.businessSameAsHome,
+      primaryProfession: profession,
     },
   });
+
+  const existingBusiness = await prisma.business.count({ where: { userId } });
+  if (existingBusiness === 0) {
+    await prisma.business.create({
+      data: {
+        userId,
+        name: displayName,
+        category: profession,
+      },
+    });
+  }
+
+  return profile;
 }
 
 export async function updateClientProfile(
@@ -67,6 +87,7 @@ export async function updateClientProfile(
     businessAddress: input.businessAddress ?? existing.businessAddress,
     businessName: input.businessName !== undefined ? input.businessName : existing.businessName,
     businessSameAsHome: input.businessSameAsHome ?? existing.businessSameAsHome,
+    primaryProfession: input.primaryProfession ?? existing.primaryProfession ?? "",
   };
 
   return prisma.clientProfile.update({
@@ -80,6 +101,7 @@ export async function updateClientProfile(
       businessAddress: resolveBusinessAddress(merged),
       businessName: merged.businessName?.trim() || null,
       businessSameAsHome: merged.businessSameAsHome,
+      primaryProfession: merged.primaryProfession.trim() || null,
     },
   });
 }

@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { SignIn } from "@clerk/nextjs";
 
+import { LoginProtectionGuard } from "@/components/auth/LoginProtectionGuard";
+
 export const metadata: Metadata = {
   title: "Sign in — SelfSubmit",
   description: "Sign in to SelfSubmit with Clerk (email, password, passkeys when enabled in Clerk).",
@@ -9,15 +11,15 @@ export const metadata: Metadata = {
 
 const clerkAppearance = {
   variables: {
-    colorPrimary: "#00b050",
-    colorText: "#000000",
+    colorPrimary: "#14a44d",
+    colorText: "#1a1d1f",
     colorTextSecondary: "#5c5c5c",
     borderRadius: "0.75rem",
   },
   elements: {
     card: "shadow-card",
-    formButtonPrimary: "bg-gradient-to-b from-[#00c85f] to-[#008f45] hover:opacity-95",
-    footerActionLink: "text-[#00b050] hover:text-[#008f45]",
+    formButtonPrimary: "bg-brand-green hover:bg-brand-green-dark",
+    footerActionLink: "text-brand-green hover:text-brand-green-dark",
     headerTitle: "text-brand-black",
     socialButtonsBlockButton: "border-black/15",
   },
@@ -43,12 +45,14 @@ export default function SignInPage() {
               New here? Register as a client
             </Link>
           </p>
-          <SignIn
-            appearance={clerkAppearance}
-            signUpUrl="/sign-up"
-            fallbackRedirectUrl="/dashboard"
-            forceRedirectUrl="/dashboard"
-          />
+          <LoginProtectionGuard>
+            <SignIn
+              appearance={clerkAppearance}
+              signUpUrl="/sign-up"
+              fallbackRedirectUrl="/dashboard"
+              forceRedirectUrl="/dashboard"
+            />
+          </LoginProtectionGuard>
         </div>
       </div>
     </div>

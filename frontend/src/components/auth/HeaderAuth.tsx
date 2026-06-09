@@ -5,22 +5,22 @@ import { Show, UserButton } from "@clerk/nextjs";
 
 const clerkUserButtonAppearance = {
   elements: {
-    avatarBox: "h-9 w-9 ring-2 ring-brand-green/20",
+    avatarBox: "h-9 w-9 ring-2 ring-brand-green/25",
   },
 } as const;
 
 const signInBtnClass =
-  "inline-flex items-center justify-center rounded-full border border-black/20 bg-white px-3 py-2 text-xs font-semibold text-brand-black shadow-sm transition hover:border-black/35 hover:bg-neutral-50 sm:px-3.5 sm:text-sm lg:px-4 lg:text-[15px]";
+  "inline-flex items-center justify-center rounded-xl border-2 border-brand-green bg-white px-4 py-2 text-sm font-semibold text-brand-green transition hover:bg-brand-mint";
 
 const signUpBtnClass =
-  "inline-flex items-center justify-center rounded-full bg-gradient-to-b from-brand-green-bright to-brand-green-dark px-3 py-2 text-xs font-semibold text-white shadow-btn-green transition hover:brightness-105 sm:px-3.5 sm:text-sm lg:px-4 lg:text-[15px]";
+  "inline-flex items-center justify-center rounded-xl bg-brand-green px-4 py-2 text-sm font-semibold text-white shadow-btn-green transition hover:bg-brand-green-dark";
 
 const dashboardLinkClass =
-  "hidden rounded-full border border-black/15 bg-white px-3.5 py-2 text-sm font-semibold text-brand-black transition hover:bg-neutral-50 min-[480px]:inline-flex lg:text-[15px]";
+  "hidden rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-brand-black transition hover:bg-brand-mint min-[480px]:inline-flex";
 
 export function HeaderAuth() {
   return (
-    <div className="flex shrink-0 items-center gap-1.5 sm:gap-2 lg:gap-2.5">
+    <div className="flex shrink-0 items-center gap-2 sm:gap-3">
       <Show when="signed-out">
         <Link href="/sign-in" className={signInBtnClass}>
           Sign in

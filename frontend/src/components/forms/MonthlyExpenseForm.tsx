@@ -2,8 +2,9 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import type { LucideIcon } from "lucide-react";
-import { HardHat, ImagePlus, ListPlus, PoundSterling, Upload } from "lucide-react";
+import { HardHat, ImagePlus, ListPlus, Loader2, PoundSterling, Upload } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import {
@@ -30,6 +31,10 @@ import {
 } from "@/data/tradeIcons";
 import { HeaderAuth } from "@/components/auth/HeaderAuth";
 import { HmrcSimplifiedMileageNotice } from "@/components/forms/HmrcSimplifiedMileageNotice";
+import { CsvImportPanel } from "@/components/forms/CsvImportPanel";
+import { PeriodPresets } from "@/components/forms/PeriodPresets";
+import type { ParsedCsvLine } from "@/lib/csv-import";
+import { uploadReceiptFile } from "@/lib/upload-receipt-client";
 import { StickerIconFrame } from "@/components/ui/StickerIconFrame";
 import { getProfessionStickerTone, getTemplateStickerTone } from "@/data/professionStickerTones";
 import { stickerToneForLedgerLine } from "@/data/stickerCardTheme";
@@ -108,6 +113,9 @@ type UploadReceiptLine = {
   note: string;
   file: File | null;
   previewUrl: string | null;
+  receiptId: string | null;
+  uploading: boolean;
+  uploadError?: string;
 };
 
 type MonthlyExpenseFormProps = {
@@ -115,8 +123,11 @@ type MonthlyExpenseFormProps = {
 };
 
 export function MonthlyExpenseForm({ initialTrade }: MonthlyExpenseFormProps) {
+  const router = useRouter();
   const defaultTrade = initialTrade.trim() || ALL_PROFESSIONS[0] || "Taxi Driver";
   const [trade, setTrade] = useState(defaultTrade);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const template = useMemo(() => getTemplateForProfession(trade), [trade]);
 
   const initialTemplate = useMemo(() => getTemplateForProfession(defaultTrade), [defaultTrade]);
@@ -131,6 +142,30 @@ export function MonthlyExpenseForm({ initialTrade }: MonthlyExpenseFormProps) {
   );
 
   const [showConfirm, setShowConfirm] = useState(false);
+
+  const persistReceiptUpload = useCallback(async (rowId: string, file: File, note: string, amountStr: string) => {
+    setUploadReceiptLines((prev) =>
+      prev.map((r) => (r.id === rowId ? { ...r, uploading: true, uploadError: undefined } : r)),
+    );
+    const amountParsed = parseAmount(amountStr);
+    try {
+      const saved = await uploadReceiptFile({
+        file,
+        title: note.trim() || file.name,
+        amountGbp: amountParsed.ok ? amountParsed.value : null,
+      });
+      setUploadReceiptLines((prev) =>
+        prev.map((r) =>
+          r.id === rowId ? { ...r, uploading: false, receiptId: saved.id, uploadError: undefined } : r,
+        ),
+      );
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Upload failed";
+      setUploadReceiptLines((prev) =>
+        prev.map((r) => (r.id === rowId ? { ...r, uploading: false, uploadError: message } : r)),
+      );
+    }
+  }, []);
 
   const [receiptCaptureTab, setReceiptCaptureTab] = useState<"upload" | "manual">("manual");
   const [manualReceiptLines, setManualReceiptLines] = useState<ManualReceiptLine[]>([]);
@@ -214,6 +249,46 @@ export function MonthlyExpenseForm({ initialTrade }: MonthlyExpenseFormProps) {
   const setExpenseAmount = (id: string, amount: string) => {
     patchExpense(id, { amount, error: undefined });
   };
+
+  const applyCsvImport = useCallback(
+    (lines: ParsedCsvLine[]) => {
+      const normalise = (value: string) => value.trim().toLowerCase();
+
+      const findLineId = (items: MoneyLineItem[], label: string) => {
+        const needle = normalise(label);
+        const exact = items.find((li) => normalise(li.label) === needle);
+        if (exact) return exact.id;
+        const partial = items.find(
+          (li) => normalise(li.label).includes(needle) || needle.includes(normalise(li.label)),
+        );
+        return partial?.id ?? null;
+      };
+
+      setIncomeRows((prev) => {
+        const next = { ...prev };
+        for (const line of lines.filter((l) => l.type === "income")) {
+          const id = findLineId(template.incomeLineItems, line.label);
+          if (!id) continue;
+          next[id] = { amount: formatDisplayAmount(line.amount), saved: false, error: undefined };
+        }
+        return next;
+      });
+
+      setExpenseRows((prev) => {
+        const next = { ...prev };
+        const otherId = visibleExpenseItems.find((li) => li.id === "other")?.id ?? null;
+        for (const line of lines.filter((l) => l.type === "expense")) {
+          const id = findLineId(visibleExpenseItems, line.label) ?? otherId;
+          if (!id) continue;
+          const existing = parseAmount(next[id]?.amount ?? "");
+          const merged = existing.ok ? existing.value + line.amount : line.amount;
+          next[id] = { amount: formatDisplayAmount(merged), saved: false, error: undefined };
+        }
+        return next;
+      });
+    },
+    [template.incomeLineItems, visibleExpenseItems],
+  );
 
   const saveIncome = (id: string) => {
     const cell = incomeRows[id];
@@ -399,8 +474,12 @@ export function MonthlyExpenseForm({ initialTrade }: MonthlyExpenseFormProps) {
     setShowConfirm(true);
   };
 
-  const confirmSubmit = () => {
+  const confirmSubmit = async () => {
     setShowConfirm(false);
+    if (!totals) return;
+    setSubmitting(true);
+    setSubmitError(null);
+
     const incomePayload = template.incomeLineItems.map((li) => ({
       id: li.id,
       label: li.label,
@@ -411,49 +490,92 @@ export function MonthlyExpenseForm({ initialTrade }: MonthlyExpenseFormProps) {
       label: li.label,
       amount: expenseRows[li.id]?.amount ?? "",
     }));
-    console.info("Submit monthly return", {
-      trade,
-      period: {
-        fromIso: periodFrom,
-        toIso: periodTo,
-        fromUk: isoDateToUkDisplay(periodFrom),
-        toUk: isoDateToUkDisplay(periodTo),
-      },
-      template: template.id,
-      vehicleCostMethod: usesBusinessVehicleTemplate(template.id) ? vehicleCostMethod : null,
-      simplifiedMileageInputs:
-        showSimplifiedMileageStep && mileagePreview.ok
-          ? {
-              milesThisPeriod: mileagePreview.miles,
-              vehicle: mileageVehicle,
-              annualBand: mileageVehicle === "motorcycle" ? null : mileageBand,
-              pencePerMileApplied: mileagePreview.pence,
-            }
-          : null,
-      income: incomePayload,
-      expenses: expensePayload,
-      totals,
-      receiptCapture: {
-        tab: receiptCaptureTab,
-        manualLines: manualReceiptLines,
-        uploadMeta: uploadReceiptLines.map((row) => ({
-          id: row.id,
-          amount: row.amount,
-          note: row.note,
-          fileName: row.file?.name ?? null,
-        })),
-      },
-      cis:
-        cisConstruction && cisDeductionThisPeriod.trim() !== ""
-          ? {
-              deductionsThisPeriodGbp: cisDeductionParsed.ok ? cisDeductionParsed.value : null,
-              rawInput: cisDeductionThisPeriod,
-            }
-          : cisConstruction
-            ? { deductionsThisPeriodGbp: null, rawInput: "" }
-            : null,
-    });
-    alert("Submitted (demo). Connect your API to persist.");
+    const receiptIds = uploadReceiptLines
+      .map((row) => row.receiptId)
+      .filter((id): id is string => Boolean(id));
+
+    const pendingUploads = uploadReceiptLines.filter((row) => row.file && !row.receiptId);
+    for (const row of pendingUploads) {
+      if (!row.file) continue;
+      try {
+        const amountParsed = parseAmount(row.amount);
+        const saved = await uploadReceiptFile({
+          file: row.file,
+          title: row.note.trim() || row.file.name,
+          amountGbp: amountParsed.ok ? amountParsed.value : null,
+        });
+        receiptIds.push(saved.id);
+      } catch (err) {
+        setSubmitError(err instanceof Error ? err.message : "Could not save a receipt photo.");
+        setSubmitting(false);
+        return;
+      }
+    }
+
+    try {
+      const res = await fetch("/api/submissions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          trade,
+          periodFrom,
+          periodTo,
+          templateId: template.id,
+          vehicleCostMethod: usesBusinessVehicleTemplate(template.id) ? vehicleCostMethod : null,
+          simplifiedMileageInputs:
+            showSimplifiedMileageStep && mileagePreview.ok
+              ? {
+                  milesThisPeriod: mileagePreview.miles,
+                  vehicle: mileageVehicle,
+                  annualBand: mileageVehicle === "motorcycle" ? null : mileageBand,
+                  pencePerMileApplied: mileagePreview.pence,
+                }
+              : null,
+          income: incomePayload,
+          expenses: expensePayload,
+          totals: {
+            incomeGbp: totals.income,
+            expensesGbp: totals.expenses,
+            netProfitGbp: totals.net,
+          },
+          receiptIds,
+          receiptCapture: {
+            tab: receiptCaptureTab,
+            manualLines: manualReceiptLines,
+            uploadMeta: uploadReceiptLines.map((row) => ({
+              id: row.id,
+              amount: row.amount,
+              note: row.note,
+              fileName: row.file?.name ?? null,
+              receiptId: row.receiptId,
+            })),
+          },
+          cis:
+            cisConstruction && cisDeductionThisPeriod.trim() !== ""
+              ? {
+                  deductionsThisPeriodGbp: cisDeductionParsed.ok ? cisDeductionParsed.value : null,
+                  rawInput: cisDeductionThisPeriod,
+                }
+              : cisConstruction
+                ? { deductionsThisPeriodGbp: null, rawInput: "" }
+                : null,
+        }),
+      });
+      const data = (await res.json().catch(() => ({}))) as {
+        error?: string;
+        submission?: { id: string; hmrcReference?: string | null };
+      };
+      if (!res.ok) {
+        setSubmitError(data.error ?? "Submission failed. Please try again.");
+        setSubmitting(false);
+        return;
+      }
+      router.push(`/dashboard/submissions?submitted=${data.submission?.id ?? "1"}`);
+      router.refresh();
+    } catch {
+      setSubmitError("Network error — check your connection and try again.");
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -496,10 +618,16 @@ export function MonthlyExpenseForm({ initialTrade }: MonthlyExpenseFormProps) {
             Return period
           </h2>
           <p className="mt-1 text-xs text-brand-muted">
-            The income and expenses below relate to this period only (for example, this income is from{" "}
-            <span className="font-medium text-brand-black">04/04/2026</span> up to{" "}
-            <span className="font-medium text-brand-black">03/05/2026</span>).
+            Choose a quick preset or pick exact from / up to dates for this return.
           </p>
+          <PeriodPresets
+            periodFrom={periodFrom}
+            periodTo={periodTo}
+            onApply={(from, to) => {
+              setPeriodFrom(from);
+              setPeriodTo(to);
+            }}
+          />
           <div className="mt-4 grid gap-4 min-[520px]:grid-cols-2">
             <div>
               <label htmlFor="period-from" className="block text-sm font-semibold text-brand-black">
@@ -541,6 +669,8 @@ export function MonthlyExpenseForm({ initialTrade }: MonthlyExpenseFormProps) {
             </p>
           ) : null}
         </section>
+
+        <CsvImportPanel onImport={applyCsvImport} className="mt-8 max-w-2xl" />
 
         <div className="mt-8 max-w-2xl">
           <label htmlFor="profession" className="block text-sm font-semibold text-brand-black">
@@ -891,8 +1021,9 @@ export function MonthlyExpenseForm({ initialTrade }: MonthlyExpenseFormProps) {
                 Receipts &amp; petty cash
               </h2>
               <p className="text-sm text-brand-muted">
-                Upload a photo for your records and type the total from the receipt, or add manual lines. Amounts sum
-                automatically; you can merge the total into <strong className="text-brand-black">Other allowable expenses</strong>.
+                Upload a photo — it is saved to your <strong className="text-brand-black">Receipts</strong> page as you
+                add it. Type the total from the receipt, or add manual lines. You can merge totals into{" "}
+                <strong className="text-brand-black">Other allowable expenses</strong>.
               </p>
             </div>
           </div>
@@ -1016,11 +1147,28 @@ export function MonthlyExpenseForm({ initialTrade }: MonthlyExpenseFormProps) {
                               prev.map((r) => {
                                 if (r.id !== row.id) return r;
                                 if (r.previewUrl) URL.revokeObjectURL(r.previewUrl);
-                                if (!file) return { ...r, file: null, previewUrl: null };
-                                return { ...r, file, previewUrl: URL.createObjectURL(file) };
+                                if (!file) {
+                                  return {
+                                    ...r,
+                                    file: null,
+                                    previewUrl: null,
+                                    receiptId: null,
+                                    uploading: false,
+                                    uploadError: undefined,
+                                  };
+                                }
+                                return {
+                                  ...r,
+                                  file,
+                                  previewUrl: URL.createObjectURL(file),
+                                  receiptId: null,
+                                  uploading: false,
+                                  uploadError: undefined,
+                                };
                               }),
                             );
                             e.target.value = "";
+                            if (file) void persistReceiptUpload(row.id, file, row.note, row.amount);
                           }}
                         />
                       </label>
@@ -1064,6 +1212,17 @@ export function MonthlyExpenseForm({ initialTrade }: MonthlyExpenseFormProps) {
                             className="mt-1 w-full max-w-xs rounded-lg border border-black/15 bg-white px-3 py-2 text-sm tabular-nums text-brand-black focus:border-brand-green focus:outline-none focus:ring-2 focus:ring-brand-green/20"
                           />
                         </div>
+                        {row.uploading ? (
+                          <p className="flex items-center gap-2 text-xs font-medium text-brand-muted">
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden />
+                            Saving to your receipts…
+                          </p>
+                        ) : row.receiptId ? (
+                          <p className="text-xs font-semibold text-brand-green">Saved to Receipts</p>
+                        ) : null}
+                        {row.uploadError ? (
+                          <p className="text-xs text-red-600">{row.uploadError}</p>
+                        ) : null}
                         <button
                           type="button"
                           onClick={() =>
@@ -1087,7 +1246,15 @@ export function MonthlyExpenseForm({ initialTrade }: MonthlyExpenseFormProps) {
                 onClick={() =>
                   setUploadReceiptLines((prev) => [
                     ...prev,
-                    { id: crypto.randomUUID(), amount: "", note: "", file: null, previewUrl: null },
+                    {
+                      id: crypto.randomUUID(),
+                      amount: "",
+                      note: "",
+                      file: null,
+                      previewUrl: null,
+                      receiptId: null,
+                      uploading: false,
+                    },
                   ])
                 }
                 className="rounded-full border border-brand-green/40 bg-brand-mint px-4 py-2 text-sm font-semibold text-brand-green hover:bg-emerald-100/80"
@@ -1220,23 +1387,36 @@ export function MonthlyExpenseForm({ initialTrade }: MonthlyExpenseFormProps) {
         </section>
 
         <div className="mt-10 rounded-2xl border border-amber-200/80 bg-amber-50/80 px-4 py-3 text-sm text-brand-black">
-          <strong>Before you submit:</strong> double-check income and expenses. After submission you will not be able to
-          edit this return from this screen (demo — connect your backend for real rules).
+          <strong>Before you submit:</strong> double-check income and expenses. We file to HMRC (mock acceptance until
+          live MTD is connected) and save a copy in your dashboard submissions.
         </div>
+
+        {submitError ? (
+          <p className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800" role="alert">
+            {submitError}
+          </p>
+        ) : null}
 
         <div className="mt-6 flex flex-col gap-3 min-[900px]:flex-row min-[900px]:items-center">
           <button
             type="button"
             onClick={openSubmitWarning}
-            disabled={!allSaved || !periodValid}
+            disabled={!allSaved || !periodValid || submitting}
             className={cx(
               "rounded-full px-8 py-3.5 text-[15px] font-bold text-white shadow-btn-green transition",
-              allSaved && periodValid
+              allSaved && periodValid && !submitting
                 ? "bg-gradient-to-b from-brand-green-bright to-brand-green-dark hover:brightness-105"
                 : "cursor-not-allowed bg-neutral-300 text-neutral-500 shadow-none",
             )}
           >
-            Submit monthly return
+            {submitting ? (
+              <>
+                <Loader2 className="mr-2 inline h-4 w-4 animate-spin" />
+                Submitting…
+              </>
+            ) : (
+              "Submit monthly return"
+            )}
           </button>
           {!allSaved ? (
             <span className="text-sm text-brand-muted">Save all income and expense lines to enable submit.</span>
@@ -1356,7 +1536,7 @@ function ConfirmDialog({
 }: {
   periodSummaryUk: string;
   onCancel: () => void;
-  onConfirm: () => void;
+  onConfirm: () => void | Promise<void>;
 }) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -1402,7 +1582,7 @@ function ConfirmDialog({
           </button>
           <button
             type="button"
-            onClick={onConfirm}
+            onClick={() => void onConfirm()}
             className="rounded-full bg-gradient-to-b from-brand-green-bright to-brand-green-dark px-5 py-2.5 text-sm font-bold text-white shadow-btn-green hover:brightness-105"
           >
             Submit anyway

@@ -3,13 +3,13 @@
 @tailwind utilities;
 
 :root {
-  --foreground: #000000;
-  --page-base: #f5faf7;
-  --page-mid: #eaf6ef;
-  --page-deep: #dff0e6;
-  --glow-green: rgba(0, 176, 80, 0.16);
-  --glow-forest: rgba(0, 143, 69, 0.12);
-  --glow-mint: rgba(232, 247, 237, 0.85);
+  --foreground: #1a1d1f;
+  --page-base: #ffffff;
+  --page-mid: #f8faf9;
+  --page-deep: #edf7f0;
+  --glow-green: rgba(20, 164, 77, 0.12);
+  --glow-forest: rgba(13, 92, 54, 0.08);
+  --glow-mint: rgba(237, 247, 240, 0.9);
 }
 
 html {
