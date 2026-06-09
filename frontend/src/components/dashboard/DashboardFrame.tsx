@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import { usePathname } from "next/navigation";
 
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
-import type { ClientProfileRecord } from "@/lib/profile-server";
+import type { DashboardShellProfile } from "@/lib/dashboard-profile";
 
 const PAGE_TITLES: Record<string, string> = {
   "/dashboard": "Dashboard",
@@ -16,7 +16,7 @@ const PAGE_TITLES: Record<string, string> = {
 };
 
 type Props = {
-  profile: ClientProfileRecord;
+  profile: DashboardShellProfile;
   children: ReactNode;
 };
 

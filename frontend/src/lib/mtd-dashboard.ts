@@ -89,6 +89,27 @@ function periodsOverlap(
   return aFrom.getTime() <= bTo.getTime() && aTo.getTime() >= bFrom.getTime();
 }
 
+export function emptyMtdDashboardSnapshot(reference = new Date()): MtdDashboardSnapshot {
+  const currentQuarter = getCurrentQuarter(reference);
+  return {
+    mtdStatus: "not_started",
+    mtdStatusLabel: "Not started",
+    nextDeadline: currentQuarter.deadline,
+    nextDeadlineLabel: formatUkDate(currentQuarter.deadline),
+    daysUntilDeadline: daysUntil(reference, currentQuarter.deadline),
+    currentQuarter,
+    quarterIncomeGbp: 0,
+    quarterExpensesGbp: 0,
+    estimatedProfitGbp: 0,
+    todayMessage: "Dashboard data is temporarily unavailable. Please refresh in a moment.",
+    todayTone: "info",
+    hasPlan: false,
+    hasBusiness: false,
+    currentQuarterSubmitted: false,
+    receiptCount: 0,
+  };
+}
+
 export async function getMtdDashboardSnapshot(userId: string): Promise<MtdDashboardSnapshot> {
   const now = new Date();
   const currentQuarter = getCurrentQuarter(now);

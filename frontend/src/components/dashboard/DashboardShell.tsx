@@ -6,10 +6,10 @@ import { UserButton } from "@clerk/nextjs";
 import { Bell, Menu } from "lucide-react";
 
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
-import type { ClientProfileRecord } from "@/lib/profile-server";
+import type { DashboardShellProfile } from "@/lib/dashboard-profile";
 
 type Props = {
-  profile: ClientProfileRecord;
+  profile: DashboardShellProfile;
   title: string;
   children: ReactNode;
 };

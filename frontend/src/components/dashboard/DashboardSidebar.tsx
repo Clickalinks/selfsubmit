@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Building2, ClipboardList, CreditCard, LayoutDashboard, Receipt, Send, Settings, X } from "lucide-react";
 
-import type { ClientProfileRecord } from "@/lib/profile-server";
+import type { DashboardShellProfile } from "@/lib/dashboard-profile";
 
 type NavItem = {
   href: string;
@@ -24,7 +24,7 @@ const NAV: NavItem[] = [
 ];
 
 type Props = {
-  profile: Pick<ClientProfileRecord, "firstName" | "lastName" | "businessName">;
+  profile: Pick<DashboardShellProfile, "firstName" | "lastName" | "businessName">;
   mobileOpen: boolean;
   onCloseMobile: () => void;
 };

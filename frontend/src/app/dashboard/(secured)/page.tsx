@@ -10,7 +10,7 @@ import {
   MtdStatusBadge,
   WhatDoINeedTodayCard,
 } from "@/components/dashboard/DashboardHomeSections";
-import { formatGbp, getMtdDashboardSnapshot } from "@/lib/mtd-dashboard";
+import { emptyMtdDashboardSnapshot, formatGbp, getMtdDashboardSnapshot } from "@/lib/mtd-dashboard";
 import { getClientProfile } from "@/lib/profile-server";
 import { getUserPlan } from "@/lib/subscription-server";
 import { PLAN_DISPLAY_NAMES } from "@/lib/plan-config";
@@ -24,12 +24,17 @@ export default async function DashboardPage() {
   const { userId } = await auth();
   if (!userId) return null;
 
-  const [profile, snapshot, plan] = await Promise.all([
-    getClientProfile(userId),
-    getMtdDashboardSnapshot(userId),
-    getUserPlan(userId),
-  ]);
+  const profile = await getClientProfile(userId);
   if (!profile) return null;
+
+  let snapshot = emptyMtdDashboardSnapshot();
+  let plan: Awaited<ReturnType<typeof getUserPlan>> = null;
+
+  try {
+    [snapshot, plan] = await Promise.all([getMtdDashboardSnapshot(userId), getUserPlan(userId)]);
+  } catch (err) {
+    console.error("[dashboard/page] snapshot load failed", err);
+  }
 
   const deadlineDisplay =
     snapshot.daysUntilDeadline !== null && snapshot.daysUntilDeadline >= 0

@@ -5,7 +5,6 @@ import { getRequestIp } from "@/lib/request-ip";
 
 export async function POST(request: Request) {
   const ip = getRequestIp(request);
-  await recordRateLimitHit(ip);
 
   let body: { email?: string } = {};
   try {
@@ -19,18 +18,25 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Email is required." }, { status: 400 });
   }
 
-  const result = await checkLoginAllowed(email, ip);
-  if (!result.allowed) {
-    return NextResponse.json(
-      {
-        allowed: false,
-        lockedUntil: result.lockedUntil?.toISOString() ?? null,
-        message: result.message,
-        reason: result.reason,
-      },
-      { status: 429 },
-    );
-  }
+  try {
+    await recordRateLimitHit(ip);
+    const result = await checkLoginAllowed(email, ip);
+    if (!result.allowed) {
+      return NextResponse.json(
+        {
+          allowed: false,
+          lockedUntil: result.lockedUntil?.toISOString() ?? null,
+          message: result.message,
+          reason: result.reason,
+        },
+        { status: 429 },
+      );
+    }
 
-  return NextResponse.json({ allowed: true, lockedUntil: null, message: null, reason: null });
+    return NextResponse.json({ allowed: true, lockedUntil: null, message: null, reason: null });
+  } catch (err) {
+    console.error("[login-protection/check]", err);
+    // Fail open so Clerk sign-in still works if the protection store is unavailable.
+    return NextResponse.json({ allowed: true, lockedUntil: null, message: null, reason: null });
+  }
 }
