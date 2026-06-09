@@ -66,7 +66,7 @@ const csp = [
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https: https://img.clerk.com",
   "font-src 'self' data:",
-  `connect-src 'self' ${clerkOrigins} https://api.stripe.com https://*.sentry.io https://clerk-telemetry.com https://*.clerk-telemetry.com`,
+  `connect-src 'self' ${clerkOrigins} https://api.stripe.com https://*.sentry.io https://clerk-telemetry.com https://*.clerk-telemetry.com wss:`,
   `frame-src 'self' ${clerkOrigins} https://js.stripe.com https://challenges.cloudflare.com`,
   "worker-src 'self' blob:",
   "object-src 'none'",
