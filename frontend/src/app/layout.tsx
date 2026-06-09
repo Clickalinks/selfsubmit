@@ -6,6 +6,9 @@ import { ComplianceDisclaimerBanner } from "@/components/ComplianceDisclaimerBan
 
 import "./globals.css";
 
+/** Clerk proxy + provider need request-time rendering (avoids window is not defined during SSG). */
+export const dynamic = "force-dynamic";
+
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
@@ -33,6 +36,7 @@ export default function RootLayout({
     <html lang="en-GB" className={inter.variable}>
       <body className="min-h-screen min-h-[100dvh] font-sans antialiased supports-[padding:max(0px)]:pl-[max(0px,env(safe-area-inset-left))] supports-[padding:max(0px)]:pr-[max(0px,env(safe-area-inset-right))]">
         <ClerkProvider
+          dynamic
           signInUrl="/sign-in"
           signUpUrl="/sign-up"
           signInFallbackRedirectUrl="/dashboard"

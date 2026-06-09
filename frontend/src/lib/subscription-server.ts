@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/db";
 import { userHasActiveSubscription } from "@/lib/billing-server";
-import { isPlanId, maxBusinessesForPlan, normalizePlanId, type PlanId } from "@/lib/plan-config";
+import { maxBusinessesForPlan, normalizePlanId, type PlanId } from "@/lib/plan-config";
 
 export async function getUserPlan(userId: string): Promise<PlanId | null> {
   const active = await userHasActiveSubscription(userId);
