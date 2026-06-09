@@ -1,29 +1,65 @@
 import type { NextConfig } from "next";
 
+/** Production apex domains — Clerk custom hosts are clerk.{apex} and accounts.{apex}. */
+const PRODUCTION_SITE_APEX_DOMAINS = ["selfsubmit.co.uk"] as const;
+
+function normalizeApex(hostname: string): string | null {
+  const apex = hostname.replace(/^www\./, "").trim().toLowerCase();
+  if (!apex || apex === "localhost" || apex === "127.0.0.1" || apex.endsWith(".vercel.app")) {
+    return null;
+  }
+  return apex;
+}
+
+function apexFromUrl(value: string | undefined): string | null {
+  if (!value?.trim()) return null;
+  try {
+    const host = value.includes("://") ? new URL(value).hostname : value.split("/")[0];
+    return normalizeApex(host);
+  } catch {
+    return normalizeApex(value);
+  }
+}
+
 /** Clerk FAPI + accounts hosts for dev (*.clerk.accounts.dev) and production (clerk.yourdomain.com). */
 function clerkCspOrigins(): string[] {
-  const origins = ["https://*.clerk.accounts.dev", "https://*.clerk.com"];
+  const origins = new Set<string>([
+    "https://*.clerk.accounts.dev",
+    "https://*.clerk.com",
+    "https://challenges.cloudflare.com",
+  ]);
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL;
-  if (!appUrl) return origins;
-
-  try {
-    const apex = new URL(appUrl).hostname.replace(/^www\./, "");
-    if (apex !== "localhost" && apex !== "127.0.0.1") {
-      origins.push(`https://clerk.${apex}`, `https://accounts.${apex}`);
+  const explicitFapi = process.env.CLERK_FAPI_URL?.trim() || process.env.NEXT_PUBLIC_CLERK_FAPI_URL?.trim();
+  if (explicitFapi) {
+    try {
+      origins.add(new URL(explicitFapi).origin);
+    } catch {
+      // ignore invalid CLERK_FAPI_URL
     }
-  } catch {
-    // ignore invalid NEXT_PUBLIC_APP_URL
   }
 
-  return origins;
+  const apexCandidates = [
+    apexFromUrl(process.env.NEXT_PUBLIC_APP_URL),
+    apexFromUrl(process.env.APP_URL),
+    apexFromUrl(process.env.VERCEL_PROJECT_PRODUCTION_URL),
+    ...PRODUCTION_SITE_APEX_DOMAINS,
+  ];
+
+  for (const apex of apexCandidates) {
+    if (!apex) continue;
+    origins.add(`https://clerk.${apex}`);
+    origins.add(`https://accounts.${apex}`);
+    origins.add(`https://*.${apex}`);
+  }
+
+  return [...origins];
 }
 
 const clerkOrigins = clerkCspOrigins().join(" ");
 
 const csp = [
   "default-src 'self'",
-  `script-src 'self' 'unsafe-inline' 'unsafe-eval' ${clerkOrigins} https://challenges.cloudflare.com`,
+  `script-src 'self' 'unsafe-inline' 'unsafe-eval' ${clerkOrigins}`,
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https: https://img.clerk.com",
   "font-src 'self' data:",
