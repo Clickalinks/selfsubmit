@@ -56,11 +56,43 @@ function mapHitToOption(entry: IdealPostcodeHit, index: number, fallbackPostcode
   };
 }
 
+function idealPostcodesReferer(): string {
+  const candidates = [
+    process.env.NEXT_PUBLIC_APP_URL,
+    process.env.VERCEL_PROJECT_PRODUCTION_URL
+      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+      : undefined,
+    "https://www.selfsubmit.co.uk",
+  ];
+
+  for (const candidate of candidates) {
+    if (!candidate?.trim()) continue;
+    try {
+      const url = candidate.includes("://") ? new URL(candidate) : new URL(`https://${candidate}`);
+      return `${url.origin}/`;
+    } catch {
+      // try next candidate
+    }
+  }
+
+  return "https://www.selfsubmit.co.uk/";
+}
+
+function idealPostcodesRequestHeaders(): HeadersInit {
+  return {
+    Accept: "application/json",
+    Referer: idealPostcodesReferer(),
+  };
+}
+
 export function idealPostcodeErrorMessage(data: IdealPostcodeResponse, httpStatus: number): string {
   const code = data.code;
   const msg = data.message ?? "Ideal Postcodes lookup failed";
 
-  if (code === 4010 || httpStatus === 401) {
+  if (code === 4011) {
+    return "Ideal Postcodes blocked this request (URL whitelist). In your Ideal Postcodes dashboard, disable Allowed URLs for server-side keys or add https://www.selfsubmit.co.uk.";
+  }
+  if (code === 4010) {
     return "Invalid Ideal Postcodes API key. Check IDEAL_POSTCODES_API_KEY in .env.local (dev) or Vercel env vars (production), then redeploy.";
   }
   if (code === 4020 || httpStatus === 402) {
@@ -99,7 +131,7 @@ export async function fetchIdealPostcodeAddresses(
 
     const res = await fetch(url.toString(), {
       cache: "no-store",
-      headers: { Accept: "application/json" },
+      headers: idealPostcodesRequestHeaders(),
     });
 
     let data: IdealPostcodeResponse = {};
@@ -113,11 +145,7 @@ export async function fetchIdealPostcodeAddresses(
       const lower = (data.message ?? "").toLowerCase();
       return {
         ok: false,
-        unauthorized:
-          res.status === 401 ||
-          data.code === 4010 ||
-          lower.includes("invalid key") ||
-          lower.includes("unauthorized"),
+        unauthorized: data.code === 4010 || lower.includes("invalid key"),
         notFound: res.status === 404 || data.code === 4040,
         message: idealPostcodeErrorMessage(data, res.status),
       };
