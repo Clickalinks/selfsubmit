@@ -60,9 +60,12 @@ export default clerkMiddleware(
       return NextResponse.redirect(canonical, 308);
     }
 
-    // Stale /__clerk URLs from old proxy config — send users to the homepage.
+    // Stale /__clerk URLs from old proxy config — rewrite to custom FAPI instead of returning HTML.
     if (!clerkAppProxyEnabled() && pathname.startsWith("/__clerk")) {
-      return NextResponse.redirect(new URL("/", req.url), 307);
+      const suffix = pathname.slice("/__clerk".length);
+      const clerkUrl = new URL(`https://clerk.selfsubmit.co.uk${suffix}`);
+      clerkUrl.search = req.nextUrl.search;
+      return NextResponse.rewrite(clerkUrl);
     }
 
     if (isPublicApi(req)) {

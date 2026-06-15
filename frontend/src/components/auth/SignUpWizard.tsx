@@ -66,6 +66,24 @@ function finishSignUpNavigation(path: "/dashboard" | "/onboarding") {
   window.location.assign(path);
 }
 
+function formatSignUpError(err: unknown): string {
+  if (err && typeof err === "object" && "errors" in err) {
+    const clerkErr = err as { errors?: Array<{ long_message?: string; message?: string }> };
+    const first = clerkErr.errors?.[0];
+    if (first?.long_message) return first.long_message;
+    if (first?.message) return first.message;
+  }
+
+  if (err instanceof Error) {
+    if (err.message.includes("<!DOCTYPE") || err.message.includes("is not valid JSON")) {
+      return "Sign-up could not reach Clerk (stale auth configuration). Hard-refresh this page (Ctrl+Shift+R), then try again.";
+    }
+    return err.message;
+  }
+
+  return "Sign-up failed. Please try again.";
+}
+
 export function SignUpWizard() {
   const { isLoaded, isSignedIn } = useAuth();
   const clerk = useClerk();
@@ -153,7 +171,14 @@ export function SignUpWizard() {
 
   const onHomeAddressChange = (address: string) => {
     setHomeAddress(address);
-    if (businessSameAsHome) setBusinessAddress(address);
+    if (businessSameAsHome) {
+      setBusinessAddress(address);
+      setFieldErrors((prev) => {
+        const next = { ...prev };
+        delete next.businessAddress;
+        return next;
+      });
+    }
   };
 
   const saveProfileAndFinish = useCallback(
@@ -273,8 +298,7 @@ export function SignUpWizard() {
 
       setFormError("Could not complete sign-up. Please try again.");
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Sign-up failed. Please try again.";
-      setFormError(message);
+      setFormError(formatSignUpError(err));
     } finally {
       setLoading(false);
     }
@@ -289,7 +313,7 @@ export function SignUpWizard() {
       await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
       setVerificationMessage("A new code has been sent to your email.");
     } catch (err) {
-      setFormError(err instanceof Error ? err.message : "Could not resend code.");
+      setFormError(formatSignUpError(err));
     } finally {
       setLoading(false);
     }

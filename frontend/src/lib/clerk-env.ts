@@ -36,19 +36,12 @@ export function reconcileClerkProxyEnv(): void {
 
 /**
  * Clerk merges `props.proxyUrl || process.env.NEXT_PUBLIC_CLERK_PROXY_URL`.
- * Empty string props lose to a stale Vercel env, so pass a truthy absolute URL
- * that avoids relative /__clerk (SSR window crash) when live keys use custom FAPI.
+ * Empty-string props lose to a stale Vercel env, so only pass proxyUrl when the
+ * app-domain /__clerk proxy is intentionally enabled.
  */
 export function clerkProviderProxyUrl(): string | undefined {
-  if (!usesIncompatibleClerkAppProxy()) return undefined;
-  const encoded = publishableKey().replace(/^pk_(live|test)_/, "");
-  try {
-    const host = Buffer.from(encoded, "base64").toString("utf8").replace(/\$$/, "").trim();
-    if (host.includes(".")) return `https://${host}`;
-  } catch {
-    // fall through
-  }
-  return undefined;
+  if (!clerkAppProxyEnabled()) return undefined;
+  return proxyUrl() || undefined;
 }
 
 reconcileClerkProxyEnv();
