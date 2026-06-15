@@ -101,10 +101,6 @@ export function UkAddressLookup({ idPrefix, label, value, onChange, error, disab
       if (data.fallback === "structured" && data.area) {
         setStructuredMode(true);
         setArea(data.area);
-        setLookupHint(
-          data.error ??
-            `Postcode found (${data.area.town}${data.area.county ? `, ${data.area.county}` : ""}). Enter your street address below.`,
-        );
         applyStructuredAddress({
           line1,
           line2,
@@ -112,6 +108,14 @@ export function UkAddressLookup({ idPrefix, label, value, onChange, error, disab
           county: data.area.county,
           postcode: data.area.postcode,
         });
+        if (data.error) {
+          setLookupError(data.error);
+          if (data.hint) setLookupHint(data.hint);
+        } else {
+          setLookupHint(
+            `Postcode found (${data.area.town}${data.area.county ? `, ${data.area.county}` : ""}). Enter your street address below.`,
+          );
+        }
         return;
       }
 

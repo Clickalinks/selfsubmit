@@ -56,26 +56,33 @@ function mapHitToOption(entry: IdealPostcodeHit, index: number, fallbackPostcode
   };
 }
 
-function idealPostcodesReferer(): string {
-  const candidates = [
-    process.env.NEXT_PUBLIC_APP_URL,
-    process.env.VERCEL_PROJECT_PRODUCTION_URL
-      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-      : undefined,
-    "https://www.selfsubmit.co.uk",
-  ];
+const IDEAL_POSTCODES_REFERER = "https://www.selfsubmit.co.uk/";
 
-  for (const candidate of candidates) {
-    if (!candidate?.trim()) continue;
+function idealPostcodesReferer(): string {
+  const explicit = process.env.IDEAL_POSTCODES_REFERER?.trim();
+  if (explicit) {
     try {
-      const url = candidate.includes("://") ? new URL(candidate) : new URL(`https://${candidate}`);
+      const url = explicit.includes("://") ? new URL(explicit) : new URL(`https://${explicit}`);
       return `${url.origin}/`;
     } catch {
-      // try next candidate
+      // fall through
     }
   }
 
-  return "https://www.selfsubmit.co.uk/";
+  // Server-side lookups must use the whitelisted production origin — not localhost or apex.
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL?.trim();
+  if (appUrl) {
+    try {
+      const url = appUrl.includes("://") ? new URL(appUrl) : new URL(`https://${appUrl}`);
+      if (url.hostname === "www.selfsubmit.co.uk") {
+        return `${url.origin}/`;
+      }
+    } catch {
+      // fall through
+    }
+  }
+
+  return IDEAL_POSTCODES_REFERER;
 }
 
 function idealPostcodesRequestHeaders(): HeadersInit {
