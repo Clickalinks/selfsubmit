@@ -1,13 +1,9 @@
+import "@/lib/clerk-env";
+
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
-/**
- * Clerk FAPI proxy is optional. SelfSubmit uses the custom FAPI domain
- * (clerk.selfsubmit.co.uk) from the publishable key — do not set
- * NEXT_PUBLIC_CLERK_PROXY_URL unless you have also registered the proxy URL
- * in Clerk Dashboard → Domains → Frontend API.
- */
-const clerkProxyEnabled = Boolean(process.env.NEXT_PUBLIC_CLERK_PROXY_URL?.trim());
+import { clerkAppProxyEnabled } from "@/lib/clerk-env";
 
 const isProtectedPage = createRouteMatcher([
   "/submit(.*)",
@@ -45,11 +41,16 @@ export default clerkMiddleware(
 
     return forwardWithPathname(req, pathname);
   },
-  clerkProxyEnabled
+  clerkAppProxyEnabled()
     ? {
         frontendApiProxy: { enabled: true },
       }
-    : undefined,
+    : {
+        authorizedParties: [
+          "https://selfsubmit.co.uk",
+          "https://www.selfsubmit.co.uk",
+        ],
+      },
 );
 
 export const config = {

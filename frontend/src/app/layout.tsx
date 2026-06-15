@@ -1,8 +1,11 @@
+import "@/lib/clerk-env";
+
 import type { Metadata, Viewport } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Inter } from "next/font/google";
 
 import { ComplianceDisclaimerBanner } from "@/components/ComplianceDisclaimerBanner";
+import { clerkProviderProxyUrl, reconcileClerkProxyEnv } from "@/lib/clerk-env";
 
 import "./globals.css";
 
@@ -32,10 +35,14 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const clerkProxyOverride = clerkProviderProxyUrl();
+  reconcileClerkProxyEnv();
+
   return (
     <html lang="en-GB" className={inter.variable}>
       <body className="min-h-screen min-h-[100dvh] font-sans antialiased supports-[padding:max(0px)]:pl-[max(0px,env(safe-area-inset-left))] supports-[padding:max(0px)]:pr-[max(0px,env(safe-area-inset-right))]">
         <ClerkProvider
+          {...(clerkProxyOverride ? { proxyUrl: clerkProxyOverride } : {})}
           signInUrl="/sign-in"
           signUpUrl="/sign-up"
           signInFallbackRedirectUrl="/dashboard"

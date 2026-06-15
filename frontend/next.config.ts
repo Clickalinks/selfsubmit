@@ -57,6 +57,13 @@ function clerkCspOrigins(): string[] {
 
 const clerkOrigins = clerkCspOrigins().join(" ");
 
+function resolvedPublicClerkProxyUrl(): string {
+  const pk = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY?.trim() ?? "";
+  const proxy = process.env.NEXT_PUBLIC_CLERK_PROXY_URL?.trim() ?? "";
+  if (pk.startsWith("pk_live_") && proxy.startsWith("/")) return "";
+  return proxy;
+}
+
 const scriptSources = `'self' 'unsafe-inline' 'unsafe-eval' ${clerkOrigins}`;
 
 const csp = [
@@ -90,6 +97,9 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   serverExternalPackages: ["@prisma/client", "prisma", "archiver"],
+  env: {
+    NEXT_PUBLIC_CLERK_PROXY_URL: resolvedPublicClerkProxyUrl(),
+  },
   async headers() {
     return [{ source: "/(.*)", headers: securityHeaders }];
   },
