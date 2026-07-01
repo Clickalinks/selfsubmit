@@ -85,7 +85,8 @@ export default function HowItWorksPage() {
       <LegalH2 id="pricing">Pricing</LegalH2>
       <LegalP>
         The home page shows <strong className="text-brand-black">subscription tiers by income streams</strong> (Starter
-        £8 for one stream, Standard £15 for 2–3, Pro £22 for 4+) — aligned with tracking multiple sources of income
+        Solo £20 for one business, Business Plus £36 for two, Professional £52 for three, Portfolio £70 for four — aligned
+        with tracking multiple sources of income
         under MTD. Figures are illustrative until billing goes live; features and caps may change.
       </LegalP>
 

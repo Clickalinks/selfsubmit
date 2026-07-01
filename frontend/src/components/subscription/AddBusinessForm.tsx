@@ -9,7 +9,7 @@ import { ALL_PROFESSIONS } from "@/data/expenseCategories";
 type StatusPayload = {
   plan: string | null;
   businessCount: number;
-  maxBusinesses: number | null;
+  maxBusinesses: number;
   canCreateBusiness: boolean;
 };
 
@@ -76,10 +76,9 @@ export function AddBusinessForm() {
   return (
     <div className="mx-auto max-w-lg">
       <p className="text-sm text-brand-muted">
-        You have <strong className="text-brand-black">{status.businessCount}</strong>
-        {status.maxBusinesses === null
-          ? " businesses (unlimited on your plan)."
-          : ` of ${status.maxBusinesses} businesses allowed on your plan.`}
+        You have <strong className="text-brand-black">{status.businessCount}</strong> of{" "}
+        <strong className="text-brand-black">{status.maxBusinesses}</strong> businesses allowed on your plan (maximum 4
+        on any plan).
       </p>
 
       {atLimit ? (

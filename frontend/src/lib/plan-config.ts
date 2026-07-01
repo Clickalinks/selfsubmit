@@ -4,18 +4,21 @@
 export const PLAN_IDS = ["solo", "business_plus", "professional", "unlimited"] as const;
 export type PlanId = (typeof PLAN_IDS)[number];
 
+/** Maximum businesses allowed per plan (hard cap of 4 across all tiers). */
+export const MAX_BUSINESSES_PLATFORM = 4;
+
 export const PLAN_LIMITS: Record<PlanId, number> = {
   solo: 1,
   business_plus: 2,
   professional: 3,
-  unlimited: Number.POSITIVE_INFINITY,
+  unlimited: 4,
 };
 
 export const PLAN_DISPLAY_NAMES: Record<PlanId, string> = {
   solo: "Solo",
   business_plus: "Business Plus",
   professional: "Professional",
-  unlimited: "Unlimited",
+  unlimited: "Portfolio",
 };
 
 /** Legacy plan ids from earlier product iterations. */

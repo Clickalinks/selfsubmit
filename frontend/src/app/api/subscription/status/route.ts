@@ -18,7 +18,7 @@ export async function GET() {
   return NextResponse.json({
     plan,
     businessCount,
-    maxBusinesses: Number.isFinite(maxBusinesses) ? maxBusinesses : null,
+    maxBusinesses,
     canCreateBusiness: canAdd,
   });
 }
