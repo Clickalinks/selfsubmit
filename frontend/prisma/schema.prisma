@@ -34,20 +34,22 @@ model User {
   securityNotifications    SecurityNotification[]
   auditLogs                AuditLog[]
   hmrcConnection           HmrcConnection?
-  smsReminderLogs          SmsReminderLog[]
+  reminderLogs               ReminderLog[]
 }
 
-/// Tracks quarterly deadline SMS reminders so each tier is sent once per deadline.
-model SmsReminderLog {
-  id             String   @id @default(cuid())
-  userId         String
-  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  deadlineDate   DateTime @db.Date
-  daysBefore     Int
-  twilioSid      String?
-  createdAt      DateTime @default(now())
+/// Tracks deadline reminders (monthly records + quarterly HMRC) per channel so each tier is sent once.
+model ReminderLog {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  kind         String
+  channel      String
+  deadlineDate DateTime @db.Date
+  daysBefore   Int
+  externalId   String?
+  createdAt    DateTime @default(now())
 
-  @@unique([userId, deadlineDate, daysBefore])
+  @@unique([userId, kind, channel, deadlineDate, daysBefore])
   @@index([userId, createdAt])
 }
 
