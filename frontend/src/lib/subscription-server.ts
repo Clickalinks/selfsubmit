@@ -35,6 +35,45 @@ export async function setUserPlan(userId: string, plan: PlanId): Promise<void> {
   });
 }
 
+export async function getPrimaryBusiness(userId: string): Promise<{ id: string; name: string; category: string } | null> {
+  const row = await prisma.business.findFirst({
+    where: { userId },
+    orderBy: { createdAt: "asc" },
+    select: { id: true, name: true, category: true },
+  });
+  return row;
+}
+
+export async function updatePrimaryBusiness(
+  userId: string,
+  input: { name: string; category: string },
+): Promise<{ id: string }> {
+  const existing = await prisma.business.findFirst({
+    where: { userId },
+    orderBy: { createdAt: "asc" },
+    select: { id: true },
+  });
+  if (!existing) {
+    throw new Error("Business not found");
+  }
+
+  const business = await prisma.business.update({
+    where: { id: existing.id },
+    data: {
+      name: input.name.trim(),
+      category: input.category.trim(),
+    },
+    select: { id: true },
+  });
+
+  await prisma.clientProfile.updateMany({
+    where: { userId },
+    data: { primaryProfession: input.category.trim() },
+  });
+
+  return business;
+}
+
 export async function createBusinessRecord(
   userId: string,
   input: { name: string; category: string },

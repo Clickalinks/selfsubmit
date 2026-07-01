@@ -6,11 +6,18 @@ import { useCallback, useEffect, useState } from "react";
 
 import { ALL_PROFESSIONS } from "@/data/expenseCategories";
 
+type PrimaryBusiness = {
+  id: string;
+  name: string;
+  category: string;
+};
+
 type StatusPayload = {
   plan: string | null;
   businessCount: number;
   maxBusinesses: number;
   canCreateBusiness: boolean;
+  primaryBusiness: PrimaryBusiness | null;
 };
 
 const UPGRADE_HINT = "Upgrade your plan to add more businesses.";
@@ -33,29 +40,37 @@ export function AddBusinessForm() {
     }
     const data = (await res.json()) as StatusPayload;
     setStatus(data);
+    if (data.primaryBusiness) {
+      setName(data.primaryBusiness.name);
+      setCategory(data.primaryBusiness.category || ALL_PROFESSIONS[0] || "");
+    }
   }, []);
 
   useEffect(() => {
     void refreshStatus();
   }, [refreshStatus]);
 
-  const atLimit = status && !status.canCreateBusiness;
-  const disabled = submitting || !status?.canCreateBusiness;
+  const setupExisting =
+    Boolean(status && !status.canCreateBusiness && status.businessCount === 1 && status.primaryBusiness);
+  const blockedAtLimit = Boolean(status && !status.canCreateBusiness && status.businessCount > 1);
+  const disabled = submitting || blockedAtLimit || (!status?.canCreateBusiness && !setupExisting);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setFormError(null);
-    if (disabled) return;
+    if (disabled || !status) return;
     setSubmitting(true);
     try {
-      const res = await fetch("/api/business/create", {
-        method: "POST",
+      const endpoint = setupExisting ? "/api/business/setup" : "/api/business/create";
+      const method = setupExisting ? "PATCH" : "POST";
+      const res = await fetch(endpoint, {
+        method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, category }),
       });
       const data = (await res.json().catch(() => ({}))) as { error?: string };
       if (!res.ok) {
-        setFormError(data.error ?? "Could not create business.");
+        setFormError(data.error ?? "Could not save your business.");
         return;
       }
       router.push("/submit");
@@ -73,6 +88,24 @@ export function AddBusinessForm() {
     return <p className="text-sm text-brand-muted">Loading…</p>;
   }
 
+  if (blockedAtLimit) {
+    return (
+      <div className="mx-auto max-w-lg rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-6 text-sm text-emerald-950">
+        <p className="font-semibold">Your businesses are set up on this plan.</p>
+        <p className="mt-2 text-emerald-900">
+          You have {status.businessCount} of {status.maxBusinesses} businesses. Open your return form to add income and
+          expenses.
+        </p>
+        <Link
+          href="/submit"
+          className="mt-4 inline-flex rounded-xl bg-brand-green px-5 py-2.5 text-sm font-bold text-white hover:bg-brand-green-dark"
+        >
+          Open my form
+        </Link>
+      </div>
+    );
+  }
+
   return (
     <div className="mx-auto max-w-lg">
       <p className="text-sm text-brand-muted">
@@ -81,7 +114,13 @@ export function AddBusinessForm() {
         on any plan).
       </p>
 
-      {atLimit ? (
+      {setupExisting ? (
+        <p className="mt-4 rounded-xl border border-brand-green/20 bg-brand-mint/40 px-4 py-3 text-sm text-brand-forest">
+          Confirm your business name and profession below, then continue to your income and expense form.
+        </p>
+      ) : null}
+
+      {!setupExisting && status.businessCount > 0 && !status.canCreateBusiness ? (
         <div className="mt-4 rounded-xl border border-amber-200/80 bg-amber-50 px-4 py-3 text-sm text-amber-950">
           <p className="font-semibold">{UPGRADE_HINT}</p>
           <Link href="/pricing" className="mt-2 inline-block font-semibold text-brand-green underline underline-offset-2">

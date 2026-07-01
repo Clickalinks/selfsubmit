@@ -2,7 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
 import { maxBusinessesForPlan } from "@/lib/plan-config";
-import { canCreateBusiness, getBusinessCount, getUserPlan } from "@/lib/subscription-server";
+import { canCreateBusiness, getBusinessCount, getPrimaryBusiness, getUserPlan } from "@/lib/subscription-server";
 
 export async function GET() {
   const { userId } = await auth();
@@ -14,11 +14,13 @@ export async function GET() {
   const businessCount = await getBusinessCount(userId);
   const maxBusinesses = plan ? maxBusinessesForPlan(plan) : 0;
   const canAdd = await canCreateBusiness(userId);
+  const primaryBusiness = businessCount > 0 ? await getPrimaryBusiness(userId) : null;
 
   return NextResponse.json({
     plan,
     businessCount,
     maxBusinesses,
     canCreateBusiness: canAdd,
+    primaryBusiness,
   });
 }
