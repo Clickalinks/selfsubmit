@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { getTaxIdsStatus } from "@/lib/tax-ids-server";
 import { getBusinessCount, getUserPlan } from "@/lib/subscription-server";
 
 export type MtdStatus = "not_started" | "on_track" | "action_needed" | "overdue";
@@ -24,6 +25,7 @@ export type MtdDashboardSnapshot = {
   todayTone: "calm" | "info" | "warning" | "urgent";
   hasPlan: boolean;
   hasBusiness: boolean;
+  hasTaxIds: boolean;
   currentQuarterSubmitted: boolean;
   receiptCount: number;
 };
@@ -105,6 +107,7 @@ export function emptyMtdDashboardSnapshot(reference = new Date()): MtdDashboardS
     todayTone: "info",
     hasPlan: false,
     hasBusiness: false,
+    hasTaxIds: false,
     currentQuarterSubmitted: false,
     receiptCount: 0,
   };
@@ -115,7 +118,7 @@ export async function getMtdDashboardSnapshot(userId: string): Promise<MtdDashbo
   const currentQuarter = getCurrentQuarter(now);
   const quarters = getUkTaxYearQuarters(now);
 
-  const [plan, businessCount, submissions, receiptCount] = await Promise.all([
+  const [plan, businessCount, submissions, receiptCount, taxIds] = await Promise.all([
     getUserPlan(userId),
     getBusinessCount(userId),
     prisma.submission.findMany({
@@ -131,10 +134,12 @@ export async function getMtdDashboardSnapshot(userId: string): Promise<MtdDashbo
       orderBy: { submittedAt: "desc" },
     }),
     prisma.receipt.count({ where: { userId } }),
+    getTaxIdsStatus(userId),
   ]);
 
   const hasPlan = Boolean(plan);
   const hasBusiness = businessCount > 0;
+  const hasTaxIds = taxIds.complete;
 
   const quarterSubmissions = submissions.filter((s) =>
     periodsOverlap(s.periodFrom, s.periodTo, currentQuarter.from, currentQuarter.to),
@@ -177,11 +182,14 @@ export async function getMtdDashboardSnapshot(userId: string): Promise<MtdDashbo
   let todayMessage = "No action required today.";
   let todayTone: MtdDashboardSnapshot["todayTone"] = "calm";
 
-  if (!hasPlan) {
+  if (!hasTaxIds) {
+    todayMessage = "Add your UTR and National Insurance number to continue.";
+    todayTone = "info";
+  } else if (!hasPlan) {
     todayMessage = "Choose a subscription plan to get started.";
     todayTone = "info";
   } else if (!hasBusiness) {
-    todayMessage = "Add your business details so you can track income and expenses.";
+    todayMessage = "Select your profession to unlock your income and expense form.";
     todayTone = "info";
   } else if (pendingQuarter && now.getTime() > pendingQuarter.deadline.getTime()) {
     todayMessage = `Your ${pendingQuarter.label} update is overdue — submit it as soon as you can.`;
@@ -213,6 +221,7 @@ export async function getMtdDashboardSnapshot(userId: string): Promise<MtdDashbo
     todayTone,
     hasPlan,
     hasBusiness,
+    hasTaxIds,
     currentQuarterSubmitted,
     receiptCount,
   };

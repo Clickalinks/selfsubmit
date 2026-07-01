@@ -46,7 +46,7 @@ export default function RootLayout({
           signInUrl="/sign-in"
           signUpUrl="/sign-up"
           signInFallbackRedirectUrl="/dashboard"
-          signUpFallbackRedirectUrl="/onboarding"
+          signUpFallbackRedirectUrl="/sign-up"
           afterSignOutUrl="/"
         >
           <ComplianceDisclaimerBanner />

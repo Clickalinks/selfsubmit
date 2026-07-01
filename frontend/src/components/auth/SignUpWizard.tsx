@@ -1,18 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { useAuth, useClerk } from "@clerk/nextjs";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useAuth, useClerk, useUser } from "@clerk/nextjs";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Check, Loader2 } from "lucide-react";
 
 import { PasswordRequirements } from "@/components/auth/PasswordRequirements";
-import { ProfessionSelect } from "@/components/forms/ProfessionSelect";
 import { UkAddressLookup } from "@/components/forms/UkAddressLookup";
-import { SELF_EMPLOYED_PROFESSIONS } from "@/data/selfEmployedProfessions";
 import {
   hasErrors,
   validatePassword,
-  validateProfileFields,
+  validateSignUpProfile,
   type FieldErrors,
   type ProfileInput,
 } from "@/lib/profile-validation";
@@ -62,8 +60,8 @@ function needsEmailVerification(signUp: { status: string | null; unverifiedField
   );
 }
 
-function finishSignUpNavigation(path: "/dashboard" | "/onboarding") {
-  window.location.assign(path);
+function finishSignUpNavigation() {
+  window.location.assign("/dashboard");
 }
 
 function formatSignUpError(err: unknown): string {
@@ -86,12 +84,16 @@ function formatSignUpError(err: unknown): string {
 
 export function SignUpWizard() {
   const { isLoaded, isSignedIn } = useAuth();
+  const { user } = useUser();
   const clerk = useClerk();
+  const accountSetupInProgress = useRef(false);
 
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [sessionChecked, setSessionChecked] = useState(false);
+  const [needsProfileOnly, setNeedsProfileOnly] = useState(false);
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -101,7 +103,6 @@ export function SignUpWizard() {
   const [businessSameAsHome, setBusinessSameAsHome] = useState(false);
   const [businessAddress, setBusinessAddress] = useState("");
   const [businessName, setBusinessName] = useState("");
-  const [primaryProfession, setPrimaryProfession] = useState<string>(SELF_EMPLOYED_PROFESSIONS[0]);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [pendingVerification, setPendingVerification] = useState(false);
@@ -112,7 +113,15 @@ export function SignUpWizard() {
   const fieldsDisabled = pendingVerification || resolvingSession;
 
   useEffect(() => {
-    if (!isLoaded || !isSignedIn) return;
+    if (!isLoaded) return;
+
+    if (!isSignedIn) {
+      setSessionChecked(true);
+      setNeedsProfileOnly(false);
+      return;
+    }
+
+    if (accountSetupInProgress.current) return;
 
     let cancelled = false;
     setResolvingSession(true);
@@ -121,16 +130,32 @@ export function SignUpWizard() {
       try {
         const res = await fetch("/api/profile");
         if (cancelled) return;
-        finishSignUpNavigation(res.ok ? "/dashboard" : "/onboarding");
+        if (res.ok) {
+          finishSignUpNavigation();
+          return;
+        }
+
+        setNeedsProfileOnly(true);
+        if (user?.firstName) setFirstName(user.firstName);
+        if (user?.lastName) setLastName(user.lastName);
+        const primaryEmail = user?.primaryEmailAddress?.emailAddress;
+        if (primaryEmail) setEmail(primaryEmail);
       } catch {
-        if (!cancelled) finishSignUpNavigation("/onboarding");
+        if (!cancelled) {
+          setNeedsProfileOnly(true);
+        }
+      } finally {
+        if (!cancelled) {
+          setSessionChecked(true);
+          setResolvingSession(false);
+        }
       }
     })();
 
     return () => {
       cancelled = true;
     };
-  }, [isLoaded, isSignedIn]);
+  }, [isLoaded, isSignedIn, user?.firstName, user?.lastName, user?.primaryEmailAddress?.emailAddress]);
 
   const profileInput: ProfileInput = useMemo(
     () => ({
@@ -142,7 +167,7 @@ export function SignUpWizard() {
       businessAddress: businessSameAsHome ? homeAddress : businessAddress,
       businessName: businessName || null,
       businessSameAsHome,
-      primaryProfession,
+      primaryProfession: "",
     }),
     [
       firstName,
@@ -153,7 +178,6 @@ export function SignUpWizard() {
       businessAddress,
       businessName,
       businessSameAsHome,
-      primaryProfession,
     ],
   );
 
@@ -183,44 +207,93 @@ export function SignUpWizard() {
 
   const saveProfileAndFinish = useCallback(
     async (sessionId: string) => {
-      await clerk.setActive({ session: sessionId });
+      accountSetupInProgress.current = true;
+      try {
+        await clerk.setActive({ session: sessionId });
 
+        const res = await fetch("/api/profile", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(profileInput),
+        });
+        const data = (await res.json().catch(() => ({}))) as { error?: string; fieldErrors?: FieldErrors };
+
+        if (res.status === 409) {
+          finishSignUpNavigation();
+          return;
+        }
+
+        if (!res.ok) {
+          if (data.fieldErrors) setFieldErrors(data.fieldErrors);
+          setFormError(data.error ?? "Could not save your profile. Please try again.");
+          return;
+        }
+
+        setSuccess(true);
+        finishSignUpNavigation();
+      } finally {
+        accountSetupInProgress.current = false;
+      }
+    },
+    [clerk, profileInput],
+  );
+
+  const saveProfileOnly = useCallback(async () => {
+    accountSetupInProgress.current = true;
+    setLoading(true);
+    setFormError(null);
+    try {
       const res = await fetch("/api/profile", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(profileInput),
       });
-      await res.json().catch(() => ({}));
+      const data = (await res.json().catch(() => ({}))) as { error?: string; fieldErrors?: FieldErrors };
 
       if (res.status === 409) {
-        finishSignUpNavigation("/dashboard");
+        finishSignUpNavigation();
         return;
       }
 
       if (!res.ok) {
-        finishSignUpNavigation("/onboarding");
+        if (data.fieldErrors) setFieldErrors(data.fieldErrors);
+        setFormError(data.error ?? "Could not save your profile. Please try again.");
         return;
       }
 
       setSuccess(true);
-      finishSignUpNavigation("/dashboard");
-    },
-    [clerk, profileInput],
-  );
+      finishSignUpNavigation();
+    } finally {
+      accountSetupInProgress.current = false;
+      setLoading(false);
+    }
+  }, [profileInput]);
 
   const submit = async () => {
     if (!isLoaded || !clerk.loaded) return;
+
+    setFormError(null);
+    setVerificationMessage(null);
+
+    if (needsProfileOnly) {
+      const profileErrors = validateSignUpProfile(profileInput);
+      setFieldErrors(profileErrors);
+      if (hasErrors(profileErrors)) {
+        scrollToFirstError(profileErrors);
+        return;
+      }
+      await saveProfileOnly();
+      return;
+    }
+
     const signUp = clerk.client?.signUp;
     if (!signUp) {
       setFormError("Authentication is still loading. Please try again.");
       return;
     }
 
-    setFormError(null);
-    setVerificationMessage(null);
-
     if (!pendingVerification) {
-      const profileErrors = validateProfileFields(profileInput);
+      const profileErrors = validateSignUpProfile(profileInput);
       const passwordErrors = validatePassword(password, confirmPassword);
       const merged = { ...profileErrors, ...passwordErrors };
       setFieldErrors(merged);
@@ -231,6 +304,7 @@ export function SignUpWizard() {
     }
 
     setLoading(true);
+    accountSetupInProgress.current = true;
     try {
       if (!pendingVerification) {
         await signUp.create({
@@ -300,6 +374,7 @@ export function SignUpWizard() {
     } catch (err) {
       setFormError(formatSignUpError(err));
     } finally {
+      accountSetupInProgress.current = false;
       setLoading(false);
     }
   };
@@ -319,7 +394,7 @@ export function SignUpWizard() {
     }
   };
 
-  if (resolvingSession) {
+  if (!sessionChecked || resolvingSession) {
     return (
       <div className="rounded-2xl border border-slate-200 bg-white px-6 py-10 text-center shadow-sm">
         <Loader2 className="mx-auto h-10 w-10 animate-spin text-brand-green" />
@@ -348,6 +423,11 @@ export function SignUpWizard() {
       noValidate
     >
       <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-lg shadow-slate-200/40 sm:p-6 lg:p-8">
+        {needsProfileOnly ? (
+          <p className="mb-6 rounded-xl border border-brand-green/20 bg-brand-mint px-4 py-3 text-sm text-brand-forest">
+            You&apos;re signed in. Finish the details below once — then you&apos;ll go straight to your dashboard.
+          </p>
+        ) : null}
         <div className="space-y-8">
           <section id="section-personal" className={sectionClass}>
             <h2 className={sectionTitleClass}>Personal details</h2>
@@ -449,12 +529,6 @@ export function SignUpWizard() {
                 Your home address will be used as your business address.
               </p>
             )}
-            <ProfessionSelect
-              value={primaryProfession}
-              onChange={setPrimaryProfession}
-              disabled={fieldsDisabled}
-              error={fieldErrors.primaryProfession}
-            />
             <div>
               <label className={labelClass} htmlFor="businessName">
                 Business name <span className="font-normal text-slate-400">(optional)</span>
@@ -467,8 +541,12 @@ export function SignUpWizard() {
                 disabled={fieldsDisabled}
               />
             </div>
+            <p className="text-sm text-slate-500">
+              You&apos;ll choose your profession after selecting a subscription plan on the dashboard.
+            </p>
           </section>
 
+          {!needsProfileOnly ? (
           <section id="section-account" className={`${sectionClass} ${sectionDividerClass}`}>
             <h2 className={sectionTitleClass}>Create your account</h2>
             <p className="text-sm text-slate-500">
@@ -506,6 +584,7 @@ export function SignUpWizard() {
               <FieldError message={fieldErrors.confirmPassword} />
             </div>
           </section>
+          ) : null}
 
           {pendingVerification ? (
             <section id="section-verify" className={`${sectionClass} ${sectionDividerClass}`}>
@@ -572,10 +651,14 @@ export function SignUpWizard() {
             {loading
               ? pendingVerification
                 ? "Verifying…"
-                : "Creating account…"
+                : needsProfileOnly
+                  ? "Saving…"
+                  : "Creating account…"
               : pendingVerification
                 ? "Verify and finish"
-                : "Create account"}
+                : needsProfileOnly
+                  ? "Save and open dashboard"
+                  : "Create account"}
           </button>
         </div>
       </div>

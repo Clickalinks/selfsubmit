@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { deleteAllReceiptFiles } from "@/lib/receipt-storage";
 import { createClientProfile, getClientProfile, updateClientProfile } from "@/lib/profile-server";
-import { hasErrors, validateProfileFields, type ProfileInput } from "@/lib/profile-validation";
+import { hasErrors, validateProfileFields, validateSignUpProfile, type ProfileInput } from "@/lib/profile-validation";
 
 export async function GET() {
   const { userId } = await auth();
@@ -43,7 +43,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Invalid profile payload" }, { status: 400 });
   }
 
-  const errors = validateProfileFields(input);
+  const errors = validateSignUpProfile(input);
   if (hasErrors(errors)) {
     return NextResponse.json({ error: "Validation failed", fieldErrors: errors }, { status: 400 });
   }
@@ -112,7 +112,9 @@ function parseProfileBody(body: unknown): ProfileInput | null {
   ) {
     return null;
   }
-  if (typeof b.primaryProfession !== "string") return null;
+  if (typeof b.primaryProfession !== "string" && b.primaryProfession !== undefined && b.primaryProfession !== null) {
+    return null;
+  }
 
   return {
     firstName: b.firstName,
@@ -123,6 +125,6 @@ function parseProfileBody(body: unknown): ProfileInput | null {
     businessAddress: b.businessAddress,
     businessName: typeof b.businessName === "string" ? b.businessName : null,
     businessSameAsHome: Boolean(b.businessSameAsHome),
-    primaryProfession: b.primaryProfession,
+    primaryProfession: typeof b.primaryProfession === "string" ? b.primaryProfession : "",
   };
 }

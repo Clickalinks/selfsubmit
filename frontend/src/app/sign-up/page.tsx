@@ -3,7 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { SignUpWizard } from "@/components/auth/SignUpWizard";
-import { resolveAuthenticatedDestination } from "@/lib/auth-redirect";
+import { getClientProfile } from "@/lib/profile-server";
 import { getOptionalUserId } from "@/lib/safe-auth";
 
 export const metadata: Metadata = {
@@ -14,7 +14,10 @@ export const metadata: Metadata = {
 export default async function SignUpPage() {
   const userId = await getOptionalUserId();
   if (userId) {
-    redirect(await resolveAuthenticatedDestination(userId));
+    const profile = await getClientProfile(userId);
+    if (profile) {
+      redirect("/dashboard");
+    }
   }
 
   return (

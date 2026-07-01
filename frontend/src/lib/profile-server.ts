@@ -28,17 +28,13 @@ export async function getClientProfile(userId: string): Promise<ClientProfileRec
 
 export async function createClientProfile(userId: string, input: ProfileInput): Promise<ClientProfileRecord> {
   const businessAddress = resolveBusinessAddress(input);
+  const profession = input.primaryProfession?.trim() || null;
 
   await prisma.user.upsert({
     where: { id: userId },
-    create: { id: userId, plan: "solo" },
+    create: { id: userId },
     update: {},
   });
-
-  const profession = input.primaryProfession.trim();
-  const displayName =
-    input.businessName?.trim() ||
-    `${input.firstName.trim()} ${input.lastName.trim()} — ${profession}`.slice(0, 120);
 
   const profile = await prisma.clientProfile.create({
     data: {
@@ -54,17 +50,6 @@ export async function createClientProfile(userId: string, input: ProfileInput): 
       primaryProfession: profession,
     },
   });
-
-  const existingBusiness = await prisma.business.count({ where: { userId } });
-  if (existingBusiness === 0) {
-    await prisma.business.create({
-      data: {
-        userId,
-        name: displayName,
-        category: profession,
-      },
-    });
-  }
 
   return profile;
 }

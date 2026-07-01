@@ -10,6 +10,7 @@ import {
   MtdStatusBadge,
   WhatDoINeedTodayCard,
 } from "@/components/dashboard/DashboardHomeSections";
+import { TaxIdsSection } from "@/components/dashboard/TaxIdsSection";
 import { emptyMtdDashboardSnapshot, formatGbp, getMtdDashboardSnapshot } from "@/lib/mtd-dashboard";
 import { getClientProfile } from "@/lib/profile-server";
 import { getUserPlan } from "@/lib/subscription-server";
@@ -49,7 +50,6 @@ export default async function DashboardPage() {
         <div>
           <p className="text-sm font-medium text-slate-500">Hello {profile.firstName}</p>
           <h2 className="text-xl font-bold text-slate-900 sm:text-2xl">Your MTD dashboard</h2>
-          <DashboardGetStartedSteps hasPlan={snapshot.hasPlan} hasBusiness={snapshot.hasBusiness} />
         </div>
         {plan ? (
           <p className="text-sm text-slate-500">
@@ -65,14 +65,24 @@ export default async function DashboardPage() {
               </>
             ) : null}
           </p>
-        ) : (
+        ) : snapshot.hasTaxIds ? (
           <Link
             href="/pricing"
             className="inline-flex items-center justify-center rounded-xl bg-brand-green px-4 py-2 text-sm font-bold text-white hover:bg-brand-green-dark"
           >
             Get started — choose plan
           </Link>
-        )}
+        ) : null}
+      </div>
+
+      <DashboardGetStartedSteps
+        hasPlan={snapshot.hasPlan}
+        hasBusiness={snapshot.hasBusiness}
+        hasTaxIds={snapshot.hasTaxIds}
+      />
+
+      <div id="tax-details">
+        <TaxIdsSection />
       </div>
 
       <WhatDoINeedTodayCard
@@ -80,6 +90,7 @@ export default async function DashboardPage() {
         tone={snapshot.todayTone}
         hasPlan={snapshot.hasPlan}
         hasBusiness={snapshot.hasBusiness}
+        hasTaxIds={snapshot.hasTaxIds}
       />
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5 lg:gap-4">
@@ -116,7 +127,11 @@ export default async function DashboardPage() {
 
       <div>
         <p className="mb-3 text-sm font-semibold text-slate-700">Quick actions</p>
-        <DashboardPrimaryActions hasPlan={snapshot.hasPlan} hasBusiness={snapshot.hasBusiness} />
+        <DashboardPrimaryActions
+          hasPlan={snapshot.hasPlan}
+          hasBusiness={snapshot.hasBusiness}
+          hasTaxIds={snapshot.hasTaxIds}
+        />
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">

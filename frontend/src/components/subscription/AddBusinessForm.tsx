@@ -109,8 +109,11 @@ export function AddBusinessForm() {
         </div>
         <div>
           <label htmlFor="biz-category" className="block text-sm font-semibold text-brand-black">
-            Category / profession
+            Profession
           </label>
+          <p className="mt-1 text-xs text-brand-muted">
+            This cannot be changed later on the Solo plan. Other professions will not be available on your return form.
+          </p>
           <select
             id="biz-category"
             name="category"
@@ -134,7 +137,7 @@ export function AddBusinessForm() {
           disabled={disabled}
           className="w-full rounded-2xl bg-gradient-to-b from-brand-green-bright to-brand-green-dark px-6 py-3.5 text-sm font-bold text-white shadow-btn-green transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {submitting ? "Saving…" : "Add business"}
+          {submitting ? "Saving…" : "Save and open my form"}
         </button>
       </form>
     </div>

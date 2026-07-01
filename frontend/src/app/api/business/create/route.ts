@@ -2,6 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
 import { isPlanId } from "@/lib/plan-config";
+import { prisma } from "@/lib/db";
 import { canCreateBusiness, createBusinessRecord, getUserPlan } from "@/lib/subscription-server";
 
 const PLAN_LIMIT_MESSAGE = "Plan limit reached. Upgrade to add more businesses.";
@@ -48,6 +49,11 @@ export async function POST(req: Request) {
   }
 
   const created = await createBusinessRecord(userId, { name: trimmedName, category: trimmedCategory });
+
+  await prisma.clientProfile.updateMany({
+    where: { userId, OR: [{ primaryProfession: null }, { primaryProfession: "" }] },
+    data: { primaryProfession: trimmedCategory },
+  });
 
   return NextResponse.json({ business: { id: created.id } }, { status: 201 });
 }

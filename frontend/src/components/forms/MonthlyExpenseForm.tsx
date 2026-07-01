@@ -120,9 +120,10 @@ type UploadReceiptLine = {
 
 type MonthlyExpenseFormProps = {
   initialTrade: string;
+  lockProfession?: boolean;
 };
 
-export function MonthlyExpenseForm({ initialTrade }: MonthlyExpenseFormProps) {
+export function MonthlyExpenseForm({ initialTrade, lockProfession = false }: MonthlyExpenseFormProps) {
   const router = useRouter();
   const defaultTrade = initialTrade.trim() || ALL_PROFESSIONS[0] || "Taxi Driver";
   const [trade, setTrade] = useState(defaultTrade);
@@ -684,7 +685,8 @@ export function MonthlyExpenseForm({ initialTrade }: MonthlyExpenseFormProps) {
               id="profession"
               value={trade}
               onChange={(e) => onTradeChange(e.target.value)}
-              className="min-h-[52px] w-full flex-1 rounded-xl border border-black/15 bg-white px-4 py-3 text-sm font-medium text-brand-black shadow-sm focus:border-brand-green focus:outline-none focus:ring-2 focus:ring-brand-green/25"
+              disabled={lockProfession}
+              className="min-h-[52px] w-full flex-1 rounded-xl border border-black/15 bg-white px-4 py-3 text-sm font-medium text-brand-black shadow-sm focus:border-brand-green focus:outline-none focus:ring-2 focus:ring-brand-green/25 disabled:cursor-not-allowed disabled:bg-neutral-100 disabled:text-brand-muted"
             >
               {ALL_PROFESSIONS.map((p) => (
                 <option key={p} value={p}>
@@ -700,6 +702,11 @@ export function MonthlyExpenseForm({ initialTrade }: MonthlyExpenseFormProps) {
             <span>
               Template: <span className="font-medium text-brand-black">{template.title}</span>
             </span>
+            {lockProfession ? (
+              <span className="rounded-full bg-brand-mint px-2 py-0.5 font-semibold text-brand-forest">
+                Locked to your plan
+              </span>
+            ) : null}
           </div>
         </div>
 

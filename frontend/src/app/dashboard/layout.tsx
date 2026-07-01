@@ -22,7 +22,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
   }
 
   if (!profile) {
-    redirect("/onboarding");
+    redirect("/sign-up");
   }
 
   return <DashboardFrame profile={toDashboardShellProfile(profile)}>{children}</DashboardFrame>;

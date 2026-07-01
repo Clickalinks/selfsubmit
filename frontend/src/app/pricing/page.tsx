@@ -3,7 +3,6 @@ import type { Metadata } from "next";
 import { PricingBanner } from "@/components/landing/PricingBanner";
 import { SiteFooter } from "@/components/landing/SiteFooter";
 import { SiteHeader } from "@/components/landing/SiteHeader";
-import { PlanPicker } from "@/components/subscription/PlanPicker";
 
 export const metadata: Metadata = {
   title: "Pricing — SelfSubmit",
@@ -15,7 +14,7 @@ export default function PricingPage() {
     <div className="min-h-screen">
       <SiteHeader />
       <main>
-        <PricingBanner footer={<PlanPicker />} />
+        <PricingBanner interactive />
       </main>
       <SiteFooter />
     </div>

@@ -21,10 +21,10 @@ export default async function AddBusinessPage() {
     <div className="min-h-screen">
       <SiteHeader />
       <main className="mx-auto max-w-content px-5 py-10 min-[900px]:px-10 min-[900px]:py-14">
-        <h1 className="text-2xl font-bold text-brand-black min-[900px]:text-3xl">Add a business</h1>
+        <h1 className="text-2xl font-bold text-brand-black min-[900px]:text-3xl">Choose your profession</h1>
         <p className="mt-3 max-w-2xl text-sm leading-relaxed text-brand-muted min-[900px]:text-base">
-          Each business is tied to a profession template. Plan limits are enforced on the server — you cannot add more
-          than your plan allows.
+          Pick the business type that matches your work. On the Solo plan this locks your income and expense
+          categories — you will only see forms for that profession.
         </p>
         <div className="mt-10">
           <Suspense fallback={<p className="text-sm text-brand-muted">Loading…</p>}>

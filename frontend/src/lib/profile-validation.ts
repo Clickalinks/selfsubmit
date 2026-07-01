@@ -18,7 +18,7 @@ export type FieldErrors = Partial<Record<keyof ProfileInput | "password" | "conf
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-export function validateProfileFields(input: ProfileInput): FieldErrors {
+export function validateSignUpProfile(input: ProfileInput): FieldErrors {
   const errors: FieldErrors = {};
 
   if (!input.firstName.trim()) errors.firstName = "First name is required.";
@@ -31,17 +31,24 @@ export function validateProfileFields(input: ProfileInput): FieldErrors {
   if (!input.email.trim()) errors.email = "Email is required.";
   else if (!EMAIL_RE.test(input.email.trim())) errors.email = "Enter a valid email address.";
   if (!input.phone.trim()) errors.phone = "Phone number is required.";
-  if (!input.primaryProfession.trim()) {
-    errors.primaryProfession = "Select your business type.";
-  } else if (!isKnownProfession(input.primaryProfession)) {
-    errors.primaryProfession = "Choose a business type from the list.";
-  }
   if (!input.businessSameAsHome) {
     if (!input.businessAddress.trim()) {
       errors.businessAddress = "Enter your postcode and complete your business address.";
     } else if (!isPlausibleUkAddress(input.businessAddress)) {
       errors.businessAddress = "Enter your building or street and town after searching your postcode.";
     }
+  }
+
+  return errors;
+}
+
+export function validateProfileFields(input: ProfileInput): FieldErrors {
+  const errors = validateSignUpProfile(input);
+
+  if (!input.primaryProfession.trim()) {
+    errors.primaryProfession = "Select your business type.";
+  } else if (!isKnownProfession(input.primaryProfession)) {
+    errors.primaryProfession = "Choose a business type from the list.";
   }
 
   return errors;

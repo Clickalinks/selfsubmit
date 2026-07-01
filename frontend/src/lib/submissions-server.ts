@@ -51,6 +51,10 @@ export async function createMonthlySubmission(userId: string, input: CreateSubmi
     orderBy: { createdAt: "asc" },
   });
 
+  if (business?.category && business.category !== trade) {
+    throw new Error("Profession is locked to your registered business type.");
+  }
+
   const hmrc = submitToHmrcMock({
     trade,
     periodFrom: input.periodFrom,

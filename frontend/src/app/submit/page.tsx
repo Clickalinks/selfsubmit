@@ -25,5 +25,5 @@ export default async function SubmitPage({ searchParams }: Props) {
 
   const initialTrade = queryTrade || business?.category || profile?.primaryProfession || "";
 
-  return <MonthlyExpenseForm initialTrade={initialTrade} />;
+  return <MonthlyExpenseForm initialTrade={initialTrade} lockProfession={Boolean(business?.category)} />;
 }

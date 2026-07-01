@@ -1,7 +1,7 @@
 import Link from "next/link";
 import {
   ArrowRight,
-  FileUp,
+  Check,
   PoundSterling,
   Receipt,
   Send,
@@ -12,13 +12,21 @@ import {
 type Props = {
   hasPlan: boolean;
   hasBusiness: boolean;
+  hasTaxIds: boolean;
 };
 
 const btnBase =
   "inline-flex min-h-[3rem] flex-1 items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green sm:min-h-[3.25rem]";
 
-export function DashboardPrimaryActions({ hasPlan, hasBusiness }: Props) {
-  const submitHref = hasPlan && hasBusiness ? "/submit" : hasPlan ? "/add-business" : "/pricing";
+function primarySubmitHref({ hasPlan, hasBusiness, hasTaxIds }: Props): string {
+  if (!hasTaxIds) return "/dashboard#tax-details";
+  if (!hasPlan) return "/pricing";
+  if (!hasBusiness) return "/add-business";
+  return "/submit";
+}
+
+export function DashboardPrimaryActions(props: Props) {
+  const submitHref = primarySubmitHref(props);
 
   return (
     <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -59,6 +67,7 @@ type TodayCardProps = {
   tone: "calm" | "info" | "warning" | "urgent";
   hasPlan: boolean;
   hasBusiness: boolean;
+  hasTaxIds: boolean;
 };
 
 const TONE_STYLES = {
@@ -68,9 +77,21 @@ const TONE_STYLES = {
   urgent: "border-red-200 bg-red-50 text-red-950",
 } as const;
 
-export function WhatDoINeedTodayCard({ message, tone, hasPlan, hasBusiness }: TodayCardProps) {
-  const ctaHref = !hasPlan ? "/pricing" : !hasBusiness ? "/add-business" : "/submit";
-  const ctaLabel = !hasPlan ? "Choose subscription" : !hasBusiness ? "Create business" : "Continue your return";
+export function WhatDoINeedTodayCard({ message, tone, hasPlan, hasBusiness, hasTaxIds }: TodayCardProps) {
+  const ctaHref = !hasTaxIds
+    ? "/dashboard#tax-details"
+    : !hasPlan
+      ? "/pricing"
+      : !hasBusiness
+        ? "/add-business"
+        : "/submit";
+  const ctaLabel = !hasTaxIds
+    ? "Add tax details"
+    : !hasPlan
+      ? "Choose subscription"
+      : !hasBusiness
+        ? "Choose profession"
+        : "Continue your return";
 
   return (
     <section
@@ -82,7 +103,7 @@ export function WhatDoINeedTodayCard({ message, tone, hasPlan, hasBusiness }: To
         What do I need to do today?
       </h2>
       <p className="mt-3 max-w-2xl text-base leading-relaxed sm:text-lg">{message}</p>
-      {(tone !== "calm" || !hasPlan || !hasBusiness) && (
+      {(tone !== "calm" || !hasTaxIds || !hasPlan || !hasBusiness) && (
         <Link
           href={ctaHref}
           className="mt-6 inline-flex items-center gap-2 rounded-xl bg-brand-green px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-brand-green-dark"
@@ -136,30 +157,100 @@ export function MtdStatusBadge({ status, label }: { status: string; label: strin
 export function DashboardGetStartedSteps({
   hasPlan,
   hasBusiness,
+  hasTaxIds,
 }: {
   hasPlan: boolean;
   hasBusiness: boolean;
+  hasTaxIds: boolean;
 }) {
   const steps = [
-    { label: "Choose subscription", done: hasPlan, href: "/pricing" },
-    { label: "Create business", done: hasBusiness, href: "/add-business" },
-    { label: "Add income & expenses", done: false, href: "/submit" },
-    { label: "Submit MTD update", done: false, href: "/submit" },
-  ];
+    {
+      id: "tax-ids",
+      label: "Add your UTR and National Insurance number",
+      done: hasTaxIds,
+      href: "/dashboard#tax-details",
+      active: !hasTaxIds,
+    },
+    {
+      id: "plan",
+      label: "Choose a subscription plan",
+      done: hasPlan,
+      href: "/pricing",
+      active: hasTaxIds && !hasPlan,
+    },
+    {
+      id: "profession",
+      label: "Choose your profession",
+      done: hasBusiness,
+      href: "/add-business",
+      active: hasTaxIds && hasPlan && !hasBusiness,
+    },
+    {
+      id: "records",
+      label: "Add income and expenses",
+      done: false,
+      href: "/submit",
+      active: hasTaxIds && hasPlan && hasBusiness,
+    },
+  ] as const;
 
-  const nextStep = steps.find((s) => !s.done && s.href !== "/dashboard");
-
-  if (!nextStep) return null;
+  const allComplete = hasTaxIds && hasPlan && hasBusiness;
+  if (allComplete) return null;
 
   return (
-    <div className="flex flex-wrap items-center gap-2 text-sm text-slate-600">
-      <FileUp className="h-4 w-4 text-brand-green" aria-hidden />
-      <span>
-        Next step:{" "}
-        <Link href={nextStep.href} className="font-semibold text-brand-green hover:underline">
-          {nextStep.label}
-        </Link>
-      </span>
-    </div>
+    <section
+      className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm sm:p-6"
+      aria-labelledby="setup-checklist-heading"
+    >
+      <p className="text-xs font-bold uppercase tracking-[0.15em] text-brand-green">To-do list</p>
+      <h3 id="setup-checklist-heading" className="mt-1 text-lg font-bold text-slate-900">
+        Get started with SelfSubmit
+      </h3>
+      <p className="mt-1 text-sm text-slate-500">Work through these steps in order to unlock your MTD dashboard.</p>
+
+      <ol className="mt-5 space-y-3">
+        {steps.map((step, index) => (
+          <li key={step.id}>
+            <Link
+              href={step.href}
+              className={`flex items-start gap-3 rounded-xl border px-4 py-3 transition ${
+                step.active
+                  ? "border-brand-green/40 bg-brand-mint/40 ring-1 ring-brand-green/20"
+                  : step.done
+                    ? "border-emerald-200 bg-emerald-50/80"
+                    : "border-slate-100 bg-slate-50/80 opacity-70"
+              }`}
+            >
+              <span
+                className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
+                  step.done
+                    ? "bg-emerald-600 text-white"
+                    : step.active
+                      ? "bg-brand-green text-white"
+                      : "bg-slate-200 text-slate-500"
+                }`}
+                aria-hidden
+              >
+                {step.done ? <Check className="h-3.5 w-3.5" strokeWidth={3} /> : index + 1}
+              </span>
+              <span className="min-w-0 flex-1">
+                <span
+                  className={`block text-sm font-semibold ${
+                    step.active ? "text-brand-forest" : step.done ? "text-emerald-900" : "text-slate-600"
+                  }`}
+                >
+                  {step.label}
+                </span>
+                {step.active ? (
+                  <span className="mt-0.5 block text-xs font-medium text-brand-green">Start here →</span>
+                ) : step.done ? (
+                  <span className="mt-0.5 block text-xs text-emerald-700">Complete</span>
+                ) : null}
+              </span>
+            </Link>
+          </li>
+        ))}
+      </ol>
+    </section>
   );
 }
