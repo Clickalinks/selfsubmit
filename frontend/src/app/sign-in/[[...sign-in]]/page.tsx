@@ -3,6 +3,7 @@ import Link from "next/link";
 import { SignIn } from "@clerk/nextjs";
 
 import { LoginProtectionGuard } from "@/components/auth/LoginProtectionGuard";
+import { SignInInactiveNotice } from "@/components/auth/SignInInactiveNotice";
 
 export const metadata: Metadata = {
   title: "Sign in — SelfSubmit",
@@ -25,7 +26,14 @@ const clerkAppearance = {
   },
 } as const;
 
-export default function SignInPage() {
+export default async function SignInPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ reason?: string }>;
+}) {
+  const { reason } = await searchParams;
+  const inactiveLogout = reason === "inactive";
+
   return (
     <div className="min-h-screen pb-16 sm:pb-20">
       <div className="border-b border-black/10 bg-white/80 shadow-sm shadow-black/[0.04] backdrop-blur-md backdrop-saturate-150 supports-[backdrop-filter]:bg-white/70">
@@ -39,6 +47,7 @@ export default function SignInPage() {
 
       <div className="mx-auto flex w-full max-w-content justify-center px-4 py-8 sm:px-6 sm:py-10 lg:px-10 lg:py-14">
         <div className="w-full max-w-md [&_.cl-rootBox]:mx-auto [&_.cl-card]:w-full">
+          <SignInInactiveNotice show={inactiveLogout} />
           <p className="mb-4 text-center text-sm text-brand-muted sm:mb-6">
             Returning client? Sign in below.{" "}
             <Link href="/sign-up" className="font-semibold text-brand-green hover:underline">

@@ -5,6 +5,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { Inter } from "next/font/google";
 
 import { ComplianceDisclaimerBanner } from "@/components/ComplianceDisclaimerBanner";
+import { SessionInactivityGuard } from "@/components/auth/SessionInactivityGuard";
 import { clerkProviderProxyUrl, reconcileClerkProxyEnv } from "@/lib/clerk-env";
 
 import "./globals.css";
@@ -49,6 +50,7 @@ export default function RootLayout({
           signUpFallbackRedirectUrl="/sign-up"
           afterSignOutUrl="/"
         >
+          <SessionInactivityGuard />
           <ComplianceDisclaimerBanner />
           {children}
         </ClerkProvider>
