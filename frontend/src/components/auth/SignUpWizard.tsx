@@ -64,13 +64,27 @@ function finishSignUpNavigation() {
   window.location.assign("/dashboard");
 }
 
+function clerkErrorMeta(err: unknown): { code?: string; message?: string } | null {
+  if (!err || typeof err !== "object" || !("errors" in err)) return null;
+  const first = (err as { errors?: Array<{ code?: string; long_message?: string; message?: string }> }).errors?.[0];
+  if (!first) return null;
+  return { code: first.code, message: first.long_message ?? first.message };
+}
+
+function isSessionExistsError(err: unknown): boolean {
+  const meta = clerkErrorMeta(err);
+  if (meta?.code === "session_exists") return true;
+  const message = meta?.message ?? (err instanceof Error ? err.message : "");
+  return /session already exists/i.test(message);
+}
+
 function formatSignUpError(err: unknown): string {
-  if (err && typeof err === "object" && "errors" in err) {
-    const clerkErr = err as { errors?: Array<{ long_message?: string; message?: string }> };
-    const first = clerkErr.errors?.[0];
-    if (first?.long_message) return first.long_message;
-    if (first?.message) return first.message;
+  if (isSessionExistsError(err)) {
+    return "An old login session is still active in this browser. Use Start over below, or sign out and try again.";
   }
+
+  const meta = clerkErrorMeta(err);
+  if (meta?.message) return meta.message;
 
   if (err instanceof Error) {
     if (err.message.includes("<!DOCTYPE") || err.message.includes("is not valid JSON")) {
@@ -82,11 +96,20 @@ function formatSignUpError(err: unknown): string {
   return "Sign-up failed. Please try again.";
 }
 
+async function clearAuthForFreshSignUp(clerk: ReturnType<typeof useClerk>) {
+  try {
+    await clerk.signOut();
+  } catch {
+    // No active session — safe to continue.
+  }
+}
+
 export function SignUpWizard() {
   const { isLoaded, isSignedIn } = useAuth();
   const { user } = useUser();
   const clerk = useClerk();
   const accountSetupInProgress = useRef(false);
+  const clearedStaleAuth = useRef(false);
 
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [formError, setFormError] = useState<string | null>(null);
@@ -113,9 +136,13 @@ export function SignUpWizard() {
   const fieldsDisabled = pendingVerification || resolvingSession;
 
   useEffect(() => {
-    if (!isLoaded) return;
+    if (!isLoaded || !clerk.loaded) return;
 
     if (!isSignedIn) {
+      if (!clearedStaleAuth.current) {
+        clearedStaleAuth.current = true;
+        void clearAuthForFreshSignUp(clerk);
+      }
       setSessionChecked(true);
       setNeedsProfileOnly(false);
       return;
@@ -132,6 +159,12 @@ export function SignUpWizard() {
         if (cancelled) return;
         if (res.ok) {
           finishSignUpNavigation();
+          return;
+        }
+
+        if (res.status === 401) {
+          await clearAuthForFreshSignUp(clerk);
+          setNeedsProfileOnly(false);
           return;
         }
 
@@ -155,7 +188,14 @@ export function SignUpWizard() {
     return () => {
       cancelled = true;
     };
-  }, [isLoaded, isSignedIn, user?.firstName, user?.lastName, user?.primaryEmailAddress?.emailAddress]);
+  }, [
+    clerk,
+    isLoaded,
+    isSignedIn,
+    user?.firstName,
+    user?.lastName,
+    user?.primaryEmailAddress?.emailAddress,
+  ]);
 
   const profileInput: ProfileInput = useMemo(
     () => ({
@@ -210,6 +250,11 @@ export function SignUpWizard() {
       accountSetupInProgress.current = true;
       try {
         await clerk.setActive({ session: sessionId });
+
+        if (!clerk.user?.id) {
+          window.location.assign("/dashboard/settings?mfa=required&signup=finish");
+          return;
+        }
 
         const res = await fetch("/api/profile", {
           method: "POST",
@@ -307,6 +352,8 @@ export function SignUpWizard() {
     accountSetupInProgress.current = true;
     try {
       if (!pendingVerification) {
+        await clearAuthForFreshSignUp(clerk);
+
         await signUp.create({
           emailAddress: email.trim(),
           password,
@@ -372,6 +419,12 @@ export function SignUpWizard() {
 
       setFormError("Could not complete sign-up. Please try again.");
     } catch (err) {
+      if (isSessionExistsError(err)) {
+        await clearAuthForFreshSignUp(clerk);
+        setPendingVerification(false);
+        setVerificationCode("");
+        setVerificationMessage(null);
+      }
       setFormError(formatSignUpError(err));
     } finally {
       accountSetupInProgress.current = false;
@@ -388,7 +441,28 @@ export function SignUpWizard() {
       await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
       setVerificationMessage("A new code has been sent to your email.");
     } catch (err) {
+      if (isSessionExistsError(err)) {
+        await clearAuthForFreshSignUp(clerk);
+        setPendingVerification(false);
+        setVerificationCode("");
+        setVerificationMessage(null);
+      }
       setFormError(formatSignUpError(err));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const startOver = async () => {
+    setFormError(null);
+    setVerificationMessage(null);
+    setPendingVerification(false);
+    setVerificationCode("");
+    setPassword("");
+    setConfirmPassword("");
+    setLoading(true);
+    try {
+      await clearAuthForFreshSignUp(clerk);
     } finally {
       setLoading(false);
     }
@@ -635,13 +709,25 @@ export function SignUpWizard() {
           data-cl-size="flexible"
         />
 
-        <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-between">
-          <Link
-            href="/sign-in"
-            className="inline-flex items-center justify-center rounded-xl border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
-          >
-            Sign in instead
-          </Link>
+        <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:justify-between">
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <Link
+              href="/sign-in"
+              className="inline-flex items-center justify-center rounded-xl border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+            >
+              Sign in instead
+            </Link>
+            {!needsProfileOnly ? (
+              <button
+                type="button"
+                onClick={() => void startOver()}
+                disabled={loading}
+                className="inline-flex items-center justify-center rounded-xl border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:opacity-50"
+              >
+                Start over
+              </button>
+            ) : null}
+          </div>
           <button
             type="submit"
             disabled={loading || !isLoaded || !clerk.loaded}

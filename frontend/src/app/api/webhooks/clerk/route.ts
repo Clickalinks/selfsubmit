@@ -3,6 +3,7 @@ import { verifyWebhook } from "@clerk/nextjs/webhooks";
 import { type NextRequest, NextResponse } from "next/server";
 
 import { prisma } from "@/lib/db";
+import { deleteAllReceiptFiles } from "@/lib/receipt-storage";
 import { recordLoginSuccess } from "@/lib/login-protection";
 
 type SessionWebhookData = {
@@ -50,7 +51,14 @@ export async function POST(request: NextRequest) {
   const userAgent = request.headers.get("user-agent");
 
   try {
-    if (event.type === "session.created") {
+    if (event.type === "user.deleted") {
+      const data = event.data as { id?: string };
+      const clerkUserId = data.id;
+      if (clerkUserId) {
+        await deleteAllReceiptFiles(clerkUserId);
+        await prisma.user.delete({ where: { id: clerkUserId } }).catch(() => undefined);
+      }
+    } else if (event.type === "session.created") {
       const data = event.data as SessionWebhookData;
       const clerkUserId = data.user_id;
       if (clerkUserId) {

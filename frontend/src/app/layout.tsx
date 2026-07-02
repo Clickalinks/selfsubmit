@@ -49,6 +49,10 @@ export default function RootLayout({
           signInFallbackRedirectUrl="/dashboard"
           signUpFallbackRedirectUrl="/sign-up"
           afterSignOutUrl="/"
+          taskUrls={{
+            "setup-mfa": "/dashboard/settings?mfa=required",
+            "reset-password": "/dashboard/settings",
+          }}
         >
           <SessionInactivityGuard />
           <ComplianceDisclaimerBanner />
