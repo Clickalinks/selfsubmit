@@ -19,6 +19,7 @@ import {
   computeSimplifiedMileageClaimGbp,
   getTemplateForProfession,
   getVisibleExpenseLineItems,
+  getVisibleIncomeLineItems,
   isCisConstructionTrade,
   usesBusinessVehicleTemplate,
   vehicleSimplifiedMileageAllowed,
@@ -147,7 +148,7 @@ export function MonthlyExpenseForm({
   const [vehicleCostMethod, setVehicleCostMethod] = useState<VehicleCostMethod>("actual");
 
   const [incomeRows, setIncomeRows] = useState<Record<string, RowState>>(() =>
-    buildInitialRows(initialTemplate.incomeLineItems),
+    buildInitialRows(getVisibleIncomeLineItems(initialTemplate, defaultTrade)),
   );
   const [expenseRows, setExpenseRows] = useState<Record<string, RowState>>(() =>
     buildInitialRows(getVisibleExpenseLineItems(initialTemplate, "actual", defaultTrade)),
@@ -194,13 +195,18 @@ export function MonthlyExpenseForm({
 
   const [cisDeductionThisPeriod, setCisDeductionThisPeriod] = useState("");
 
+  const visibleIncomeItems = useMemo(
+    () => getVisibleIncomeLineItems(template, trade),
+    [template, trade],
+  );
+
   const visibleExpenseItems = useMemo(
     () => getVisibleExpenseLineItems(template, vehicleCostMethod, trade),
     [template, vehicleCostMethod, trade],
   );
 
   const resetForTemplate = useCallback((t: TradeFormTemplate, profession: string) => {
-    setIncomeRows(buildInitialRows(t.incomeLineItems));
+    setIncomeRows(buildInitialRows(getVisibleIncomeLineItems(t, profession)));
     setVehicleCostMethod("actual");
     setExpenseRows(buildInitialRows(getVisibleExpenseLineItems(t, "actual", profession)));
     setMileageMiles("");
@@ -274,7 +280,7 @@ export function MonthlyExpenseForm({
       setIncomeRows((prev) => {
         const next = { ...prev };
         for (const line of lines.filter((l) => l.type === "income")) {
-          const id = findLineId(template.incomeLineItems, line.label);
+          const id = findLineId(visibleIncomeItems, line.label);
           if (!id) continue;
           next[id] = { amount: formatDisplayAmount(line.amount), saved: false, error: undefined };
         }
@@ -294,7 +300,7 @@ export function MonthlyExpenseForm({
         return next;
       });
     },
-    [template.incomeLineItems, visibleExpenseItems],
+    [visibleIncomeItems, visibleExpenseItems],
   );
 
   const saveIncome = (id: string) => {
@@ -387,23 +393,23 @@ export function MonthlyExpenseForm({
     usesBusinessVehicleTemplate(template.id) &&
     vehicleSimplifiedMileageAllowed(trade, template.id);
 
-  const allIncomeSaved = template.incomeLineItems.every((li) => incomeRows[li.id]?.saved);
+  const allIncomeSaved = visibleIncomeItems.every((li) => incomeRows[li.id]?.saved);
   const allExpensesSaved = visibleExpenseItems.every((li) => expenseRows[li.id]?.saved);
   const allSaved = allIncomeSaved && allExpensesSaved;
 
   const totals = useMemo(() => {
     if (!allSaved) return null;
-    const income = sumSavedLines(incomeRows, template.incomeLineItems);
+    const income = sumSavedLines(incomeRows, visibleIncomeItems);
     const expenses = sumSavedLines(expenseRows, visibleExpenseItems);
     const net = income - expenses;
     return { income, expenses, net };
-  }, [allSaved, incomeRows, expenseRows, template, visibleExpenseItems]);
+  }, [allSaved, incomeRows, expenseRows, visibleIncomeItems, visibleExpenseItems]);
 
   const liveTotals = useMemo(() => {
-    const income = sumParsedLineAmounts(incomeRows, template.incomeLineItems);
+    const income = sumParsedLineAmounts(incomeRows, visibleIncomeItems);
     const expenses = sumParsedLineAmounts(expenseRows, visibleExpenseItems);
     return { income, expenses, net: income - expenses };
-  }, [incomeRows, expenseRows, template, visibleExpenseItems]);
+  }, [incomeRows, expenseRows, visibleIncomeItems, visibleExpenseItems]);
 
   const receiptTotal = useMemo(() => {
     let s = 0;
@@ -487,7 +493,7 @@ export function MonthlyExpenseForm({
     setSubmitting(true);
     setSubmitError(null);
 
-    const incomePayload = template.incomeLineItems.map((li) => ({
+    const incomePayload = visibleIncomeItems.map((li) => ({
       id: li.id,
       label: li.label,
       amount: incomeRows[li.id]?.amount ?? "",
@@ -808,7 +814,7 @@ export function MonthlyExpenseForm({
               (money you received — turnover, fees, tips; not business costs)
             </span>
           </h2>
-          {template.incomeLineItems.map((item, idx) => (
+          {visibleIncomeItems.map((item, idx) => (
             <LedgerRow
               key={item.id}
               item={item}

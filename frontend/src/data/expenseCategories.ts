@@ -5,6 +5,13 @@
  */
 
 import { SELF_EMPLOYED_PROFESSIONS } from "@/data/selfEmployedProfessions";
+import {
+  EXPENSE_LINE_VISIBILITY,
+  INCOME_LINE_VISIBILITY,
+  lineVisibleForProfession,
+  type LineVisibilityMap,
+} from "@/data/professionLineItemVisibility";
+import { getProfessionTags, isCisEligibleTrade } from "@/data/professionTags";
 
 export type MoneyLineItem = {
   id: string;
@@ -227,6 +234,46 @@ export const EXPENSE_TEMPLATES: Record<string, TradeFormTemplate> = {
         hint: "0 if not applicable",
       },
       { id: "workshop_storage", label: "Workshop or storage unit rent", hint: "0 if not applicable" },
+      {
+        id: "parts_supplies",
+        label: "Parts, oils, fluids & job supplies",
+        hint: "Mechanic / garage stock used on jobs",
+      },
+      {
+        id: "diagnostic_tools",
+        label: "Diagnostic tools, scanners & specialist equipment",
+        hint: "0 if not applicable",
+      },
+      {
+        id: "premises_rent_rates",
+        label: "Garage premises rent, rates & utilities",
+        hint: "0 if mobile / no fixed premises",
+      },
+      {
+        id: "hoist_equipment",
+        label: "Ramps, hoists, lifts & garage plant (hire or purchase)",
+        hint: "0 if not applicable",
+      },
+      {
+        id: "waste_oil_disposal",
+        label: "Waste oil, tyres & hazardous waste disposal",
+        hint: "0 if not applicable",
+      },
+      {
+        id: "plants_seeds_materials",
+        label: "Plants, seeds, compost, turf & landscaping materials",
+        hint: "0 if not applicable",
+      },
+      {
+        id: "garden_waste_disposal",
+        label: "Green waste disposal, chipper hire & skip costs",
+        hint: "0 if not applicable",
+      },
+      {
+        id: "ladder_access_equipment",
+        label: "Ladders, water-fed poles & access equipment",
+        hint: "0 if not applicable",
+      },
       { id: "subcontractors", label: "Subcontractors" },
       { id: "phone_office", label: "Phone & office costs" },
       { id: "office_stationery", label: "Office stationery & postage" },
@@ -286,6 +333,16 @@ export const EXPENSE_TEMPLATES: Record<string, TradeFormTemplate> = {
       { id: "equipment_pt", label: "Training equipment (mats, weights, bands, kettlebells)", hint: "0 if not applicable" },
       { id: "first_aid", label: "First aid certification & renewals", hint: "0 if not applicable" },
       { id: "dbs", label: "DBS & safeguarding checks" },
+      {
+        id: "childcare_registration",
+        label: "Ofsted / childcare registration & renewal fees",
+        hint: "0 if not a childminder",
+      },
+      {
+        id: "music_instruments",
+        label: "Instruments, sheet music & teaching aids",
+        hint: "0 if not applicable",
+      },
       { id: "professional_memberships", label: "Professional body memberships", hint: "0 if not applicable" },
       { id: "public_liability", label: "Public liability insurance" },
       {
@@ -339,6 +396,51 @@ export const EXPENSE_TEMPLATES: Record<string, TradeFormTemplate> = {
       { id: "editing_storage_media", label: "Hard drives, memory cards, batteries & media delivery", hint: "0 if not applicable" },
       { id: "studio_props", label: "Studio rent, backdrops & props", hint: "0 if not applicable" },
       { id: "equipment_insurance", label: "Equipment & camera insurance", hint: "0 if not applicable" },
+      {
+        id: "drone_registration",
+        label: "Drone registration, training & aviation insurance",
+        hint: "0 if not applicable",
+      },
+      {
+        id: "cleaning_supplies",
+        label: "Cleaning chemicals, cloths & consumables",
+        hint: "0 if not applicable",
+      },
+      {
+        id: "cleaning_equipment",
+        label: "Vacuums, mops, pressure washers & cleaning kit",
+        hint: "0 if not applicable",
+      },
+      {
+        id: "pet_insurance",
+        label: "Pet business / care insurance",
+        hint: "0 if not applicable",
+      },
+      {
+        id: "pet_supplies",
+        label: "Leads, harnesses, waste bags & pet care supplies",
+        hint: "0 if not applicable",
+      },
+      {
+        id: "food_ingredients",
+        label: "Food ingredients & catering stock",
+        hint: "0 if not applicable",
+      },
+      {
+        id: "kitchen_equipment",
+        label: "Kitchen equipment, utensils & smallwares",
+        hint: "0 if not applicable",
+      },
+      {
+        id: "food_hygiene_training",
+        label: "Food hygiene, allergen & safety training",
+        hint: "0 if not applicable",
+      },
+      {
+        id: "professional_bodies",
+        label: "Professional body fees (e.g. ICB, ACCA affiliate)",
+        hint: "0 if not applicable",
+      },
       { id: "travel", label: "Travel to clients or shoots (business)" },
       { id: "coworking", label: "Co-working or hot-desk rent", hint: "0 if not applicable" },
       { id: "home_office", label: "Home office costs (simplified or actual %)" },
@@ -375,6 +477,16 @@ export const EXPENSE_TEMPLATES: Record<string, TradeFormTemplate> = {
       { id: "advertising", label: "Advertising, PPC & promoted listings" },
       { id: "software", label: "Seller tools, inventory & listing software" },
       { id: "equipment", label: "Equipment (printer, scales, photography kit)", hint: "0 if not applicable" },
+      {
+        id: "market_stall_fees",
+        label: "Market stall, pitch & fair fees",
+        hint: "0 if not applicable",
+      },
+      {
+        id: "market_equipment",
+        label: "Stall equipment, gazebo, tables & display kit",
+        hint: "0 if not applicable",
+      },
       { id: "travel", label: "Travel to suppliers, markets or post office (business)" },
       { id: "home_office", label: "Home office costs (simplified or actual %)" },
       { id: "professional_insurance", label: "Public / product liability insurance", hint: "0 if not applicable" },
@@ -529,9 +641,9 @@ export function getTemplateIdForProfession(trade: string): string {
 /** Template id for trades that typically register for CIS as subcontractors (construction-related). */
 export const CIS_CONSTRUCTION_TEMPLATE_ID = "trades" as const;
 
-/** Electrician, plumber, carpenter, painter & decorator, handyman — CIS may apply to payments from contractors. */
+/** Electrician, plumber, carpenter, etc. — CIS may apply; not mechanics or gardeners. */
 export function isCisConstructionTrade(trade: string): boolean {
-  return getTemplateIdForProfession(trade) === CIS_CONSTRUCTION_TEMPLATE_ID;
+  return isCisEligibleTrade(trade);
 }
 
 /** How vehicle running costs are claimed for this return (when the trade uses a business vehicle). */
@@ -613,6 +725,16 @@ export function usesBusinessVehicleTemplate(templateId: string): boolean {
   return VEHICLE_BUSINESS_TEMPLATE_IDS.has(templateId);
 }
 
+function filterLineItemsForProfession(
+  items: MoneyLineItem[],
+  templateId: string,
+  trade: string,
+  visibilityMaps: Record<string, LineVisibilityMap>,
+): MoneyLineItem[] {
+  const tags = getProfessionTags(trade);
+  return items.filter((item) => lineVisibleForProfession(templateId, item.id, tags, visibilityMaps));
+}
+
 /**
  * HMRC car simplified mileage does not apply to dual-control cars used only for driving instruction.
  * Those vehicles should use the full (actual) cost method.
@@ -625,18 +747,28 @@ export function vehicleSimplifiedMileageAllowed(trade: string, templateId: strin
   return true;
 }
 
+/** Income lines relevant to this profession within its template. */
+export function getVisibleIncomeLineItems(template: TradeFormTemplate, trade: string): MoneyLineItem[] {
+  return filterLineItemsForProfession(template.incomeLineItems, template.id, trade, INCOME_LINE_VISIBILITY);
+}
+
 /**
- * Expense lines shown in the form. Under simplified mileage, per-mile running cost lines are replaced
- * by one total; all other (non-vehicle-running) expenses stay listed.
+ * Expense lines shown in the form. Filters by profession, then applies simplified mileage rules.
  */
 export function getVisibleExpenseLineItems(
   template: TradeFormTemplate,
   method: VehicleCostMethod,
   trade: string,
 ): MoneyLineItem[] {
+  const professionFiltered = filterLineItemsForProfession(
+    template.expenseLineItems,
+    template.id,
+    trade,
+    EXPENSE_LINE_VISIBILITY,
+  );
   const tid = template.id;
   if (!usesBusinessVehicleTemplate(tid) || method !== "simplified" || !vehicleSimplifiedMileageAllowed(trade, tid)) {
-    return template.expenseLineItems;
+    return professionFiltered;
   }
 
   let omit: Set<string> = new Set();
@@ -644,6 +776,6 @@ export function getVisibleExpenseLineItems(
   else if (tid === "trades") omit = TRADES_ACTUAL_VEHICLE_COST_IDS;
   else if (tid === "teaching_training") omit = TEACHING_ACTUAL_VEHICLE_COST_IDS;
 
-  const rest = template.expenseLineItems.filter((li) => !omit.has(li.id));
+  const rest = professionFiltered.filter((li) => !omit.has(li.id));
   return [VEHICLE_SIMPLIFIED_MILEAGE_EXPENSE, ...rest];
 }

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
 import { BusinessSwitcher } from "@/components/dashboard/BusinessSwitcher";
+import { ProfessionSelect } from "@/components/forms/ProfessionSelect";
 import { ALL_PROFESSIONS } from "@/data/expenseCategories";
 
 type PrimaryBusiness = {
@@ -199,30 +200,18 @@ export function AddBusinessForm() {
             placeholder="e.g. City Cabs Ltd"
           />
         </div>
-        <div>
-          <label htmlFor="biz-category" className="block text-sm font-semibold text-brand-black">
-            Profession
-          </label>
-          <p className="mt-1 text-xs text-brand-muted">
-            {status.maxBusinesses === 1
-              ? "This cannot be changed later on the Solo plan. Other professions will not be available on your return form."
-              : "Each business keeps its own profession and expense template."}
-          </p>
-          <select
-            id="biz-category"
-            name="category"
-            required
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            className="mt-2 w-full rounded-xl border border-black/15 bg-white px-4 py-3 text-sm text-brand-black outline-none ring-brand-green/30 focus:ring-2"
-          >
-            {ALL_PROFESSIONS.map((p) => (
-              <option key={p} value={p}>
-                {p}
-              </option>
-            ))}
-          </select>
-        </div>
+        <ProfessionSelect
+          id="biz-category"
+          label="Profession"
+          value={category}
+          onChange={setCategory}
+          required
+          helperText={
+            status.maxBusinesses === 1
+              ? "This cannot be changed later on the Solo plan. Search to find your profession quickly."
+              : "Each business keeps its own profession and expense template. Search to find yours quickly."
+          }
+        />
 
         {formError ? <p className="text-sm text-red-700">{formError}</p> : null}
 
