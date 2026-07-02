@@ -150,7 +150,7 @@ export function ReceiptUploadPanel() {
       >
         <Upload className="mx-auto h-8 w-8 text-brand-green" strokeWidth={1.75} />
         <p className="mt-3 text-sm font-semibold text-slate-800">Drop a receipt here</p>
-        <p className="mt-1 text-xs text-slate-500">PDF, JPG, PNG, or CSV — up to 10 MB</p>
+        <p className="mt-1 text-xs text-slate-500">PDF, JPG, PNG, or CSV — up to 4 MB</p>
 
         <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
           <button

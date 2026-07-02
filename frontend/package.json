@@ -4,10 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "node scripts/reconcile-clerk-env.mjs && prisma migrate deploy && prisma generate && next build",
+    "build": "node scripts/reconcile-clerk-env.mjs && node scripts/ensure-direct-url.mjs && prisma migrate deploy && prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
-    "postinstall": "prisma generate",
+    "postinstall": "node scripts/ensure-direct-url.mjs && prisma generate",
     "db:generate": "dotenv -e .env.local -e .env -- prisma generate",
     "db:migrate": "dotenv -e .env.local -e .env -- prisma migrate deploy",
     "db:push": "dotenv -e .env.local -e .env -- prisma db push",
