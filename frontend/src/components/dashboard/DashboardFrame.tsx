@@ -8,6 +8,7 @@ import type { DashboardShellProfile } from "@/lib/dashboard-profile";
 
 const PAGE_TITLES: Record<string, string> = {
   "/dashboard": "Dashboard",
+  "/dashboard/businesses": "My businesses",
   "/dashboard/business-details": "Business Details",
   "/dashboard/receipts": "Receipts",
   "/dashboard/submissions": "Submissions",

@@ -1,7 +1,7 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useRef, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Building2, Loader2 } from "lucide-react";
 
 type BusinessRow = {
@@ -17,56 +17,93 @@ type BusinessApiPayload = {
 };
 
 type Props = {
-  /** When set, changing business navigates here with ?businessId= (e.g. /dashboard or /submit). */
+  /** When set, changing business navigates here after saving (e.g. /dashboard). */
   basePath?: string;
   className?: string;
   compact?: boolean;
 };
 
-export function BusinessSwitcher({ basePath, className = "", compact = false }: Props) {
+async function persistActiveBusiness(businessId: string): Promise<boolean> {
+  const res = await fetch("/api/business/active", {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ businessId }),
+  });
+  return res.ok;
+}
+
+export function BusinessSwitcher(props: Props) {
+  return (
+    <Suspense
+      fallback={
+        <div className={`flex items-center gap-2 text-sm text-slate-500 ${props.className ?? ""}`}>
+          <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+          <span>Loading businesses…</span>
+        </div>
+      }
+    >
+      <BusinessSwitcherInner {...props} />
+    </Suspense>
+  );
+}
+
+function BusinessSwitcherInner({ basePath, className = "", compact = false }: Props) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [businesses, setBusinesses] = useState<BusinessRow[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
-  const [canSwitch, setCanSwitch] = useState(false);
   const [loading, setLoading] = useState(true);
   const [switching, setSwitching] = useState(false);
+  const syncedUrlRef = useRef(false);
 
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/business");
+      const urlBusinessId = searchParams.get("businessId");
+      const query = urlBusinessId ? `?businessId=${encodeURIComponent(urlBusinessId)}` : "";
+      const res = await fetch(`/api/business${query}`);
       const data = (await res.json()) as BusinessApiPayload;
       if (!res.ok) return;
       setBusinesses(data.businesses ?? []);
       setActiveId(data.activeBusinessId ?? null);
-      setCanSwitch(Boolean(data.canSwitchBusiness));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [searchParams]);
 
   useEffect(() => {
     void load();
   }, [load]);
 
+  useEffect(() => {
+    const urlBusinessId = searchParams.get("businessId");
+    if (!urlBusinessId || loading || syncedUrlRef.current) return;
+
+    syncedUrlRef.current = true;
+    void (async () => {
+      const ok = await persistActiveBusiness(urlBusinessId);
+      if (!ok) {
+        syncedUrlRef.current = false;
+        return;
+      }
+      setActiveId(urlBusinessId);
+      const path = basePath ?? window.location.pathname;
+      router.replace(path);
+      router.refresh();
+    })();
+  }, [basePath, loading, router, searchParams]);
+
   const onChange = async (businessId: string) => {
     if (!businessId || businessId === activeId) return;
     setSwitching(true);
     try {
-      const res = await fetch("/api/business/active", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ businessId }),
-      });
-      if (!res.ok) return;
+      const ok = await persistActiveBusiness(businessId);
+      if (!ok) return;
       setActiveId(businessId);
       if (basePath) {
-        const url = new URL(basePath, window.location.origin);
-        url.searchParams.set("businessId", businessId);
-        router.push(`${url.pathname}${url.search}`);
-      } else {
-        router.refresh();
+        router.push(basePath);
       }
+      router.refresh();
     } finally {
       setSwitching(false);
     }
@@ -81,9 +118,10 @@ export function BusinessSwitcher({ basePath, className = "", compact = false }: 
     );
   }
 
-  if (!canSwitch || businesses.length <= 1) {
-    const active = businesses.find((b) => b.id === activeId) ?? businesses[0];
-    if (!active) return null;
+  if (businesses.length === 0) return null;
+
+  if (businesses.length === 1) {
+    const active = businesses[0];
     return (
       <div className={`flex items-center gap-2 text-sm text-slate-600 ${className}`}>
         <Building2 className="h-4 w-4 shrink-0 text-brand-green" aria-hidden />
@@ -96,22 +134,25 @@ export function BusinessSwitcher({ basePath, className = "", compact = false }: 
   }
 
   return (
-    <div className={`flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-3 ${className}`}>
-      <label htmlFor="active-business" className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+    <div className={`flex flex-col gap-1.5 ${className}`}>
+      <label
+        htmlFor="active-business"
+        className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-500"
+      >
         <Building2 className="h-4 w-4 text-brand-green" aria-hidden />
         Active business
       </label>
-      <div className="relative min-w-0 flex-1 sm:max-w-xs">
+      <div className="relative w-full min-w-0">
         <select
           id="active-business"
           value={activeId ?? ""}
           disabled={switching}
           onChange={(e) => void onChange(e.target.value)}
-          className="w-full appearance-none rounded-xl border border-slate-200 bg-white py-2.5 pr-9 pl-3 text-sm font-medium text-slate-900 shadow-sm focus:border-brand-green focus:outline-none focus:ring-2 focus:ring-brand-green/25 disabled:opacity-60"
+          className="w-full max-w-full appearance-none rounded-xl border border-slate-200 bg-white py-2.5 pr-10 pl-3 text-sm font-medium text-slate-900 shadow-sm focus:border-brand-green focus:outline-none focus:ring-2 focus:ring-brand-green/25 disabled:opacity-60"
         >
           {businesses.map((b) => (
             <option key={b.id} value={b.id}>
-              {b.name} — {b.category}
+              {b.name} ({b.category})
             </option>
           ))}
         </select>

@@ -13,7 +13,6 @@ import {
 import { BusinessSwitcher } from "@/components/dashboard/BusinessSwitcher";
 import { TaxIdsSection } from "@/components/dashboard/TaxIdsSection";
 import { emptyMtdDashboardSnapshot, formatGbp, getMtdDashboardSnapshot } from "@/lib/mtd-dashboard";
-import { persistActiveBusinessCookie } from "@/lib/active-business";
 import { getClientProfile } from "@/lib/profile-server";
 import { getUserPlan } from "@/lib/subscription-server";
 import { PLAN_DISPLAY_NAMES } from "@/lib/plan-config";
@@ -45,9 +44,6 @@ export default async function DashboardPage({
       getMtdDashboardSnapshot(userId, businessId),
       getUserPlan(userId),
     ]);
-    if (snapshot.activeBusinessId) {
-      await persistActiveBusinessCookie(snapshot.activeBusinessId);
-    }
   } catch (err) {
     console.error("[dashboard/page] snapshot load failed", err);
   }

@@ -1,5 +1,5 @@
 import { MonthlyExpenseForm } from "@/components/forms/MonthlyExpenseForm";
-import { getActiveBusinessContext, persistActiveBusinessCookie } from "@/lib/active-business";
+import { getActiveBusinessContext } from "@/lib/active-business";
 import { assertSubmitFormAccess, requireClerkUserId } from "@/server/subscription-guards";
 import { requireMfaEnabled } from "@/server/mfa-guards";
 
@@ -27,8 +27,6 @@ export default async function SubmitPage({ searchParams }: Props) {
       </div>
     );
   }
-
-  await persistActiveBusinessCookie(activeBusiness.id);
 
   return (
     <MonthlyExpenseForm
