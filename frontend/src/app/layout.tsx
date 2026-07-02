@@ -17,6 +17,10 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#16a34a" },
+    { media: "(prefers-color-scheme: dark)", color: "#16a34a" },
+  ],
 };
 
 const inter = Inter({
@@ -29,9 +33,21 @@ export const metadata: Metadata = {
   title: "SelfSubmit — Simple tax returns for the self-employed",
   description:
     "UK self-employed monthly submissions, PDFs, and your accountant — built for taxi drivers, barbers, driving instructors, and more.",
+  applicationName: "SelfSubmit",
+  appleWebApp: {
+    capable: true,
+    title: "SelfSubmit",
+    statusBarStyle: "default",
+  },
   icons: {
-    icon: [{ url: "/favicon.png", type: "image/png" }],
-    apple: [{ url: "/favicon.png", type: "image/png" }],
+    icon: [
+      { url: "/favicon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/favicon-48.png", sizes: "48x48", type: "image/png" },
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+    shortcut: [{ url: "/favicon-32.png", type: "image/png" }],
   },
 };
 
