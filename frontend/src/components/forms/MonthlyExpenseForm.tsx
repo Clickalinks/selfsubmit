@@ -118,14 +118,25 @@ type UploadReceiptLine = {
   uploadError?: string;
 };
 
-type MonthlyExpenseFormProps = {
-  initialTrade: string;
-  lockProfession?: boolean;
+type BusinessSummary = {
+  id: string;
+  name: string;
+  category: string;
 };
 
-export function MonthlyExpenseForm({ initialTrade, lockProfession = false }: MonthlyExpenseFormProps) {
+type MonthlyExpenseFormProps = {
+  activeBusiness: BusinessSummary;
+  businesses: BusinessSummary[];
+  allowBusinessSwitch?: boolean;
+};
+
+export function MonthlyExpenseForm({
+  activeBusiness,
+  businesses,
+  allowBusinessSwitch = false,
+}: MonthlyExpenseFormProps) {
   const router = useRouter();
-  const defaultTrade = initialTrade.trim() || ALL_PROFESSIONS[0] || "Taxi Driver";
+  const defaultTrade = activeBusiness.category.trim() || ALL_PROFESSIONS[0] || "Taxi Driver";
   const [trade, setTrade] = useState(defaultTrade);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -206,11 +217,6 @@ export function MonthlyExpenseForm({ initialTrade, lockProfession = false }: Mon
     setReceiptApplyMessage(undefined);
     setCisDeductionThisPeriod("");
   }, []);
-
-  const onTradeChange = (next: string) => {
-    setTrade(next);
-    resetForTemplate(getTemplateForProfession(next), next);
-  };
 
   const onVehicleCostMethodChange = (method: VehicleCostMethod) => {
     const tpl = getTemplateForProfession(trade);
@@ -518,6 +524,7 @@ export function MonthlyExpenseForm({ initialTrade, lockProfession = false }: Mon
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          businessId: activeBusiness.id,
           trade,
           periodFrom,
           periodTo,
@@ -674,6 +681,29 @@ export function MonthlyExpenseForm({ initialTrade, lockProfession = false }: Mon
         <CsvImportPanel onImport={applyCsvImport} className="mt-8 max-w-2xl" />
 
         <div className="mt-8 max-w-2xl">
+          {allowBusinessSwitch ? (
+            <div className="mb-6 rounded-2xl border border-brand-green/20 bg-brand-mint/30 px-4 py-4">
+              <label htmlFor="active-business-submit" className="block text-sm font-semibold text-brand-black">
+                Which business is this return for?
+              </label>
+              <p className="mt-1 text-xs text-brand-muted">
+                Each business has its own profession and expense template. Switch here to work on another business.
+              </p>
+              <select
+                id="active-business-submit"
+                value={activeBusiness.id}
+                onChange={(e) => router.push(`/submit?businessId=${encodeURIComponent(e.target.value)}`)}
+                className="mt-3 min-h-[52px] w-full rounded-xl border border-black/15 bg-white px-4 py-3 text-sm font-medium text-brand-black shadow-sm focus:border-brand-green focus:outline-none focus:ring-2 focus:ring-brand-green/25"
+              >
+                {businesses.map((b) => (
+                  <option key={b.id} value={b.id}>
+                    {b.name} — {b.category}
+                  </option>
+                ))}
+              </select>
+            </div>
+          ) : null}
+
           <label htmlFor="profession" className="block text-sm font-semibold text-brand-black">
             Business / profession
           </label>
@@ -681,19 +711,10 @@ export function MonthlyExpenseForm({ initialTrade, lockProfession = false }: Mon
             <StickerIconFrame tone={tradeStickerTone} size="md" className="min-[520px]:self-stretch">
               <TradeIcon strokeWidth={2.35} aria-hidden />
             </StickerIconFrame>
-            <select
-              id="profession"
-              value={trade}
-              onChange={(e) => onTradeChange(e.target.value)}
-              disabled={lockProfession}
-              className="min-h-[52px] w-full flex-1 rounded-xl border border-black/15 bg-white px-4 py-3 text-sm font-medium text-brand-black shadow-sm focus:border-brand-green focus:outline-none focus:ring-2 focus:ring-brand-green/25 disabled:cursor-not-allowed disabled:bg-neutral-100 disabled:text-brand-muted"
-            >
-              {ALL_PROFESSIONS.map((p) => (
-                <option key={p} value={p}>
-                  {p}
-                </option>
-              ))}
-            </select>
+            <div className="flex min-h-[52px] w-full flex-1 flex-col justify-center rounded-xl border border-black/15 bg-neutral-100 px-4 py-3 text-sm font-medium text-brand-black">
+              <span className="font-semibold">{activeBusiness.name}</span>
+              <span className="text-brand-muted">{trade}</span>
+            </div>
           </div>
           <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-brand-muted">
             <StickerIconFrame tone={templateStickerTone} size="sm" className="inline-flex">
@@ -702,11 +723,9 @@ export function MonthlyExpenseForm({ initialTrade, lockProfession = false }: Mon
             <span>
               Template: <span className="font-medium text-brand-black">{template.title}</span>
             </span>
-            {lockProfession ? (
-              <span className="rounded-full bg-brand-mint px-2 py-0.5 font-semibold text-brand-forest">
-                Locked to your plan
-              </span>
-            ) : null}
+            <span className="rounded-full bg-brand-mint px-2 py-0.5 font-semibold text-brand-forest">
+              Locked to your plan
+            </span>
           </div>
         </div>
 

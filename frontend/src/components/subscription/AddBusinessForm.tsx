@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
+import { BusinessSwitcher } from "@/components/dashboard/BusinessSwitcher";
 import { ALL_PROFESSIONS } from "@/data/expenseCategories";
 
 type PrimaryBusiness = {
@@ -18,6 +19,7 @@ type StatusPayload = {
   maxBusinesses: number;
   canCreateBusiness: boolean;
   primaryBusiness: PrimaryBusiness | null;
+  businesses?: PrimaryBusiness[];
 };
 
 const UPGRADE_HINT = "Upgrade your plan to add more businesses.";
@@ -33,12 +35,19 @@ export function AddBusinessForm() {
 
   const refreshStatus = useCallback(async () => {
     setLoadError(null);
-    const res = await fetch("/api/subscription/status", { method: "GET" });
-    if (!res.ok) {
+    const [statusRes, businessRes] = await Promise.all([
+      fetch("/api/subscription/status", { method: "GET" }),
+      fetch("/api/business", { method: "GET" }),
+    ]);
+    if (!statusRes.ok) {
       setLoadError("Could not load subscription status.");
       return;
     }
-    const data = (await res.json()) as StatusPayload;
+    const data = (await statusRes.json()) as StatusPayload;
+    const businessData = businessRes.ok
+      ? ((await businessRes.json()) as { businesses?: PrimaryBusiness[] })
+      : null;
+    data.businesses = businessData?.businesses ?? data.businesses;
     setStatus(data);
     if (data.primaryBusiness) {
       setName(data.primaryBusiness.name);
@@ -68,12 +77,22 @@ export function AddBusinessForm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, category }),
       });
-      const data = (await res.json().catch(() => ({}))) as { error?: string };
+      const data = (await res.json().catch(() => ({}))) as { error?: string; business?: { id: string } };
       if (!res.ok) {
         setFormError(data.error ?? "Could not save your business.");
         return;
       }
-      router.push("/submit");
+      const newBusinessId = data.business?.id;
+      if (!setupExisting && newBusinessId) {
+        await fetch("/api/business/active", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ businessId: newBusinessId }),
+        });
+        router.push(`/submit?businessId=${encodeURIComponent(newBusinessId)}`);
+      } else {
+        router.push("/submit");
+      }
       router.refresh();
     } finally {
       setSubmitting(false);
@@ -89,18 +108,47 @@ export function AddBusinessForm() {
   }
 
   if (blockedAtLimit) {
+    const businesses = status.businesses ?? [];
     return (
-      <div className="mx-auto max-w-lg rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-6 text-sm text-emerald-950">
-        <p className="font-semibold">Your businesses are set up on this plan.</p>
-        <p className="mt-2 text-emerald-900">
-          You have {status.businessCount} of {status.maxBusinesses} businesses. Open your return form to add income and
-          expenses.
-        </p>
+      <div className="mx-auto max-w-lg space-y-5">
+        <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-6 text-sm text-emerald-950">
+          <p className="font-semibold">Your businesses are set up on this plan.</p>
+          <p className="mt-2 text-emerald-900">
+            You have {status.businessCount} of {status.maxBusinesses} businesses. Choose which one to work on below.
+          </p>
+        </div>
+
+        <div className="rounded-2xl border border-black/10 bg-white px-5 py-5 shadow-sm">
+          <p className="text-sm font-semibold text-brand-black">Switch business</p>
+          <div className="mt-3">
+            <BusinessSwitcher basePath="/submit" />
+          </div>
+        </div>
+
+        {businesses.length > 0 ? (
+          <ul className="space-y-2">
+            {businesses.map((b) => (
+              <li key={b.id}>
+                <Link
+                  href={`/submit?businessId=${encodeURIComponent(b.id)}`}
+                  className="flex items-center justify-between rounded-xl border border-black/10 bg-white px-4 py-3 text-sm transition hover:border-brand-green/30 hover:bg-brand-mint/20"
+                >
+                  <span>
+                    <span className="font-semibold text-brand-black">{b.name}</span>
+                    <span className="text-brand-muted"> · {b.category}</span>
+                  </span>
+                  <span className="font-semibold text-brand-green">Open form →</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        ) : null}
+
         <Link
-          href="/submit"
-          className="mt-4 inline-flex rounded-xl bg-brand-green px-5 py-2.5 text-sm font-bold text-white hover:bg-brand-green-dark"
+          href="/dashboard"
+          className="inline-flex rounded-xl border border-black/15 px-5 py-2.5 text-sm font-semibold text-brand-black hover:bg-neutral-50"
         >
-          Open my form
+          Back to dashboard
         </Link>
       </div>
     );
@@ -113,6 +161,12 @@ export function AddBusinessForm() {
         <strong className="text-brand-black">{status.maxBusinesses}</strong> businesses allowed on your plan (maximum 4
         on any plan).
       </p>
+
+      {status.businessCount > 0 && status.canCreateBusiness ? (
+        <div className="mt-4">
+          <BusinessSwitcher basePath="/submit" />
+        </div>
+      ) : null}
 
       {setupExisting ? (
         <p className="mt-4 rounded-xl border border-brand-green/20 bg-brand-mint/40 px-4 py-3 text-sm text-brand-forest">
@@ -150,7 +204,9 @@ export function AddBusinessForm() {
             Profession
           </label>
           <p className="mt-1 text-xs text-brand-muted">
-            This cannot be changed later on the Solo plan. Other professions will not be available on your return form.
+            {status.maxBusinesses === 1
+              ? "This cannot be changed later on the Solo plan. Other professions will not be available on your return form."
+              : "Each business keeps its own profession and expense template."}
           </p>
           <select
             id="biz-category"
@@ -175,7 +231,7 @@ export function AddBusinessForm() {
           disabled={disabled}
           className="w-full rounded-2xl bg-gradient-to-b from-brand-green-bright to-brand-green-dark px-6 py-3.5 text-sm font-bold text-white shadow-btn-green transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {submitting ? "Saving…" : "Save and open my form"}
+          {submitting ? "Saving…" : setupExisting ? "Save and open my form" : "Add business and open form"}
         </button>
       </form>
     </div>

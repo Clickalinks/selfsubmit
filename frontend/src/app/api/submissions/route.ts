@@ -113,6 +113,7 @@ function parseCreateBody(body: unknown): CreateSubmissionInput | null {
     : undefined;
 
   return {
+    businessId: typeof b.businessId === "string" ? b.businessId : undefined,
     trade: b.trade,
     periodFrom: b.periodFrom,
     periodTo: b.periodTo,

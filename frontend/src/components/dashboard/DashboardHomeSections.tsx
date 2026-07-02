@@ -13,12 +13,14 @@ type Props = {
   hasPlan: boolean;
   hasBusiness: boolean;
   hasTaxIds: boolean;
+  submitHref?: string;
 };
 
 const btnBase =
   "inline-flex min-h-[3rem] flex-1 items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-green sm:min-h-[3.25rem]";
 
-function primarySubmitHref({ hasPlan, hasBusiness, hasTaxIds }: Props): string {
+function primarySubmitHref({ hasPlan, hasBusiness, hasTaxIds, submitHref }: Props): string {
+  if (submitHref) return submitHref;
   if (!hasTaxIds) return "/dashboard#tax-details";
   if (!hasPlan) return "/pricing";
   if (!hasBusiness) return "/add-business";
@@ -68,6 +70,7 @@ type TodayCardProps = {
   hasPlan: boolean;
   hasBusiness: boolean;
   hasTaxIds: boolean;
+  submitHref?: string;
 };
 
 const TONE_STYLES = {
@@ -77,14 +80,14 @@ const TONE_STYLES = {
   urgent: "border-red-200 bg-red-50 text-red-950",
 } as const;
 
-export function WhatDoINeedTodayCard({ message, tone, hasPlan, hasBusiness, hasTaxIds }: TodayCardProps) {
-  const ctaHref = !hasTaxIds
+export function WhatDoINeedTodayCard({ message, tone, hasPlan, hasBusiness, hasTaxIds, submitHref }: TodayCardProps) {
+  const ctaHref = submitHref ?? (!hasTaxIds
     ? "/dashboard#tax-details"
     : !hasPlan
       ? "/pricing"
       : !hasBusiness
         ? "/add-business"
-        : "/submit";
+        : "/submit");
   const ctaLabel = !hasTaxIds
     ? "Add tax details"
     : !hasPlan

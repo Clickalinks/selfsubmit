@@ -10,8 +10,10 @@ import {
   MtdStatusBadge,
   WhatDoINeedTodayCard,
 } from "@/components/dashboard/DashboardHomeSections";
+import { BusinessSwitcher } from "@/components/dashboard/BusinessSwitcher";
 import { TaxIdsSection } from "@/components/dashboard/TaxIdsSection";
 import { emptyMtdDashboardSnapshot, formatGbp, getMtdDashboardSnapshot } from "@/lib/mtd-dashboard";
+import { persistActiveBusinessCookie } from "@/lib/active-business";
 import { getClientProfile } from "@/lib/profile-server";
 import { getUserPlan } from "@/lib/subscription-server";
 import { PLAN_DISPLAY_NAMES } from "@/lib/plan-config";
@@ -21,9 +23,16 @@ export const metadata: Metadata = {
   description: "Your MTD compliance dashboard — see deadlines, quarterly totals, and what to do next.",
 };
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ businessId?: string }>;
+}) {
   const { userId } = await auth();
   if (!userId) return null;
+
+  const sp = await searchParams;
+  const businessId = typeof sp.businessId === "string" ? sp.businessId : undefined;
 
   const profile = await getClientProfile(userId);
   if (!profile) return null;
@@ -32,10 +41,20 @@ export default async function DashboardPage() {
   let plan: Awaited<ReturnType<typeof getUserPlan>> = null;
 
   try {
-    [snapshot, plan] = await Promise.all([getMtdDashboardSnapshot(userId), getUserPlan(userId)]);
+    [snapshot, plan] = await Promise.all([
+      getMtdDashboardSnapshot(userId, businessId),
+      getUserPlan(userId),
+    ]);
+    if (snapshot.activeBusinessId) {
+      await persistActiveBusinessCookie(snapshot.activeBusinessId);
+    }
   } catch (err) {
     console.error("[dashboard/page] snapshot load failed", err);
   }
+
+  const submitHref = snapshot.activeBusinessId
+    ? `/submit?businessId=${encodeURIComponent(snapshot.activeBusinessId)}`
+    : "/submit";
 
   const deadlineDisplay =
     snapshot.daysUntilDeadline !== null && snapshot.daysUntilDeadline >= 0
@@ -50,6 +69,18 @@ export default async function DashboardPage() {
         <div>
           <p className="text-sm font-medium text-slate-500">Hello {profile.firstName}</p>
           <h2 className="text-xl font-bold text-slate-900 sm:text-2xl">Your MTD dashboard</h2>
+          {snapshot.activeBusinessName ? (
+            <p className="mt-1 text-sm text-slate-600">
+              Viewing{" "}
+              <span className="font-semibold text-slate-900">{snapshot.activeBusinessName}</span>
+              {snapshot.activeBusinessCategory ? (
+                <span className="text-slate-500"> · {snapshot.activeBusinessCategory}</span>
+              ) : null}
+            </p>
+          ) : null}
+          <div className="mt-3 min-[900px]:hidden">
+            <BusinessSwitcher basePath="/dashboard" />
+          </div>
         </div>
         {plan ? (
           <p className="text-sm text-slate-500">
@@ -91,7 +122,20 @@ export default async function DashboardPage() {
         hasPlan={snapshot.hasPlan}
         hasBusiness={snapshot.hasBusiness}
         hasTaxIds={snapshot.hasTaxIds}
+        submitHref={submitHref}
       />
+
+      {snapshot.canSwitchBusiness ? (
+        <section className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm sm:p-5">
+          <p className="text-sm font-semibold text-slate-900">Your businesses</p>
+          <p className="mt-1 text-sm text-slate-500">
+            Switch between businesses to see separate income, expenses, and returns for each.
+          </p>
+          <div className="mt-4">
+            <BusinessSwitcher basePath="/dashboard" />
+          </div>
+        </section>
+      ) : null}
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5 lg:gap-4">
         <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm sm:p-5 lg:col-span-1">
@@ -131,6 +175,7 @@ export default async function DashboardPage() {
           hasPlan={snapshot.hasPlan}
           hasBusiness={snapshot.hasBusiness}
           hasTaxIds={snapshot.hasTaxIds}
+          submitHref={submitHref}
         />
       </div>
 

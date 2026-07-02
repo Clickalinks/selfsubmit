@@ -6,6 +6,7 @@ import { UserButton } from "@clerk/nextjs";
 import { Bell, Menu } from "lucide-react";
 
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
+import { BusinessSwitcher } from "@/components/dashboard/BusinessSwitcher";
 import type { DashboardShellProfile } from "@/lib/dashboard-profile";
 
 type Props = {
@@ -40,6 +41,9 @@ export function DashboardShell({ profile, title, children }: Props) {
             <p className="hidden text-sm text-slate-500 sm:block">
               Welcome back, {profile.firstName}
             </p>
+            <div className="mt-2 hidden min-[900px]:block">
+              <BusinessSwitcher basePath="/dashboard" compact />
+            </div>
           </div>
           <button
             type="button"

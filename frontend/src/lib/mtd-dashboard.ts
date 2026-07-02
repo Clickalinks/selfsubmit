@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { getActiveBusinessContext } from "@/lib/active-business";
 import { getTaxIdsStatus } from "@/lib/tax-ids-server";
 import { getBusinessCount, getUserPlan } from "@/lib/subscription-server";
 
@@ -28,6 +29,10 @@ export type MtdDashboardSnapshot = {
   hasTaxIds: boolean;
   currentQuarterSubmitted: boolean;
   receiptCount: number;
+  activeBusinessId: string | null;
+  activeBusinessName: string | null;
+  activeBusinessCategory: string | null;
+  canSwitchBusiness: boolean;
 };
 
 function startOfDay(d: Date): Date {
@@ -110,32 +115,54 @@ export function emptyMtdDashboardSnapshot(reference = new Date()): MtdDashboardS
     hasTaxIds: false,
     currentQuarterSubmitted: false,
     receiptCount: 0,
+    activeBusinessId: null,
+    activeBusinessName: null,
+    activeBusinessCategory: null,
+    canSwitchBusiness: false,
   };
 }
 
-export async function getMtdDashboardSnapshot(userId: string): Promise<MtdDashboardSnapshot> {
+export async function getMtdDashboardSnapshot(
+  userId: string,
+  preferredBusinessId?: string | null,
+): Promise<MtdDashboardSnapshot> {
   const now = new Date();
   const currentQuarter = getCurrentQuarter(now);
   const quarters = getUkTaxYearQuarters(now);
 
-  const [plan, businessCount, submissions, receiptCount, taxIds] = await Promise.all([
+  const [plan, businessCount, businessContext, receiptCount, taxIds] = await Promise.all([
     getUserPlan(userId),
     getBusinessCount(userId),
-    prisma.submission.findMany({
-      where: { userId },
-      select: {
-        periodFrom: true,
-        periodTo: true,
-        totalIncomeGbp: true,
-        totalExpensesGbp: true,
-        netProfitGbp: true,
-        submittedAt: true,
-      },
-      orderBy: { submittedAt: "desc" },
-    }),
+    getActiveBusinessContext(userId, preferredBusinessId),
     prisma.receipt.count({ where: { userId } }),
     getTaxIdsStatus(userId),
   ]);
+
+  const activeBusiness = businessContext.activeBusiness;
+  const activeCategory = activeBusiness?.category ?? null;
+
+  const submissionWhere = activeBusiness
+    ? {
+        userId,
+        OR: [
+          { businessId: activeBusiness.id },
+          ...(activeCategory ? [{ businessId: null, trade: activeCategory }] : []),
+        ],
+      }
+    : { userId };
+
+  const submissions = await prisma.submission.findMany({
+    where: submissionWhere,
+    select: {
+      periodFrom: true,
+      periodTo: true,
+      totalIncomeGbp: true,
+      totalExpensesGbp: true,
+      netProfitGbp: true,
+      submittedAt: true,
+    },
+    orderBy: { submittedAt: "desc" },
+  });
 
   const hasPlan = Boolean(plan);
   const hasBusiness = businessCount > 0;
@@ -224,6 +251,10 @@ export async function getMtdDashboardSnapshot(userId: string): Promise<MtdDashbo
     hasTaxIds,
     currentQuarterSubmitted,
     receiptCount,
+    activeBusinessId: activeBusiness?.id ?? null,
+    activeBusinessName: activeBusiness?.name ?? null,
+    activeBusinessCategory: activeCategory,
+    canSwitchBusiness: businessContext.canSwitchBusiness,
   };
 }
 

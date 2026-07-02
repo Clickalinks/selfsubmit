@@ -1,10 +1,10 @@
 import { MonthlyExpenseForm } from "@/components/forms/MonthlyExpenseForm";
-import { prisma } from "@/lib/db";
+import { getActiveBusinessContext, persistActiveBusinessCookie } from "@/lib/active-business";
 import { assertSubmitFormAccess, requireClerkUserId } from "@/server/subscription-guards";
 import { requireMfaEnabled } from "@/server/mfa-guards";
 
 type Props = {
-  searchParams: Promise<{ trade?: string }>;
+  searchParams: Promise<{ trade?: string; businessId?: string }>;
 };
 
 export default async function SubmitPage({ searchParams }: Props) {
@@ -13,17 +13,29 @@ export default async function SubmitPage({ searchParams }: Props) {
   await assertSubmitFormAccess(userId);
 
   const sp = await searchParams;
-  const queryTrade = typeof sp.trade === "string" ? sp.trade.trim() : "";
+  const businessId = typeof sp.businessId === "string" ? sp.businessId.trim() : undefined;
 
-  const [business, profile] = await Promise.all([
-    prisma.business.findFirst({ where: { userId }, orderBy: { createdAt: "asc" } }),
-    prisma.clientProfile.findUnique({
-      where: { userId },
-      select: { primaryProfession: true },
-    }),
-  ]);
+  const { businesses, activeBusiness, canSwitchBusiness } = await getActiveBusinessContext(
+    userId,
+    businessId,
+  );
 
-  const initialTrade = queryTrade || business?.category || profile?.primaryProfession || "";
+  if (!activeBusiness) {
+    return (
+      <div className="mx-auto max-w-lg px-4 py-16 text-center">
+        <p className="text-sm text-brand-muted">Add a business before submitting your return.</p>
+      </div>
+    );
+  }
 
-  return <MonthlyExpenseForm initialTrade={initialTrade} lockProfession={Boolean(business?.category)} />;
+  await persistActiveBusinessCookie(activeBusiness.id);
+
+  return (
+    <MonthlyExpenseForm
+      key={activeBusiness.id}
+      activeBusiness={activeBusiness}
+      businesses={businesses}
+      allowBusinessSwitch={canSwitchBusiness}
+    />
+  );
 }

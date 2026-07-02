@@ -9,6 +9,7 @@ export type SubmissionLinePayload = {
 };
 
 export type CreateSubmissionInput = {
+  businessId?: string;
   trade: string;
   periodFrom: string;
   periodTo: string;
@@ -46,10 +47,21 @@ export async function createMonthlySubmission(userId: string, input: CreateSubmi
   }
 
   const templateId = input.templateId ?? getTemplateIdForProfession(trade);
-  const business = await prisma.business.findFirst({
-    where: { userId },
-    orderBy: { createdAt: "asc" },
-  });
+
+  let business = null;
+  if (input.businessId?.trim()) {
+    business = await prisma.business.findFirst({
+      where: { userId, id: input.businessId.trim() },
+    });
+    if (!business) {
+      throw new Error("Business not found");
+    }
+  } else {
+    business = await prisma.business.findFirst({
+      where: { userId },
+      orderBy: { createdAt: "asc" },
+    });
+  }
 
   if (business?.category && business.category !== trade) {
     throw new Error("Profession is locked to your registered business type.");
