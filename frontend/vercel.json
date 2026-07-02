@@ -1,6 +1,6 @@
 {
   "framework": "nextjs",
-  "buildCommand": "node scripts/ensure-direct-url.mjs && prisma migrate deploy && prisma generate && next build",
+  "buildCommand": "node scripts/ensure-direct-url.mjs && node scripts/prisma-migrate-deploy.mjs && prisma generate && next build",
   "installCommand": "npm install",
   "crons": [
     {
