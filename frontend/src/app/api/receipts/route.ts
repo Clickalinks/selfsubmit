@@ -5,7 +5,7 @@ import { apiAuthErrorResponse, clientMetaFromRequest, requireApiUser } from "@/l
 import { writeAuditLog } from "@/lib/audit-log";
 import { prisma } from "@/lib/db";
 import { UPLOAD_MAX_BYTES, validateUploadFile } from "@/lib/file-validation";
-import { extensionForMime, saveReceiptFile } from "@/lib/receipt-storage";
+import { extensionForMime, ReceiptStorageError, saveReceiptFile } from "@/lib/receipt-storage";
 
 export async function GET(req: Request) {
   try {
@@ -133,6 +133,13 @@ export async function POST(req: Request) {
       { status: 201 },
     );
   } catch (err) {
+    if (err instanceof ReceiptStorageError) {
+      console.error("[receipts/upload]", err.message);
+      return NextResponse.json(
+        { error: "Could not save receipt file. Check Vercel Blob is connected to this project." },
+        { status: 503 },
+      );
+    }
     return apiAuthErrorResponse(err);
   }
 }
