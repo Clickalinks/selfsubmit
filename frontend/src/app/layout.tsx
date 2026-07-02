@@ -29,6 +29,10 @@ export const metadata: Metadata = {
   title: "SelfSubmit — Simple tax returns for the self-employed",
   description:
     "UK self-employed monthly submissions, PDFs, and your accountant — built for taxi drivers, barbers, driving instructors, and more.",
+  icons: {
+    icon: [{ url: "/favicon.png", type: "image/png" }],
+    apple: [{ url: "/favicon.png", type: "image/png" }],
+  },
 };
 
 export default function RootLayout({
