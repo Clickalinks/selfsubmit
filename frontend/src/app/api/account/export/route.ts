@@ -1,11 +1,10 @@
 import { auth } from "@clerk/nextjs/server";
 import archiver from "archiver";
-import { access } from "fs/promises";
 import { PassThrough, Readable } from "stream";
 
 import { prisma } from "@/lib/db";
 import { getClientProfile } from "@/lib/profile-server";
-import { receiptFilePath } from "@/lib/receipt-storage";
+import { readReceiptFileBuffer } from "@/lib/receipt-storage";
 
 const README = `SelfSubmit data export
 ======================
@@ -103,13 +102,10 @@ export async function GET() {
   archive.append(JSON.stringify(exportPayload.submissions, null, 2), { name: "submissions.json" });
 
   for (const receipt of receipts) {
-    const filePath = receiptFilePath(userId, receipt.storagePath);
     const safeName = `${receipt.id}-${receipt.fileName.replace(/[^\w.\-()+ ]/g, "_")}`;
-    try {
-      await access(filePath);
-      archive.file(filePath, { name: `receipts/${safeName}` });
-    } catch {
-      // Skip missing files on disk
+    const buffer = await readReceiptFileBuffer(userId, receipt.storagePath);
+    if (buffer) {
+      archive.append(buffer, { name: `receipts/${safeName}` });
     }
   }
 

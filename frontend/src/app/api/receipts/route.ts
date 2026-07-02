@@ -7,12 +7,18 @@ import { prisma } from "@/lib/db";
 import { UPLOAD_MAX_BYTES, validateUploadFile } from "@/lib/file-validation";
 import { extensionForMime, saveReceiptFile } from "@/lib/receipt-storage";
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
     const { userId } = await requireApiUser();
+    const { searchParams } = new URL(req.url);
+    const limit = Math.min(Math.max(Number(searchParams.get("limit") ?? 100), 1), 200);
+    const cursor = searchParams.get("cursor")?.trim() || undefined;
+
     const receipts = await prisma.receipt.findMany({
       where: { userId },
       orderBy: { uploadedAt: "desc" },
+      take: limit + 1,
+      ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
       select: {
         id: true,
         fileName: true,
@@ -22,11 +28,16 @@ export async function GET() {
       },
     });
 
+    const hasMore = receipts.length > limit;
+    const page = hasMore ? receipts.slice(0, limit) : receipts;
+    const nextCursor = hasMore ? page[page.length - 1]?.id ?? null : null;
+
     return NextResponse.json({
-      receipts: receipts.map((r) => ({
+      receipts: page.map((r) => ({
         ...r,
         uploadedAt: r.uploadedAt.toISOString(),
       })),
+      nextCursor,
     });
   } catch (err) {
     return apiAuthErrorResponse(err);
@@ -51,7 +62,7 @@ export async function POST(req: Request) {
     }
 
     if (file.size > UPLOAD_MAX_BYTES) {
-      return NextResponse.json({ error: "File is too large (max 10 MB)" }, { status: 400 });
+      return NextResponse.json({ error: "File is too large (max 4 MB)" }, { status: 400 });
     }
 
     const buffer = Buffer.from(await file.arrayBuffer());
@@ -81,7 +92,7 @@ export async function POST(req: Request) {
       update: {},
     });
 
-    await saveReceiptFile(userId, storageKey, buffer);
+    await saveReceiptFile(userId, storageKey, buffer, mimeType);
 
     const receipt = await prisma.receipt.create({
       data: {

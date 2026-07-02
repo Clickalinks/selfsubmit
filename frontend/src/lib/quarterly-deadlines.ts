@@ -72,4 +72,17 @@ export function deadlineDateOnly(deadline: Date): Date {
   return startOfDay(deadline);
 }
 
+/** True when today is 5 or 1 days before any UK quarterly HMRC deadline. */
+export function isAnyQuarterlyReminderDay(now = new Date()): boolean {
+  const years = [now.getFullYear(), now.getFullYear() + 1];
+  for (const year of years) {
+    const quarters = getUkTaxYearQuarters(new Date(year, 5, 1));
+    for (const q of quarters) {
+      const days = daysUntilDeadline(now, q.deadline);
+      if (days === 5 || days === 1) return true;
+    }
+  }
+  return false;
+}
+
 export { findQuarterByDeadline, quarterIsSubmitted };

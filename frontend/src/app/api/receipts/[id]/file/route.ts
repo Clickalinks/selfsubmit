@@ -3,7 +3,11 @@ import { readFile } from "fs/promises";
 import { NextResponse } from "next/server";
 
 import { prisma } from "@/lib/db";
-import { receiptFilePath } from "@/lib/receipt-storage";
+import {
+  getReceiptDownloadUrl,
+  isBlobStorageConfigured,
+  receiptFilePath,
+} from "@/lib/receipt-storage";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
@@ -20,6 +24,14 @@ export async function GET(_req: Request, context: RouteContext) {
 
   if (!receipt) {
     return NextResponse.json({ error: "Receipt not found" }, { status: 404 });
+  }
+
+  if (isBlobStorageConfigured()) {
+    const downloadUrl = await getReceiptDownloadUrl(userId, receipt.storagePath);
+    if (!downloadUrl) {
+      return NextResponse.json({ error: "File not found" }, { status: 404 });
+    }
+    return NextResponse.redirect(downloadUrl);
   }
 
   try {

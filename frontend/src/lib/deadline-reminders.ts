@@ -1,10 +1,13 @@
+import type { Prisma } from "@prisma/client";
+
 import { prisma } from "@/lib/db";
 import {
   deadlineDateOnly,
   hasMonthlyRecordsForMonth,
   resolveCurrentMonthRecordDeadline,
 } from "@/lib/monthly-deadlines";
-import { resolveNextQuarterlyDeadline } from "@/lib/quarterly-deadlines";
+import { formatUkDate } from "@/lib/mtd-dashboard";
+import { isAnyQuarterlyReminderDay, resolveNextQuarterlyDeadline } from "@/lib/quarterly-deadlines";
 import {
   isReminderDay,
   MONTHLY_SMS_MESSAGES,
@@ -17,11 +20,8 @@ import {
   type ReminderKind,
 } from "@/lib/reminder-schedule";
 import { isResendConfigured, sendReminderEmail } from "@/lib/reminder-email";
-import { appBaseUrl } from "@/lib/stripe-server";
-import { getTaxIdsStatus } from "@/lib/tax-ids-server";
-import { getBusinessCount, getUserPlan } from "@/lib/subscription-server";
+import { ACTIVE_STRIPE_STATUSES, appBaseUrl, isStripeConfigured } from "@/lib/stripe-server";
 import { isTwilioConfigured, sendSms } from "@/lib/twilio-sms";
-import { formatUkDate } from "@/lib/mtd-dashboard";
 
 export type ChannelSummary = {
   eligible: number;
@@ -59,15 +59,6 @@ type ReminderUser = {
   profile: { phone: string; email: string } | null;
   submissions: { periodFrom: Date; periodTo: Date }[];
 };
-
-async function userIsEligible(userId: string): Promise<boolean> {
-  const [plan, businessCount, taxIds] = await Promise.all([
-    getUserPlan(userId),
-    getBusinessCount(userId),
-    getTaxIdsStatus(userId),
-  ]);
-  return Boolean(plan && businessCount > 0 && taxIds.complete);
-}
 
 async function reminderAlreadySent(
   userId: string,
@@ -110,8 +101,35 @@ async function logReminder(
   });
 }
 
+function eligibleUserWhere(): Prisma.UserWhereInput {
+  const base: Prisma.UserWhereInput = {
+    profile: {
+      is: {
+        utrEncrypted: { not: null },
+        niNumberEncrypted: { not: null },
+      },
+    },
+    plan: { not: null },
+    businesses: { some: {} },
+  };
+
+  if (isStripeConfigured()) {
+    base.stripeSubscriptionStatus = { in: Array.from(ACTIVE_STRIPE_STATUSES) };
+  }
+
+  return base;
+}
+
 export async function runDeadlineReminders(now = new Date()): Promise<DeadlineReminderSummary> {
   const summary = emptySummary();
+  const monthTarget = resolveCurrentMonthRecordDeadline(now);
+  const monthlyReminderDay = isReminderDay(monthTarget.daysUntilDeadline);
+  const quarterlyReminderDay = isAnyQuarterlyReminderDay(now);
+
+  if (!monthlyReminderDay && !quarterlyReminderDay) {
+    return summary;
+  }
+
   const smsReady = isTwilioConfigured();
   const emailReady = isResendConfigured();
 
@@ -123,10 +141,7 @@ export async function runDeadlineReminders(now = new Date()): Promise<DeadlineRe
   }
 
   const users = await prisma.user.findMany({
-    where: {
-      profile: { isNot: null },
-      plan: { not: null },
-    },
+    where: eligibleUserWhere(),
     select: {
       id: true,
       profile: {
@@ -148,22 +163,12 @@ export async function runDeadlineReminders(now = new Date()): Promise<DeadlineRe
   const submitUrl = `${appBaseUrl()}/submit`;
 
   for (const user of users as ReminderUser[]) {
-    if (!(await userIsEligible(user.id))) {
-      summary.skipped += 1;
-      continue;
-    }
-
     const phone = user.profile?.phone?.trim() ?? "";
     const email = user.profile?.email?.trim() ?? "";
 
-    // --- Monthly SMS (calendar month-end) ---
-    const monthTarget = resolveCurrentMonthRecordDeadline(now);
-    if (
-      isReminderDay(monthTarget.daysUntilDeadline) &&
-      !hasMonthlyRecordsForMonth(user.submissions, now.getFullYear(), now.getMonth())
-    ) {
+    if (monthlyReminderDay && !hasMonthlyRecordsForMonth(user.submissions, now.getFullYear(), now.getMonth())) {
       summary.monthlySms.eligible += 1;
-      const daysBefore = monthTarget.daysUntilDeadline;
+      const daysBefore = monthTarget.daysUntilDeadline as ReminderDaysBefore;
       const deadlineDate = deadlineDateOnly(monthTarget.deadline);
 
       if (!smsReady || !phone) {
@@ -182,7 +187,10 @@ export async function runDeadlineReminders(now = new Date()): Promise<DeadlineRe
       }
     }
 
-    // --- Quarterly HMRC ---
+    if (!quarterlyReminderDay) {
+      continue;
+    }
+
     const quarterlyTarget = resolveNextQuarterlyDeadline(user.submissions, now);
     if (!quarterlyTarget || quarterlyTarget.daysUntilDeadline < 0 || !isReminderDay(quarterlyTarget.daysUntilDeadline)) {
       continue;
@@ -192,7 +200,6 @@ export async function runDeadlineReminders(now = new Date()): Promise<DeadlineRe
     const deadlineDate = deadlineDateOnly(quarterlyTarget.deadline);
     const deadlineLabel = formatUkDate(quarterlyTarget.deadline);
 
-    // Quarterly SMS
     summary.quarterlySms.eligible += 1;
     if (!smsReady || !phone) {
       summary.quarterlySms.skipped += 1;
@@ -209,7 +216,6 @@ export async function runDeadlineReminders(now = new Date()): Promise<DeadlineRe
       }
     }
 
-    // Quarterly email
     summary.quarterlyEmail.eligible += 1;
     if (!emailReady || !email) {
       summary.quarterlyEmail.skipped += 1;

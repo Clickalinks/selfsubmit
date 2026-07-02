@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { runDeadlineReminders } from "@/lib/deadline-reminders";
 
 export const dynamic = "force-dynamic";
-export const maxDuration = 60;
+export const maxDuration = 300;
 
 function authorizeCron(req: Request): boolean {
   const secret = process.env.CRON_SECRET?.trim();
