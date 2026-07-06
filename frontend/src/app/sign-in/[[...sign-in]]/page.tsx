@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { SignIn } from "@clerk/nextjs";
 
-import { LoginProtectionGuard } from "@/components/auth/LoginProtectionGuard";
+import { SignInLoginProtection } from "@/components/auth/SignInLoginProtection";
 import { SignInInactiveNotice } from "@/components/auth/SignInInactiveNotice";
 
 export const metadata: Metadata = {
@@ -54,15 +54,14 @@ export default async function SignInPage({
               New here? Register as a client
             </Link>
           </p>
-          <LoginProtectionGuard>
-            <SignIn
+          <SignInLoginProtection />
+          <SignIn
               appearance={clerkAppearance}
               routing="path"
               path="/sign-in"
               signUpUrl="/sign-up"
               fallbackRedirectUrl="/dashboard"
             />
-          </LoginProtectionGuard>
         </div>
       </div>
     </div>

@@ -4,8 +4,9 @@ import type { Metadata, Viewport } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Inter } from "next/font/google";
 
-import { ComplianceDisclaimerBanner } from "@/components/ComplianceDisclaimerBanner";
 import { SessionInactivityGuard } from "@/components/auth/SessionInactivityGuard";
+import { ComplianceDisclaimerBanner } from "@/components/ComplianceDisclaimerBanner";
+import { CookieConsentBanner } from "@/components/legal/CookieConsentBanner";
 import { clerkProviderProxyUrl, reconcileClerkProxyEnv } from "@/lib/clerk-env";
 
 import "./globals.css";
@@ -76,6 +77,7 @@ export default function RootLayout({
         >
           <SessionInactivityGuard />
           <ComplianceDisclaimerBanner />
+          <CookieConsentBanner />
           {children}
         </ClerkProvider>
       </body>

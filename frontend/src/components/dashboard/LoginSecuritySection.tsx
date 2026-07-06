@@ -4,12 +4,15 @@ import { useCallback, useEffect, useState } from "react";
 import { AlertTriangle, CheckCircle2, Loader2, Shield } from "lucide-react";
 
 import { DashboardCard } from "@/components/dashboard/DashboardCard";
+import { MAX_FAILED_ATTEMPTS_PER_ACCOUNT } from "@/lib/login-protection-config";
+import { describeUserAgent } from "@/lib/user-agent-label";
 
 type LoginAttemptRow = {
   id: string;
   success: boolean;
   suspicious: boolean;
   ipAddress: string | null;
+  userAgent: string | null;
   failureReason: string | null;
   createdAt: string;
 };
@@ -74,7 +77,7 @@ export function LoginSecuritySection() {
   return (
     <DashboardCard
       title="Login protection"
-      description="Failed attempt logging, lockouts, and alerts for suspicious sign-ins."
+      description="Failed attempt logging, lockouts, login history, and alerts for new devices or suspicious activity."
     >
       {loading ? (
         <div className="flex items-center gap-2 text-sm text-slate-500">
@@ -161,9 +164,10 @@ export function LoginSecuritySection() {
                         {!a.success && a.failureReason ? (
                           <p className="text-xs text-slate-500">{a.failureReason}</p>
                         ) : null}
-                        {a.ipAddress ? (
-                          <p className="text-xs text-slate-400">IP: {a.ipAddress}</p>
-                        ) : null}
+                        <p className="text-xs text-slate-400">
+                          {describeUserAgent(a.userAgent)}
+                          {a.ipAddress ? ` · IP ${a.ipAddress}` : null}
+                        </p>
                       </div>
                     </div>
                     <time className="text-xs text-slate-400">{formatWhen(a.createdAt)}</time>
@@ -174,10 +178,12 @@ export function LoginSecuritySection() {
           </div>
 
           <p className="text-xs text-slate-500">
-            Clerk also provides attack protection (bot detection and brute-force lockout). Enable those in the Clerk
-            Dashboard under User &amp; authentication → Attack protection. Add a webhook for{" "}
-            <code className="rounded bg-slate-100 px-1">session.created</code> pointing to{" "}
-            <code className="rounded bg-slate-100 px-1">/api/webhooks/clerk</code>.
+            Lockouts apply after {MAX_FAILED_ATTEMPTS_PER_ACCOUNT} failed attempts per account (30-minute cooldown).
+            Clerk Attack protection (bot detection) adds another layer — newer Clerk dashboards do not always label brute-force
+            separately; identifier lockouts are handled here and by Clerk together. Ensure the{" "}
+            <code className="rounded bg-slate-100 px-1">session.created</code> webhook points to{" "}
+            <code className="rounded bg-slate-100 px-1">/api/webhooks/clerk</code> so successful sign-ins appear in your
+            history.
           </p>
         </div>
       ) : null}

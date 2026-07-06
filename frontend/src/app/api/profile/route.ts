@@ -1,10 +1,13 @@
-import { auth } from "@clerk/nextjs/server";
+import { auth, clerkClient } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
+import { CONSENT_POLICY_VERSION, CONSENT_TYPES } from "@/lib/consent-config";
+import { recordConsent } from "@/lib/consent-server";
 import { prisma } from "@/lib/db";
 import { deleteAllReceiptFiles } from "@/lib/receipt-storage";
 import { createClientProfile, getClientProfile, updateClientProfile } from "@/lib/profile-server";
 import { hasErrors, validateProfileFields, validateSignUpProfile, type ProfileInput } from "@/lib/profile-validation";
+import { getRequestIp, getRequestUserAgent } from "@/lib/request-ip";
 
 export async function GET() {
   const { userId } = await auth();
@@ -43,12 +46,43 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Invalid profile payload" }, { status: 400 });
   }
 
+  const termsAccepted =
+    body && typeof body === "object" && (body as { termsAccepted?: unknown }).termsAccepted === true;
+  if (!termsAccepted) {
+    return NextResponse.json(
+      { error: "You must accept the Terms of use and Privacy policy to create an account." },
+      { status: 400 },
+    );
+  }
+
   const errors = validateSignUpProfile(input);
   if (hasErrors(errors)) {
     return NextResponse.json({ error: "Validation failed", fieldErrors: errors }, { status: 400 });
   }
 
   const profile = await createClientProfile(userId, input);
+
+  const ip = getRequestIp(req);
+  const userAgent = getRequestUserAgent(req);
+  await Promise.all([
+    recordConsent({
+      consentType: CONSENT_TYPES.TERMS_SIGNUP,
+      granted: true,
+      policyVersion: CONSENT_POLICY_VERSION,
+      userId,
+      ipAddress: ip,
+      userAgent,
+    }),
+    recordConsent({
+      consentType: CONSENT_TYPES.PRIVACY_SIGNUP,
+      granted: true,
+      policyVersion: CONSENT_POLICY_VERSION,
+      userId,
+      ipAddress: ip,
+      userAgent,
+    }),
+  ]).catch((err) => console.error("[profile] consent log failed", err));
+
   return NextResponse.json({ profile }, { status: 201 });
 }
 
@@ -95,6 +129,13 @@ export async function DELETE() {
   });
   await deleteAllReceiptFiles(userId);
   await prisma.user.delete({ where: { id: userId } }).catch(() => undefined);
+
+  try {
+    const client = await clerkClient();
+    await client.users.deleteUser(userId);
+  } catch (err) {
+    console.error("[profile] Clerk user delete failed", userId, err);
+  }
 
   return NextResponse.json({ ok: true, deletedReceipts: receipts.length });
 }

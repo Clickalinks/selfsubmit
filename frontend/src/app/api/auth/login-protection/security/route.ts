@@ -24,6 +24,7 @@ export async function GET() {
       success: a.success,
       suspicious: a.suspicious,
       ipAddress: a.ipAddress,
+      userAgent: a.userAgent,
       failureReason: a.failureReason,
       createdAt: a.createdAt.toISOString(),
     })),

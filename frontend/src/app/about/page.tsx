@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { CompanyDetails } from "@/components/legal/CompanyDetails";
 import { LegalFooterNav, LegalH2, LegalP, LegalPageShell, LegalUl } from "@/components/legal/LegalPageShell";
+import { COMPANY } from "@/lib/company-details";
 
 export const metadata: Metadata = {
   title: "About us — SelfSubmit",
@@ -92,9 +94,19 @@ export default function AboutPage() {
         dated release note.
       </LegalP>
 
+      <LegalH2>Company information</LegalH2>
+      <CompanyDetails />
+
       <LegalH2>Contact</LegalH2>
       <LegalP>
-        For product questions or partnerships, use the details on our{" "}
+        For product questions or partnerships, email{" "}
+        <a
+          href={`mailto:${COMPANY.supportEmail}`}
+          className="font-semibold text-brand-green underline underline-offset-2"
+        >
+          {COMPANY.supportEmail}
+        </a>{" "}
+        or see our{" "}
         <Link href="/contact" className="text-brand-green underline underline-offset-2">
           Contact
         </Link>{" "}

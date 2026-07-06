@@ -1,117 +1,419 @@
 import type { Metadata } from "next";
+
 import Link from "next/link";
 
+
+
+import { CompanyDetails } from "@/components/legal/CompanyDetails";
+
+import { PolicyContactEmail, PolicyRelatedLinks } from "@/components/legal/PolicyHelpers";
+
+import { ProcessorList } from "@/components/legal/ProcessorList";
+
 import {
+
   LegalCallout,
+
   LegalFooterNav,
+
   LegalH2,
+
   LegalP,
+
   LegalPageShell,
+
   LegalUl,
+
 } from "@/components/legal/LegalPageShell";
 
+import { COMPANY } from "@/lib/company-details";
+
+
+
 export const metadata: Metadata = {
+
   title: "Privacy policy — SelfSubmit",
+
   description:
-    "How SelfSubmit handles personal data on this website: what we collect, why, retention, your rights, and links to GDPR information.",
+
+    "How SelfSubmit handles personal data: what we collect, why, retention, subprocessors, your rights, and contact details.",
+
 };
 
+
+
 export default function PrivacyPage() {
+
   return (
+
     <LegalPageShell
+
       title="Privacy policy"
-      description="This policy describes how we process personal data when you use the SelfSubmit website. It should be read with our GDPR overview and cookie policy."
-      lastUpdated="16 April 2026"
+
+      description="This policy describes how we process personal data when you use selfsubmit.co.uk and the SelfSubmit application."
+
+      lastUpdated="6 July 2026"
+
     >
-      <LegalCallout title="Controller (placeholder)">
-        <p className="text-sm leading-relaxed">
-          Insert the legal name and contact details of the organisation operating SelfSubmit before you collect real
-          personal data from the public. Until then, minimise data collection on this demo.
+
+      <LegalCallout title="Data controller">
+
+        <CompanyDetails />
+
+        <p className="mt-3 text-sm leading-relaxed">
+
+          {COMPANY.legalName} ({COMPANY.tradingName}) is the data controller for personal data processed through
+
+          selfsubmit.co.uk, unless we tell you otherwise (for example where a partner acts as controller — see our{" "}
+
+          <Link href="/dpa" className="font-semibold text-brand-green underline underline-offset-2">
+
+            DPA
+
+          </Link>
+
+          ).
+
         </p>
+
       </LegalCallout>
 
+
+
       <LegalH2 id="scope">1. Scope</LegalH2>
+
       <LegalP>
-        This policy covers information processed through pages served from this site (including forms and any future
-        authenticated areas). It does not govern how your accountant or HMRC processes data when you deal with them
-        directly.
+
+        This policy covers personal data we process when you browse our website, create an account, subscribe, upload
+
+        records, contact support, or receive reminders. It does not govern how HMRC or your accountant processes data
+
+        when you deal with them directly.
+
       </LegalP>
 
-      <LegalH2 id="collect">2. Data we may collect</LegalH2>
+
+
+      <LegalH2 id="collect">2. Data we collect</LegalH2>
+
       <LegalUl>
+
         <li>
-          <strong className="text-brand-black">Technical data:</strong> IP address, browser type, device identifiers,
-          and logs needed for security and debugging (typically via hosting infrastructure).
+
+          <strong className="text-brand-black">Identity &amp; contact:</strong> name, email address, phone number (if
+
+          you provide it for SMS reminders), and account identifiers from our authentication provider.
+
         </li>
+
         <li>
-          <strong className="text-brand-black">Form and usage data:</strong> anything you type into demos (for example
-          income figures) if transmitted to our servers—today many demos run client-side only; confirm your deployment.
+
+          <strong className="text-brand-black">Tax identifiers:</strong> Unique Taxpayer Reference (UTR) and National
+
+          Insurance number — encrypted at the application layer before storage.
+
         </li>
+
         <li>
-          <strong className="text-brand-black">Account data:</strong> when sign-in exists: name, email, hashed
-          credentials, and preferences.
+
+          <strong className="text-brand-black">Business records:</strong> income and expense figures, profession, business
+
+          names, submission history, and receipt images you upload.
+
         </li>
+
         <li>
-          <strong className="text-brand-black">Support communications:</strong> content you send if you email support.
+
+          <strong className="text-brand-black">Billing:</strong> subscription status and Stripe customer identifiers —
+
+          card details are handled by Stripe, not stored on our servers.
+
         </li>
+
+        <li>
+
+          <strong className="text-brand-black">Technical &amp; security:</strong> IP address, device/browser data, logs,
+
+          and security events needed to operate and protect the service.
+
+        </li>
+
+        <li>
+
+          <strong className="text-brand-black">Communications:</strong> support emails and optional marketing preferences
+
+          where you opt in.
+
+        </li>
+
       </LegalUl>
 
+
+
       <LegalH2 id="purposes">3. Purposes and lawful bases</LegalH2>
+
+      <LegalP>We process data to:</LegalP>
+
+      <LegalUl>
+
+        <li>
+
+          <strong className="text-brand-black">Provide the service</strong> (contract) — accounts, record-keeping,
+
+          submissions, receipts, reminders.
+
+        </li>
+
+        <li>
+
+          <strong className="text-brand-black">Bill and administer subscriptions</strong> (contract / legal obligation).
+
+        </li>
+
+        <li>
+
+          <strong className="text-brand-black">Secure the platform</strong> (legitimate interests) — fraud prevention,
+
+          abuse detection, and incident response.
+
+        </li>
+
+        <li>
+
+          <strong className="text-brand-black">Comply with law</strong> (legal obligation) — tax, accounting, and
+
+          regulatory requirements.
+
+        </li>
+
+        <li>
+
+          <strong className="text-brand-black">Improve the product</strong> (legitimate interests) — aggregated usage
+
+          insight without selling personal data.
+
+        </li>
+
+        <li>
+
+          <strong className="text-brand-black">Marketing</strong> (consent where required) — only if you opt in.
+
+        </li>
+
+      </LegalUl>
+
       <LegalP>
-        We process data to operate the site, provide features you request, secure our services, comply with law, and
-        improve the product. Lawful bases may include contract, legitimate interests, legal obligation, and consent
-        where required (see our{" "}
+
+        See our{" "}
+
         <Link href="/gdpr" className="text-brand-green underline underline-offset-2">
+
           GDPR &amp; data protection
+
         </Link>{" "}
-        page).
+
+        page for more on lawful bases and rights.
+
       </LegalP>
 
-      <LegalH2 id="sharing">4. Sharing</LegalH2>
+
+
+      <LegalH2 id="processors">4. Processors and sharing</LegalH2>
+
       <LegalP>
-        We may use processors (hosting, email, analytics) under written agreements requiring them to protect data. We
-        do not sell personal data. We may disclose data if required by law or to protect rights and safety.
+
+        We use trusted providers under contract. We do not sell personal data. We may disclose data if required by law,
+
+        to protect rights and safety, or in connection with a business transfer.
+
       </LegalP>
 
-      <LegalH2 id="retention">5. Retention</LegalH2>
+      <ProcessorList />
+
       <LegalP>
-        We keep data only as long as needed for the purposes above, then delete or anonymise it unless a longer period is
-        required by law (for example tax record retention where we store business records on your behalf in a future
-        product).
+
+        Business customers may need a signed agreement — see our{" "}
+
+        <Link href="/dpa" className="text-brand-green underline underline-offset-2">
+
+          DPA
+
+        </Link>
+
+        .
+
       </LegalP>
 
-      <LegalH2 id="security">6. Security</LegalH2>
+
+
+      <LegalH2 id="minimisation">5. Data minimisation</LegalH2>
+
+      <LegalP>We collect only what we need to provide the service, including:</LegalP>
+
+      <LegalUl>
+
+        <li>Identity and contact details to create and support your account</li>
+
+        <li>Tax identifiers (UTR and NI) when you choose to store them — encrypted at rest</li>
+
+        <li>Business records, receipts, and submissions you enter or upload</li>
+
+        <li>Technical logs for security and reliability</li>
+
+      </LegalUl>
+
       <LegalP>
-        We implement appropriate technical and organisational measures for the sensitivity of the data we handle. No
-        method of transmission over the Internet is 100% secure.
+
+        We do not collect special category data unless you voluntarily include it in free-text fields — please avoid
+
+        doing so.
+
       </LegalP>
 
-      <LegalH2 id="rights">7. Your rights</LegalH2>
+
+
+      <LegalH2 id="retention">6. Retention</LegalH2>
+
       <LegalP>
-        UK individuals have rights of access, rectification, erasure, restriction, objection, portability, and
-        complaint to the ICO, subject to conditions. See the{" "}
+
+        We keep data only as long as needed. Tax and business records may be retained to support HMRC record-keeping
+
+        expectations while your account is active and for a limited period after closure. See our{" "}
+
+        <Link href="/data-retention" className="text-brand-green underline underline-offset-2">
+
+          Data retention policy
+
+        </Link>
+
+        .
+
+      </LegalP>
+
+
+
+      <LegalH2 id="security">7. Security</LegalH2>
+
+      <LegalP>
+
+        We use HTTPS, encrypted storage for sensitive tax identifiers, access controls, and monitoring. See{" "}
+
+        <Link href="/security" className="text-brand-green underline underline-offset-2">
+
+          Security
+
+        </Link>{" "}
+
+        and{" "}
+
+        <Link href="/responsible-disclosure" className="text-brand-green underline underline-offset-2">
+
+          Responsible disclosure
+
+        </Link>
+
+        .
+
+      </LegalP>
+
+
+
+      <LegalH2 id="rights">8. Your rights</LegalH2>
+
+      <LegalP>
+
+        UK individuals have rights of access, rectification, erasure, restriction, objection, portability, and complaint
+
+        to the ICO, subject to conditions. In the app, you can{" "}
+
+        <Link href="/settings" className="text-brand-green underline underline-offset-2">
+
+          export your data
+
+        </Link>{" "}
+
+        or delete your account from Settings. You can also email <PolicyContactEmail subject="Data protection request" />{" "}
+
+        or see{" "}
+
         <Link href="/gdpr" className="text-brand-green underline underline-offset-2">
+
           GDPR &amp; data protection
-        </Link>{" "}
-        page and contact us via the route on our{" "}
-        <Link href="/contact" className="text-brand-green underline underline-offset-2">
-          Contact
-        </Link>{" "}
-        page.
+
+        </Link>
+
+        .
+
       </LegalP>
 
-      <LegalH2 id="children">8. Children</LegalH2>
-      <LegalP>This site is not directed at children under 16 and we do not knowingly collect their data.</LegalP>
 
-      <LegalH2 id="international">9. International transfers</LegalH2>
+
+      <LegalH2 id="cookies">9. Cookies</LegalH2>
+
       <LegalP>
-        If personal data leaves the UK, we use appropriate safeguards as described in our GDPR page once applicable.
+
+        See our{" "}
+
+        <Link href="/cookies" className="text-brand-green underline underline-offset-2">
+
+          Cookie policy
+
+        </Link>
+
+        .
+
       </LegalP>
 
-      <LegalH2 id="changes">10. Changes</LegalH2>
-      <LegalP>We will update this policy when our practices change and revise the “Last updated” date.</LegalP>
 
-      <LegalFooterNav />
+
+      <LegalH2 id="children">10. Children</LegalH2>
+
+      <LegalP>The service is not directed at children under 16 and we do not knowingly collect their data.</LegalP>
+
+
+
+      <LegalH2 id="international">11. International transfers</LegalH2>
+
+      <LegalP>
+
+        Some processors may process data outside the UK. We use appropriate safeguards where required — see our GDPR page.
+
+      </LegalP>
+
+
+
+      <LegalH2 id="changes">12. Changes</LegalH2>
+
+      <LegalP>We will update this policy when practices change and revise the &ldquo;Last updated&rdquo; date.</LegalP>
+
+
+
+      <LegalCallout title="Related policies">
+
+        <PolicyRelatedLinks
+
+          links={[
+
+            { href: "/gdpr", label: "GDPR & data protection" },
+
+            { href: "/data-retention", label: "Data retention policy" },
+
+            { href: "/cookies", label: "Cookie policy" },
+
+          ]}
+
+        />
+
+      </LegalCallout>
+
+
+
+      <LegalFooterNav currentPolicyHref="/privacy" />
+
     </LegalPageShell>
+
   );
+
 }
+
+

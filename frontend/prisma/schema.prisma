@@ -205,3 +205,19 @@ model SecurityNotification {
   @@index([userId, read, createdAt])
   @@index([email, createdAt])
 }
+
+/// GDPR / PECR consent audit trail (cookies, terms acceptance, marketing opt-in).
+model ConsentRecord {
+  id            String   @id @default(cuid())
+  userId        String?
+  consentType   String
+  granted       Boolean
+  policyVersion String
+  ipAddress     String?
+  userAgent     String?
+  metadata      String?
+  createdAt     DateTime @default(now())
+
+  @@index([userId, consentType, createdAt])
+  @@index([consentType, createdAt])
+}

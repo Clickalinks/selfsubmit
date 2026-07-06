@@ -1,115 +1,146 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { CompanyDetails } from "@/components/legal/CompanyDetails";
+import { PolicyContactEmail, PolicyRelatedLinks } from "@/components/legal/PolicyHelpers";
 import {
   LegalCallout,
   LegalFooterNav,
   LegalH2,
   LegalP,
   LegalPageShell,
-  LegalUl,
 } from "@/components/legal/LegalPageShell";
+import { COMPANY } from "@/lib/company-details";
 
 export const metadata: Metadata = {
   title: "Terms of use — SelfSubmit",
   description:
-    "Terms governing use of the SelfSubmit website and demo features. Includes limitations, acceptable use, and links to privacy and disclaimers.",
+    "Terms governing use of the SelfSubmit website and subscription service operated by Clicado Media UK Ltd.",
 };
 
 export default function TermsPage() {
   return (
     <LegalPageShell
       title="Terms of use"
-      description="These terms apply when you browse or use selfsubmit (the website). They may be replaced by a fuller commercial agreement when paid accounts launch."
-      lastUpdated="16 April 2026"
+      description="These terms apply when you browse or use selfsubmit.co.uk and the SelfSubmit application."
+      lastUpdated="6 July 2026"
     >
       <LegalCallout title="Read together with">
-        <p className="text-sm leading-relaxed">
-          <Link href="/privacy" className="font-semibold text-brand-green underline underline-offset-2">
-            Privacy policy
-          </Link>
-          ,{" "}
-          <Link href="/disclaimer" className="font-semibold text-brand-green underline underline-offset-2">
-            Disclaimer &amp; illustrative content
-          </Link>
-          , and{" "}
-          <Link href="/cookies" className="font-semibold text-brand-green underline underline-offset-2">
-            Cookie policy
-          </Link>
-          .
-        </p>
+        <PolicyRelatedLinks
+          links={[
+            { href: "/privacy", label: "Privacy policy" },
+            { href: "/acceptable-use", label: "Acceptable use policy" },
+            { href: "/refund", label: "Refund policy" },
+            { href: "/cancellation", label: "Cancellation policy" },
+            { href: "/cookies", label: "Cookie policy" },
+          ]}
+        />
       </LegalCallout>
 
-      <LegalH2 id="accept">1. Acceptance</LegalH2>
+      <LegalH2 id="operator">1. Who we are</LegalH2>
+      <CompanyDetails />
       <LegalP>
-        By accessing this website you agree to these terms. If you do not agree, do not use the site. We may update
-        these terms; continued use after changes constitutes acceptance of the revised terms.
+        In these terms, &ldquo;we&rdquo;, &ldquo;us&rdquo; and &ldquo;our&rdquo; mean {COMPANY.legalName} trading as{" "}
+        {COMPANY.tradingAs}. &ldquo;You&rdquo; means the person or business using the service.
       </LegalP>
 
-      <LegalH2 id="service">2. The service today</LegalH2>
+      <LegalH2 id="accept">2. Acceptance</LegalH2>
       <LegalP>
-        SelfSubmit currently provides informational pages, a demonstration monthly income and expenses form, and an
-        illustrative tax calculator. Features labelled as demo may not persist data or file anything with HMRC.
+        By accessing this website or creating an account you agree to these terms. If you do not agree, do not use the
+        service. We may update these terms; continued use after changes constitutes acceptance of the revised terms.
       </LegalP>
 
-      <LegalH2 id="accounts">3. Accounts and eligibility</LegalH2>
+      <LegalH2 id="service">3. The service</LegalH2>
       <LegalP>
-        When registration opens, you must provide accurate information and keep credentials secure. The product is aimed
-        at UK self-employed users; you must meet any age or capacity requirements we publish at signup.
+        SelfSubmit provides record-keeping, submission tools, and guidance for UK self-employed users and landlords
+        preparing Making Tax Digital updates. Some features may be labelled beta or illustrative until we confirm live
+        HMRC filing for a specific release.
       </LegalP>
 
-      <LegalH2 id="acceptable">4. Acceptable use</LegalH2>
-      <LegalP>You must not:</LegalP>
-      <LegalUl>
-        <li>Attempt to gain unauthorised access to our systems, other users’ data, or third-party networks.</li>
-        <li>Use the site to distribute malware, spam, or unlawful content.</li>
-        <li>Reverse engineer or scrape the site in a way that harms performance or breaches intellectual property rights.</li>
-        <li>Misrepresent your identity or affiliation.</li>
-      </LegalUl>
-
-      <LegalH2 id="ip">5. Intellectual property</LegalH2>
+      <LegalH2 id="accounts">4. Accounts and eligibility</LegalH2>
       <LegalP>
-        Branding, text, layout, and code on this site are owned by SelfSubmit or its licensors unless stated. You may
-        view and print pages for personal, non-commercial reference. Other use requires our written permission.
+        You must provide accurate information and keep credentials secure. The product is aimed at UK self-employed
+        users; you must meet any age or capacity requirements we publish at sign-up.
       </LegalP>
 
-      <LegalH2 id="third">6. Third-party services</LegalH2>
+      <LegalH2 id="acceptable">5. Acceptable use</LegalH2>
       <LegalP>
-        We may rely on hosting providers, analytics (if enabled), or payment processors. Their terms may also apply
-        where you interact with them.
+        You must use the service lawfully and honestly. Prohibited conduct includes fraud, unauthorised access, abuse of
+        HMRC submissions, and misuse of our intellectual property. The full rules are in our{" "}
+        <Link href="/acceptable-use" className="text-brand-green underline underline-offset-2">
+          Acceptable use policy
+        </Link>{" "}
+        and{" "}
+        <Link href="/anti-fraud" className="text-brand-green underline underline-offset-2">
+          Anti-fraud policy
+        </Link>
+        .
       </LegalP>
 
-      <LegalH2 id="warranty">7. Disclaimers</LegalH2>
+      <LegalH2 id="billing">6. Subscriptions, refunds &amp; cancellation</LegalH2>
       <LegalP>
-        The site is provided “as is” to the extent permitted by law. We do not warrant uninterrupted or error-free
-        operation. Tax and compliance outputs are illustrative unless we expressly state otherwise for a specific
-        certified feature.
+        Paid plans renew monthly until cancelled. Prices are shown at checkout. Refunds and cancellation are described
+        in our{" "}
+        <Link href="/refund" className="text-brand-green underline underline-offset-2">
+          Refund policy
+        </Link>{" "}
+        and{" "}
+        <Link href="/cancellation" className="text-brand-green underline underline-offset-2">
+          Cancellation policy
+        </Link>
+        . Statutory consumer rights are not affected.
       </LegalP>
 
-      <LegalH2 id="liability">8. Limitation of liability</LegalH2>
+      <LegalH2 id="ip">7. Intellectual property</LegalH2>
       <LegalP>
-        To the fullest extent permitted by applicable law, SelfSubmit and its operators shall not be liable for any
-        indirect, consequential, or special loss, or for any loss of profit, revenue, goodwill, or data arising from use
-        of this demo site. Nothing in these terms excludes liability that cannot be excluded by law (including death or
-        personal injury caused by negligence, or fraud).
+        Branding, text, layout, and code on this site are owned by {COMPANY.legalName} or its licensors unless stated.
+        See our{" "}
+        <Link href="/copyright" className="text-brand-green underline underline-offset-2">
+          Copyright
+        </Link>{" "}
+        and{" "}
+        <Link href="/trademark" className="text-brand-green underline underline-offset-2">
+          Trademark
+        </Link>{" "}
+        notices for permitted use.
       </LegalP>
 
-      <LegalH2 id="law">9. Governing law and disputes</LegalH2>
+      <LegalH2 id="third">8. Third-party services</LegalH2>
+      <LegalP>
+        We rely on hosting, authentication, payment, messaging, and email providers. Their terms may also apply where you
+        interact with them.
+      </LegalP>
+
+      <LegalH2 id="warranty">9. Disclaimers</LegalH2>
+      <LegalP>
+        The service is provided &ldquo;as is&rdquo; to the extent permitted by law. We do not provide tax, legal, or
+        accounting advice. You are responsible for the accuracy of information you submit to HMRC.
+      </LegalP>
+
+      <LegalH2 id="liability">10. Limitation of liability</LegalH2>
+      <LegalP>
+        To the fullest extent permitted by applicable law, {COMPANY.legalName} shall not be liable for any indirect,
+        consequential, or special loss, or for any loss of profit, revenue, goodwill, or data arising from use of the
+        service. Nothing in these terms excludes liability that cannot be excluded by law (including death or personal
+        injury caused by negligence, or fraud).
+      </LegalP>
+
+      <LegalH2 id="law">11. Governing law and disputes</LegalH2>
       <LegalP>
         These terms are governed by the laws of England and Wales. The courts of England and Wales have exclusive
         jurisdiction, subject to any mandatory rights you have as a consumer in your home country.
       </LegalP>
 
-      <LegalH2 id="contact">10. Contact</LegalH2>
+      <LegalH2 id="contact">12. Contact</LegalH2>
       <LegalP>
-        See our{" "}
+        Email <PolicyContactEmail /> or see our{" "}
         <Link href="/contact" className="text-brand-green underline underline-offset-2">
           Contact
         </Link>{" "}
-        page for how to reach us once routes are published.
+        page.
       </LegalP>
 
-      <LegalFooterNav />
+      <LegalFooterNav currentPolicyHref="/terms" />
     </LegalPageShell>
   );
 }

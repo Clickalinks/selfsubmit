@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 
+import { AccountCredentialsSection } from "@/components/dashboard/AccountCredentialsSection";
 import { DeleteAccountSection } from "@/components/dashboard/DeleteAccountSection";
 import { DashboardCard } from "@/components/dashboard/DashboardCard";
 import { LoginSecuritySection } from "@/components/dashboard/LoginSecuritySection";
@@ -31,9 +32,10 @@ export default function SettingsPage() {
             <p className="mt-0.5 text-slate-500">Name, contact details, and business information</p>
           </li>
           <li>
-            <p className="font-semibold text-slate-800">Password & security</p>
+            <p className="font-semibold text-slate-800">Password &amp; security</p>
             <p className="mt-0.5 text-slate-500">
-              Change your password via your avatar (top right) → Security. Enable MFA in the section below.
+              Email verification, password reset, two-step verification (authenticator or email OTP), and login history
+              are configured in the sections below.
             </p>
           </li>
           <li>
@@ -48,6 +50,8 @@ export default function SettingsPage() {
       </DashboardCard>
 
       <ManageBillingSection />
+
+      <AccountCredentialsSection />
 
       <MfaSettingsSection />
 

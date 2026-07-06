@@ -17,6 +17,7 @@ const isProtectedPage = createRouteMatcher([
 const isPublicApi = createRouteMatcher([
   "/api/address(.*)",
   "/api/auth/login-protection(.*)",
+  "/api/consent",
   "/api/webhooks/clerk(.*)",
   "/api/webhooks/stripe(.*)",
 ]);

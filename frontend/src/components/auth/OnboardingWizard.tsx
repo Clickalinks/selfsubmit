@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -46,6 +47,7 @@ export function OnboardingWizard() {
   const [businessAddress, setBusinessAddress] = useState("");
   const [businessName, setBusinessName] = useState("");
   const [primaryProfession, setPrimaryProfession] = useState<string>(SELF_EMPLOYED_PROFESSIONS[0]);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -107,13 +109,17 @@ export function OnboardingWizard() {
     const errors = validateProfileFields(profileInput);
     setFieldErrors(errors);
     if (hasErrors(errors)) return;
+    if (!acceptedTerms) {
+      setFormError("Please accept the Terms of use and Privacy policy to continue.");
+      return;
+    }
 
     setLoading(true);
     try {
       const res = await fetch("/api/profile", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(profileInput),
+        body: JSON.stringify({ ...profileInput, termsAccepted: true }),
       });
       const data = (await res.json().catch(() => ({}))) as { error?: string };
       if (!res.ok) {
@@ -272,6 +278,25 @@ export function OnboardingWizard() {
                 onChange={(e) => setBusinessName(e.target.value)}
               />
             </div>
+            <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+              <input
+                type="checkbox"
+                className="mt-1 h-4 w-4 rounded border-slate-300 text-brand-green focus:ring-brand-green"
+                checked={acceptedTerms}
+                onChange={(e) => setAcceptedTerms(e.target.checked)}
+              />
+              <span className="text-sm text-slate-700">
+                I agree to the{" "}
+                <Link href="/terms" className="font-semibold text-brand-green underline underline-offset-2">
+                  Terms of use
+                </Link>{" "}
+                and{" "}
+                <Link href="/privacy" className="font-semibold text-brand-green underline underline-offset-2">
+                  Privacy policy
+                </Link>
+                .
+              </span>
+            </label>
           </div>
         )}
 

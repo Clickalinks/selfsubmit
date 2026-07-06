@@ -132,6 +132,7 @@ export function SignUpWizard() {
   const [verificationCode, setVerificationCode] = useState("");
   const [verificationMessage, setVerificationMessage] = useState<string | null>(null);
   const [resolvingSession, setResolvingSession] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   const fieldsDisabled = pendingVerification || resolvingSession;
 
@@ -259,7 +260,7 @@ export function SignUpWizard() {
         const res = await fetch("/api/profile", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(profileInput),
+          body: JSON.stringify({ ...profileInput, termsAccepted: true }),
         });
         const data = (await res.json().catch(() => ({}))) as { error?: string; fieldErrors?: FieldErrors };
 
@@ -291,7 +292,7 @@ export function SignUpWizard() {
       const res = await fetch("/api/profile", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(profileInput),
+        body: JSON.stringify({ ...profileInput, termsAccepted: true }),
       });
       const data = (await res.json().catch(() => ({}))) as { error?: string; fieldErrors?: FieldErrors };
 
@@ -327,6 +328,10 @@ export function SignUpWizard() {
         scrollToFirstError(profileErrors);
         return;
       }
+      if (!acceptedTerms) {
+        setFormError("Please accept the Terms of use and Privacy policy to continue.");
+        return;
+      }
       await saveProfileOnly();
       return;
     }
@@ -344,6 +349,10 @@ export function SignUpWizard() {
       setFieldErrors(merged);
       if (hasErrors(merged)) {
         scrollToFirstError(merged);
+        return;
+      }
+      if (!acceptedTerms) {
+        setFormError("Please accept the Terms of use and Privacy policy to continue.");
         return;
       }
     }
@@ -708,6 +717,29 @@ export function SignUpWizard() {
           data-cl-theme="light"
           data-cl-size="flexible"
         />
+
+        {!pendingVerification ? (
+          <label className="mt-6 flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+            <input
+              type="checkbox"
+              className="mt-1 h-4 w-4 rounded border-slate-300 text-brand-green focus:ring-brand-green"
+              checked={acceptedTerms}
+              onChange={(e) => setAcceptedTerms(e.target.checked)}
+              disabled={fieldsDisabled}
+            />
+            <span className="text-sm text-slate-700">
+              I agree to the{" "}
+              <Link href="/terms" className="font-semibold text-brand-green underline underline-offset-2">
+                Terms of use
+              </Link>{" "}
+              and{" "}
+              <Link href="/privacy" className="font-semibold text-brand-green underline underline-offset-2">
+                Privacy policy
+              </Link>
+              .
+            </span>
+          </label>
+        ) : null}
 
         <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:justify-between">
           <div className="flex flex-col gap-2 sm:flex-row">

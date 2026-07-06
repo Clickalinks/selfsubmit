@@ -1,7 +1,9 @@
+import Image from "next/image";
 import Link from "next/link";
 import { Facebook, Instagram, Linkedin } from "lucide-react";
 
 import { SelfSubmitLogo } from "@/components/brand/SelfSubmitLogo";
+import { FooterCopyright } from "@/components/legal/CompanyDetails";
 
 function XIcon({ className }: { className?: string }) {
   return (
@@ -48,48 +50,67 @@ export function SiteFooter() {
 
           <div className="grid grid-cols-2 gap-8 sm:grid-cols-4">
             <FooterColumn
-              title="Quick links"
+              title="Product"
               links={[
                 { href: "/", label: "Home" },
-                { href: "/how-it-works", label: "How it works" },
+                { href: "/features", label: "Features" },
                 { href: "/pricing", label: "Pricing" },
-                { href: "/sign-up", label: "Sign up" },
+                { href: "/faq", label: "FAQ" },
               ]}
             />
             <FooterColumn
               title="MTD"
               links={[
                 { href: "/mtd", label: "MTD categories" },
-                { href: "/submit", label: "Monthly submission" },
+                { href: "/blog", label: "Guides & blog" },
                 { href: "/tax-calculator", label: "Tax calculator" },
                 { href: "/hmrc-agent", label: "HMRC agent" },
               ]}
             />
             <FooterColumn
-              title="Features"
+              title="Company"
               links={[
-                { href: "/dashboard/receipts", label: "Receipts" },
-                { href: "/dashboard/submissions", label: "Submissions" },
-                { href: "/add-business", label: "Add business" },
                 { href: "/about", label: "About" },
+                { href: "/contact", label: "Contact" },
+                { href: "/partners", label: "Partners" },
+                { href: "/security", label: "Security" },
+              ]}
+            />
+            <FooterColumn
+              title="Legal"
+              links={[
+                { href: "/privacy", label: "Privacy" },
+                { href: "/terms", label: "Terms" },
+                { href: "/cookies", label: "Cookies" },
+                { href: "/gdpr", label: "GDPR" },
               ]}
             />
             <FooterColumn
               title="Support"
               links={[
+                { href: "/status", label: "Status" },
+                { href: "/infrastructure", label: "Infrastructure" },
+                { href: "/security", label: "Security" },
                 { href: "/contact", label: "Contact" },
-                { href: "/privacy", label: "Privacy" },
-                { href: "/terms", label: "Terms" },
-                { href: "/accessibility", label: "Accessibility" },
               ]}
             />
           </div>
         </div>
 
-        <div className="mt-10 border-t border-gray-700 pt-6 text-center">
-          <p className="text-xs text-gray-500 sm:text-sm">
-            Selfsubmit.co.uk is part of Clicado Media UK Ltd. © {new Date().getFullYear()} SelfSubmit.
-          </p>
+        <div className="mt-10 flex flex-col items-center gap-3 border-t border-gray-700 pt-8">
+          <p className="text-xs font-medium uppercase tracking-wider text-gray-500">Secure payments via Stripe</p>
+          <Image
+            src="/payment-methods.png"
+            alt="Visa, Mastercard, American Express, Apple Pay, Google Pay, Shop Pay, PayPal, and Samsung Pay"
+            width={520}
+            height={40}
+            className="h-8 w-auto max-w-full opacity-95 sm:h-9"
+            unoptimized
+          />
+        </div>
+
+        <div className="mt-8 border-t border-gray-700 pt-6">
+          <FooterCopyright />
         </div>
       </div>
     </footer>

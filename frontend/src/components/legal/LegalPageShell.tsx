@@ -2,6 +2,8 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { HeaderAuth } from "@/components/auth/HeaderAuth";
+import { LegalPoliciesNav } from "@/components/legal/LegalPoliciesNav";
+import type { LegalPolicyHref } from "@/lib/legal-policies";
 
 export function LegalPageShell({
   title,
@@ -81,36 +83,36 @@ export function LegalCallout({ title, children }: { title: string; children: Rea
   );
 }
 
-export function LegalFooterNav() {
+export function LegalFooterNav({ currentPolicyHref }: { currentPolicyHref?: LegalPolicyHref } = {}) {
   const links = [
+    { href: "/features", label: "Features" },
+    { href: "/pricing", label: "Pricing" },
+    { href: "/faq", label: "FAQ" },
     { href: "/how-it-works", label: "How it works" },
     { href: "/about", label: "About us" },
     { href: "/contact", label: "Contact" },
+    { href: "/security", label: "Security" },
+    { href: "/disclaimer", label: "Disclaimer" },
     { href: "/sign-in", label: "Sign in" },
-    { href: "/privacy", label: "Privacy" },
-    { href: "/terms", label: "Terms" },
-    { href: "/cookies", label: "Cookies" },
-    { href: "/gdpr", label: "GDPR & data" },
-    { href: "/disclaimer", label: "Disclaimer & illustrations" },
-    { href: "/accessibility", label: "Accessibility" },
-    { href: "/tax-calculator", label: "Tax calculator" },
-    { href: "/hmrc-agent", label: "HMRC agent" },
   ] as const;
   return (
-    <nav
-      className="mt-14 border-t border-black/10 pt-8 text-sm text-brand-muted"
-      aria-label="Related pages"
-    >
-      <p className="font-semibold text-brand-black">Related</p>
-      <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-2">
-        {links.map((l) => (
-          <li key={l.href}>
-            <Link href={l.href} className="text-brand-green underline-offset-2 hover:underline">
-              {l.label}
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </nav>
+    <>
+      <LegalPoliciesNav currentHref={currentPolicyHref} />
+      <nav
+        className="mt-10 border-t border-black/10 pt-8 text-sm text-brand-muted"
+        aria-label="Related pages"
+      >
+        <p className="font-semibold text-brand-black">Related</p>
+        <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-2">
+          {links.map((l) => (
+            <li key={l.href}>
+              <Link href={l.href} className="text-brand-green underline-offset-2 hover:underline">
+                {l.label}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    </>
   );
 }
