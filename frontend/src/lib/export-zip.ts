@@ -15,6 +15,11 @@ function createZipArchive(): Archiver {
     return new mod.ZipArchive({ zlib: { level: 6 } });
   }
 
+  const create = (mod as { create?: (format: string, options?: object) => Archiver }).create;
+  if (typeof create === "function") {
+    return create("zip", { zlib: { level: 6 } });
+  }
+
   throw new Error("archiver zip format is unavailable");
 }
 
