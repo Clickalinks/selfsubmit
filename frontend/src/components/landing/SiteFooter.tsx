@@ -48,7 +48,7 @@ export function SiteFooter() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-8 sm:grid-cols-4">
+          <div className="grid grid-cols-2 gap-x-6 gap-y-8 sm:grid-cols-3 lg:grid-cols-5 lg:gap-8">
             <FooterColumn
               title="Product"
               links={[
@@ -97,14 +97,14 @@ export function SiteFooter() {
           </div>
         </div>
 
-        <div className="mt-10 flex flex-col items-center gap-3 border-t border-gray-700 pt-8">
+        <div className="mt-10 flex flex-col items-center gap-4 border-t border-gray-700 pt-8">
           <p className="text-xs font-medium uppercase tracking-wider text-gray-500">Secure payments via Stripe</p>
           <Image
             src="/payment-methods.png"
             alt="Visa, Mastercard, American Express, Apple Pay, Google Pay, Shop Pay, PayPal, and Samsung Pay"
-            width={520}
-            height={40}
-            className="h-8 w-auto max-w-full opacity-95 sm:h-9"
+            width={1024}
+            height={120}
+            className="h-11 w-auto max-w-[min(100%,42rem)] opacity-95 sm:h-12 md:h-14"
             unoptimized
           />
         </div>

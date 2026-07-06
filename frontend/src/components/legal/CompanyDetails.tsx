@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { COMPANY, companyRegistrationLine, registeredOfficeSingleLine } from "@/lib/company-details";
+import { COMPANY, companyRegistrationLine, copyrightNotice, registeredOfficeSingleLine } from "@/lib/company-details";
 
 type Props = {
   /** compact = footer; full = contact / legal pages */
@@ -77,17 +77,9 @@ export function CompanyDetails({ variant = "full", className = "" }: Props) {
 }
 
 export function FooterCopyright() {
-  const year = new Date().getFullYear();
-  const start = COMPANY.copyrightStartYear;
-  const copyright =
-    year > start
-      ? `© ${start}–${year} ${COMPANY.tradingName}. All rights reserved.`
-      : `© ${start} ${COMPANY.tradingName}. All rights reserved.`;
-
   return (
-    <div className="space-y-2 text-center">
-      <p className="text-xs text-gray-500 sm:text-sm">{copyright}</p>
-      <CompanyDetails variant="compact" className="text-center" />
-    </div>
+    <p className="text-center text-xs leading-relaxed text-gray-500 sm:text-sm">
+      {copyrightNotice()} · {companyRegistrationLine()} Company no. {COMPANY.companyNumber}.
+    </p>
   );
 }
