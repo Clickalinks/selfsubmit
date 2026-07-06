@@ -97,16 +97,18 @@ export function SiteFooter() {
           </div>
         </div>
 
-        <div className="mt-10 flex flex-col items-center gap-4 border-t border-gray-700 pt-8">
+        <div className="mt-10 flex flex-col items-center gap-3 border-t border-gray-700 pt-8">
           <p className="text-xs font-medium uppercase tracking-wider text-gray-500">Secure payments via Stripe</p>
-          <Image
-            src="/payment-methods.png"
-            alt="Visa, Mastercard, American Express, Apple Pay, Google Pay, Shop Pay, PayPal, and Samsung Pay"
-            width={1024}
-            height={120}
-            className="h-11 w-auto max-w-[min(100%,42rem)] opacity-95 sm:h-12 md:h-14"
-            unoptimized
-          />
+          <div className="rounded-lg bg-white px-4 py-2 shadow-sm ring-1 ring-black/5 sm:rounded-xl sm:px-5 sm:py-2.5">
+            <Image
+              src="/payment-methods.png"
+              alt="Visa, Mastercard, American Express, Apple Pay, Google Pay, Shop Pay, PayPal, and Samsung Pay"
+              width={640}
+              height={44}
+              className="h-6 w-auto max-w-[min(100%,36rem)] sm:h-7"
+              unoptimized
+            />
+          </div>
         </div>
 
         <div className="mt-8 border-t border-gray-700 pt-6">
