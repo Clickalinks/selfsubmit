@@ -104,7 +104,7 @@ const nextConfig: NextConfig = {
     return [{ source: "/(.*)", headers: securityHeaders }];
   },
   async redirects() {
-    return [{ source: "/mtd", destination: "/", permanent: true }];
+    return [{ source: "/mtd", destination: "/#mtd-categories", permanent: true }];
   },
 };
 

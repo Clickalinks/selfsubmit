@@ -53,10 +53,10 @@ export function MtdCtaBanner() {
                 Get started for free
               </Link>
               <Link
-                href="/blog"
+                href="/mtd"
                 className="inline-flex w-full max-w-xs items-center justify-center rounded-xl border-2 border-white/80 bg-transparent px-8 py-3.5 text-sm font-bold text-white transition hover:bg-white/15 sm:w-auto sm:text-base"
               >
-                Read MTD guides
+                Browse MTD guides
               </Link>
             </div>
           </div>

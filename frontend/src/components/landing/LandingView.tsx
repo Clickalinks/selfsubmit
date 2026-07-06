@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 
-import { SupportedBusinessTypesSection } from "@/components/landing/SupportedBusinessTypesSection";
+import { MtdCategoriesSection } from "@/components/landing/MtdCategoriesSection";
 import { MtdCtaBanner } from "@/components/landing/MtdCtaBanner";
 import { MtdInsightsSection } from "@/components/landing/MtdInsightsSection";
 import { SiteFooter } from "@/components/landing/SiteFooter";
@@ -23,7 +23,7 @@ export function LandingView() {
   return (
     <div className="flex min-h-screen flex-col overflow-x-hidden bg-white">
       <SiteHeader />
-      <SupportedBusinessTypesSection />
+      <MtdCategoriesSection />
       <MtdInsightsSection />
       <MtdCtaBanner />
       <SiteFooter />

@@ -61,7 +61,7 @@ export function SiteFooter() {
             <FooterColumn
               title="MTD"
               links={[
-                { href: "/#business-types", label: "Supported trades" },
+                { href: "/#mtd-categories", label: "MTD categories" },
                 { href: "/blog", label: "Guides & blog" },
                 { href: "/tax-calculator", label: "Tax calculator" },
                 { href: "/hmrc-agent", label: "HMRC agent" },

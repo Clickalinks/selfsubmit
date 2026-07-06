@@ -81,10 +81,10 @@ export function BusinessTypesSlider() {
                     Get started — {business.title}
                   </Link>
                   <Link
-                    href="/#business-types"
+                    href={`/mtd`}
                     className="inline-flex items-center justify-center rounded-xl border-2 border-[#162436]/25 bg-white/80 px-5 py-3 text-sm font-semibold text-[#162436] transition hover:bg-white"
                   >
-                    All business types
+                    MTD guides
                   </Link>
                 </div>
               </div>
