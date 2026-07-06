@@ -76,6 +76,33 @@ function ReceiptThumbnail({ receipt }: { receipt: ReceiptRow }) {
   return <FileText className="h-8 w-8 text-slate-400" aria-hidden />;
 }
 
+function buildSubmissionBackup(data: SubmissionDetailData) {
+  return {
+    _note: "SelfSubmit submission backup — your filed return data, not website code.",
+    exportedAt: new Date().toISOString(),
+    trade: data.trade,
+    periodFrom: data.periodFrom,
+    periodTo: data.periodTo,
+    submittedAt: data.submittedAt,
+    hmrcReference: data.hmrcReference,
+    hmrcStatus: data.hmrcStatus,
+    totals: {
+      incomeGbp: data.totalIncomeGbp,
+      expensesGbp: data.totalExpensesGbp,
+      netProfitGbp: data.netProfitGbp,
+    },
+    income: data.payload?.income ?? [],
+    expenses: data.payload?.expenses ?? [],
+    vehicleCostMethod: data.payload?.vehicleCostMethod ?? null,
+    receipts: data.receipts.map((r) => ({
+      fileName: r.fileName,
+      title: r.title,
+      amountGbp: r.amountGbp,
+      uploadedAt: r.uploadedAt,
+    })),
+  };
+}
+
 export function SubmissionDetail({ submissionId }: { submissionId: string }) {
   const [data, setData] = useState<SubmissionDetailData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -107,13 +134,15 @@ export function SubmissionDetail({ submissionId }: { submissionId: string }) {
     void load();
   }, [load]);
 
-  function downloadJson() {
+  function downloadBackup() {
     if (!data) return;
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    const exportData = buildSubmissionBackup(data);
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement("a");
+    const stamp = data.periodFrom.slice(0, 7);
     anchor.href = url;
-    anchor.download = `selfsubmit-submission-${data.id}.json`;
+    anchor.download = `selfsubmit-${data.trade.replace(/\s+/g, "-").toLowerCase()}-${stamp}.json`;
     document.body.appendChild(anchor);
     anchor.click();
     anchor.remove();
@@ -166,11 +195,12 @@ export function SubmissionDetail({ submissionId }: { submissionId: string }) {
           </button>
           <button
             type="button"
-            onClick={downloadJson}
+            onClick={downloadBackup}
+            title="Machine-readable backup for your records or accountant — use Save as PDF for a printable copy"
             className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-800 shadow-sm hover:bg-slate-50"
           >
             <Download className="h-4 w-4" />
-            Download JSON
+            Backup file
           </button>
         </div>
       </div>
@@ -246,7 +276,8 @@ export function SubmissionDetail({ submissionId }: { submissionId: string }) {
       ) : null}
 
       <p className="submission-no-print text-xs text-slate-500">
-        Tip: choose <strong>Save as PDF</strong>, then pick &ldquo;Save as PDF&rdquo; in your browser&apos;s print dialog.
+        <strong>Save as PDF</strong> — printable copy for your records. <strong>Backup file</strong> — the same return
+        data in a simple JSON file (for accountants or spreadsheets), not website code.
       </p>
     </article>
   );
