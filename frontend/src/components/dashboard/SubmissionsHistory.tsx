@@ -99,6 +99,7 @@ export function SubmissionsHistory({ highlightId }: SubmissionsHistoryProps) {
             <th className="px-4 py-3">Period</th>
             <th className="px-4 py-3">Net profit</th>
             <th className="px-4 py-3">HMRC</th>
+            <th className="px-4 py-3">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -128,6 +129,14 @@ export function SubmissionsHistory({ highlightId }: SubmissionsHistoryProps) {
                 ) : (
                   <span className="text-slate-500">{row.status}</span>
                 )}
+              </td>
+              <td className="px-4 py-3">
+                <Link
+                  href={`/dashboard/submissions/${row.id}`}
+                  className="text-sm font-semibold text-brand-green hover:underline"
+                >
+                  View / PDF
+                </Link>
               </td>
             </tr>
           ))}

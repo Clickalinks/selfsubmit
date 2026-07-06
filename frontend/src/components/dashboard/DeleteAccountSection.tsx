@@ -3,7 +3,8 @@
 import { useClerk } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { AlertTriangle, Check, Download, Loader2 } from "lucide-react";
+import { DataExportButton } from "@/components/dashboard/DataExportButton";
+import { AlertTriangle, Check } from "lucide-react";
 
 const CONFIRM_PHRASE = "DELETE MY ACCOUNT";
 
@@ -19,39 +20,9 @@ export function DeleteAccountSection() {
 
   const [confirmText, setConfirmText] = useState("");
   const [loading, setLoading] = useState(false);
-  const [exporting, setExporting] = useState(false);
-  const [exportDone, setExportDone] = useState(false);
-  const [exportError, setExportError] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const canDelete = confirmText.trim() === CONFIRM_PHRASE;
-
-  async function downloadData() {
-    setExportError(null);
-    setExporting(true);
-    try {
-      const res = await fetch("/api/account/export");
-      if (!res.ok) {
-        const data = (await res.json().catch(() => ({}))) as { error?: string };
-        setExportError(data.error ?? "Could not download your data. Please try again.");
-        return;
-      }
-
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const anchor = document.createElement("a");
-      const stamp = new Date().toISOString().slice(0, 10);
-      anchor.href = url;
-      anchor.download = `selfsubmit-export-${stamp}.zip`;
-      anchor.click();
-      URL.revokeObjectURL(url);
-      setExportDone(true);
-    } catch {
-      setExportError("Could not download your data. Please try again.");
-    } finally {
-      setExporting(false);
-    }
-  }
 
   async function handleDelete() {
     if (!canDelete) return;
@@ -123,19 +94,7 @@ export function DeleteAccountSection() {
               Before you leave, download a copy of your profile, receipt photos, and submission history. The ZIP file
               includes everything we store for your account.
             </p>
-            <button
-              type="button"
-              disabled={exporting}
-              onClick={() => void downloadData()}
-              className="mt-3 inline-flex items-center gap-2 rounded-xl border border-brand-green/20 bg-white px-4 py-2.5 text-sm font-semibold text-brand-green-dark shadow-sm transition hover:bg-brand-mint disabled:opacity-60"
-            >
-              {exporting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
-              {exporting ? "Preparing download…" : "Download my data"}
-            </button>
-            {exportDone ? (
-              <p className="mt-2 text-xs font-medium text-emerald-700">Download started — check your downloads folder.</p>
-            ) : null}
-            {exportError ? <p className="mt-2 text-xs font-medium text-red-600">{exportError}</p> : null}
+            <DataExportButton className="mt-3" />
           </div>
         </div>
 

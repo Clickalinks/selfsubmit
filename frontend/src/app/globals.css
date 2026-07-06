@@ -38,3 +38,23 @@ body {
   background-size: auto, auto, auto, auto, auto, 26px 26px;
   background-attachment: scroll;
 }
+
+@media print {
+  body {
+    background: white !important;
+  }
+
+  .submission-no-print {
+    display: none !important;
+  }
+
+  .submission-print-root {
+    color: #111;
+  }
+
+  aside,
+  header,
+  nav {
+    display: none !important;
+  }
+}

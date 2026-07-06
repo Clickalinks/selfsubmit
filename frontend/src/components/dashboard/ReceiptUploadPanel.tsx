@@ -30,6 +30,28 @@ function isImageMime(mime: string | null) {
   return Boolean(mime?.startsWith("image/"));
 }
 
+function ReceiptThumb({ receipt }: { receipt: ReceiptRow }) {
+  const [failed, setFailed] = useState(false);
+
+  if (isImageMime(receipt.mimeType) && !failed) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={`/api/receipts/${receipt.id}/file`}
+        alt={receipt.title ?? receipt.fileName}
+        className="h-full w-full object-cover"
+        onError={() => setFailed(true)}
+      />
+    );
+  }
+
+  if (receipt.mimeType?.includes("csv")) {
+    return <FileSpreadsheet className="h-6 w-6 text-brand-green" aria-hidden />;
+  }
+
+  return <span className="text-xs font-bold text-slate-500">PDF</span>;
+}
+
 export function ReceiptUploadPanel() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
@@ -217,30 +239,24 @@ export function ReceiptUploadPanel() {
                 className="flex gap-4 rounded-xl border border-slate-200 bg-white p-3 shadow-sm min-[520px]:items-center"
               >
                 <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-slate-100">
-                  {isImageMime(r.mimeType) ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={`/api/receipts/${r.id}/file`}
-                      alt={r.title ?? r.fileName}
-                      className="h-full w-full object-cover"
-                    />
-                  ) : r.mimeType?.includes("csv") ? (
-                    <FileSpreadsheet className="h-6 w-6 text-brand-green" aria-hidden />
-                  ) : (
-                    <span className="text-xs font-bold text-slate-500">PDF</span>
-                  )}
+                  <ReceiptThumb receipt={r} />
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-semibold text-slate-900">{r.title ?? r.fileName}</p>
                   <p className="text-xs text-slate-500">{formatDate(r.uploadedAt)}</p>
-                  <a
-                    href={`/api/receipts/${r.id}/file`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-1 inline-block text-xs font-semibold text-brand-green hover:underline"
-                  >
-                    View file
-                  </a>
+                  <div className="mt-1 flex flex-wrap gap-3 text-xs font-semibold">
+                    <a
+                      href={`/api/receipts/${r.id}/file`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-brand-green hover:underline"
+                    >
+                      View
+                    </a>
+                    <a href={`/api/receipts/${r.id}/file?download=1`} className="text-brand-green hover:underline">
+                      Download
+                    </a>
+                  </div>
                 </div>
                 <button
                   type="button"

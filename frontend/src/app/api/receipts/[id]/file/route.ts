@@ -4,14 +4,14 @@ import { NextResponse } from "next/server";
 
 import { prisma } from "@/lib/db";
 import {
-  getReceiptDownloadUrl,
   isBlobStorageConfigured,
+  readReceiptFileBuffer,
   receiptFilePath,
 } from "@/lib/receipt-storage";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
-export async function GET(_req: Request, context: RouteContext) {
+export async function GET(req: Request, context: RouteContext) {
   const { userId } = await auth();
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -26,24 +26,33 @@ export async function GET(_req: Request, context: RouteContext) {
     return NextResponse.json({ error: "Receipt not found" }, { status: 404 });
   }
 
+  const url = new URL(req.url);
+  const asDownload = url.searchParams.get("download") === "1";
+
+  let buffer: Buffer | null = null;
+
   if (isBlobStorageConfigured()) {
-    const downloadUrl = await getReceiptDownloadUrl(userId, receipt.storagePath);
-    if (!downloadUrl) {
-      return NextResponse.json({ error: "File not found" }, { status: 404 });
+    buffer = await readReceiptFileBuffer(userId, receipt.storagePath);
+  } else {
+    try {
+      buffer = await readFile(receiptFilePath(userId, receipt.storagePath));
+    } catch {
+      buffer = null;
     }
-    return NextResponse.redirect(downloadUrl);
   }
 
-  try {
-    const buffer = await readFile(receiptFilePath(userId, receipt.storagePath));
-    return new NextResponse(buffer, {
-      headers: {
-        "Content-Type": receipt.mimeType ?? "application/octet-stream",
-        "Content-Disposition": `inline; filename="${encodeURIComponent(receipt.fileName)}"`,
-        "Cache-Control": "private, max-age=3600",
-      },
-    });
-  } catch {
-    return NextResponse.json({ error: "File not found on server" }, { status: 404 });
+  if (!buffer) {
+    return NextResponse.json({ error: "File not found" }, { status: 404 });
   }
+
+  const disposition = asDownload ? "attachment" : "inline";
+  const fileName = receipt.fileName.replace(/[^\w.\-()+ ]/g, "_");
+
+  return new NextResponse(new Uint8Array(buffer), {
+    headers: {
+      "Content-Type": receipt.mimeType ?? "application/octet-stream",
+      "Content-Disposition": `${disposition}; filename="${encodeURIComponent(fileName)}"`,
+      "Cache-Control": "private, max-age=3600",
+    },
+  });
 }

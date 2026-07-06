@@ -143,3 +143,22 @@ export async function listSubmissionsForUser(userId: string) {
     },
   });
 }
+
+export async function getSubmissionForUser(userId: string, submissionId: string) {
+  return prisma.submission.findFirst({
+    where: { id: submissionId, userId },
+    include: {
+      receipts: {
+        orderBy: { uploadedAt: "desc" },
+        select: {
+          id: true,
+          fileName: true,
+          mimeType: true,
+          title: true,
+          amountGbp: true,
+          uploadedAt: true,
+        },
+      },
+    },
+  });
+}
