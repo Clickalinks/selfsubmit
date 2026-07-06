@@ -13,7 +13,6 @@ import {
   type MileageAnnualBand,
   type MileageVehicleKind,
   type MoneyLineItem,
-  type TradeFormTemplate,
   type VehicleCostMethod,
   VEHICLE_SIMPLIFIED_MILEAGE_EXPENSE_ID,
   computeSimplifiedMileageClaimGbp,
@@ -138,7 +137,7 @@ export function MonthlyExpenseForm({
 }: MonthlyExpenseFormProps) {
   const router = useRouter();
   const defaultTrade = activeBusiness.category.trim() || ALL_PROFESSIONS[0] || "Taxi Driver";
-  const [trade, setTrade] = useState(defaultTrade);
+  const trade = defaultTrade;
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const template = useMemo(() => getTemplateForProfession(trade), [trade]);
@@ -204,25 +203,6 @@ export function MonthlyExpenseForm({
     () => getVisibleExpenseLineItems(template, vehicleCostMethod, trade),
     [template, vehicleCostMethod, trade],
   );
-
-  const resetForTemplate = useCallback((t: TradeFormTemplate, profession: string) => {
-    setIncomeRows(buildInitialRows(getVisibleIncomeLineItems(t, profession)));
-    setVehicleCostMethod("actual");
-    setExpenseRows(buildInitialRows(getVisibleExpenseLineItems(t, "actual", profession)));
-    setMileageMiles("");
-    setMileageVehicle("car_or_goods_vehicle");
-    setMileageBand("within_first_10000");
-    setMileageApplyError(undefined);
-    setManualReceiptLines([]);
-    setUploadReceiptLines((prev) => {
-      prev.forEach((l) => {
-        if (l.previewUrl) URL.revokeObjectURL(l.previewUrl);
-      });
-      return [];
-    });
-    setReceiptApplyMessage(undefined);
-    setCisDeductionThisPeriod("");
-  }, []);
 
   const onVehicleCostMethodChange = (method: VehicleCostMethod) => {
     const tpl = getTemplateForProfession(trade);
