@@ -37,11 +37,11 @@ export default async function MtdCategoryPage({ params }: Props) {
       <main className="flex-1">
         <article className="mx-auto max-w-3xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
           <Link
-            href="/#mtd-categories"
+            href="/blog"
             className="inline-flex items-center gap-1 text-sm font-semibold text-brand-green hover:text-brand-green-dark"
           >
             <ArrowLeft className="h-4 w-4" />
-            All MTD categories
+            Back to guides
           </Link>
 
           <div className="mt-6 flex items-start gap-4">
