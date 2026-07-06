@@ -17,7 +17,6 @@ const NAV_LINKS = [
   { href: "/features", label: "Features" },
   { href: "/pricing", label: "Pricing" },
   { href: "/how-it-works", label: "How it works" },
-  { href: "/#mtd-categories", label: "MTD for You" },
   { href: "/faq", label: "FAQ" },
   { href: "/contact", label: "Contact" },
 ] as const;

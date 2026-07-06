@@ -55,13 +55,13 @@ export function SiteFooter() {
                 { href: "/", label: "Home" },
                 { href: "/features", label: "Features" },
                 { href: "/pricing", label: "Pricing" },
+                { href: "/business-types", label: "Business types" },
                 { href: "/faq", label: "FAQ" },
               ]}
             />
             <FooterColumn
               title="MTD"
               links={[
-                { href: "/#mtd-categories", label: "MTD categories" },
                 { href: "/blog", label: "Guides & blog" },
                 { href: "/tax-calculator", label: "Tax calculator" },
                 { href: "/hmrc-agent", label: "HMRC agent" },
