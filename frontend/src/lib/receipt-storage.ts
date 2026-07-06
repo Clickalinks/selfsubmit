@@ -149,13 +149,17 @@ export async function getReceiptDownloadUrl(userId: string, storageKey: string):
 
 export async function readReceiptFileBuffer(userId: string, storageKey: string): Promise<Buffer | null> {
   if (isBlobStorageConfigured()) {
-    const result = await get(receiptBlobPath(userId, storageKey), {
-      access: "private",
-      ...blobOptions(),
-    });
-    if (!result || result.statusCode !== 200 || !result.stream) return null;
-    const data = await new Response(result.stream).arrayBuffer();
-    return Buffer.from(data);
+    try {
+      const result = await get(receiptBlobPath(userId, storageKey), {
+        access: "private",
+        ...blobOptions(),
+      });
+      if (!result || result.statusCode !== 200 || !result.stream) return null;
+      const data = await new Response(result.stream).arrayBuffer();
+      return Buffer.from(data);
+    } catch {
+      return null;
+    }
   }
 
   try {

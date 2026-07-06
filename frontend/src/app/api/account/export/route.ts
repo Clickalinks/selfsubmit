@@ -108,9 +108,13 @@ export async function GET() {
 
       for (const receipt of receipts) {
         const safeName = `${receipt.id}-${receipt.fileName.replace(/[^\w.\-()+ ]/g, "_")}`;
-        const fileBuffer = await readReceiptFileBuffer(userId, receipt.storagePath);
-        if (fileBuffer) {
-          archive.append(fileBuffer, { name: `receipts/${safeName}` });
+        try {
+          const fileBuffer = await readReceiptFileBuffer(userId, receipt.storagePath);
+          if (fileBuffer) {
+            archive.append(fileBuffer, { name: `receipts/${safeName}` });
+          }
+        } catch (err) {
+          console.warn("[account-export] skipped receipt", receipt.id, err);
         }
       }
     });

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
-import { ArrowLeft, Download, FileText, Loader2, Printer } from "lucide-react";
+import { ArrowLeft, FileText, Loader2, Printer } from "lucide-react";
 
 type LineItem = { id: string; label: string; amount: string };
 
@@ -76,33 +76,6 @@ function ReceiptThumbnail({ receipt }: { receipt: ReceiptRow }) {
   return <FileText className="h-8 w-8 text-slate-400" aria-hidden />;
 }
 
-function buildSubmissionBackup(data: SubmissionDetailData) {
-  return {
-    _note: "SelfSubmit submission backup — your filed return data, not website code.",
-    exportedAt: new Date().toISOString(),
-    trade: data.trade,
-    periodFrom: data.periodFrom,
-    periodTo: data.periodTo,
-    submittedAt: data.submittedAt,
-    hmrcReference: data.hmrcReference,
-    hmrcStatus: data.hmrcStatus,
-    totals: {
-      incomeGbp: data.totalIncomeGbp,
-      expensesGbp: data.totalExpensesGbp,
-      netProfitGbp: data.netProfitGbp,
-    },
-    income: data.payload?.income ?? [],
-    expenses: data.payload?.expenses ?? [],
-    vehicleCostMethod: data.payload?.vehicleCostMethod ?? null,
-    receipts: data.receipts.map((r) => ({
-      fileName: r.fileName,
-      title: r.title,
-      amountGbp: r.amountGbp,
-      uploadedAt: r.uploadedAt,
-    })),
-  };
-}
-
 export function SubmissionDetail({ submissionId }: { submissionId: string }) {
   const [data, setData] = useState<SubmissionDetailData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -133,21 +106,6 @@ export function SubmissionDetail({ submissionId }: { submissionId: string }) {
   useEffect(() => {
     void load();
   }, [load]);
-
-  function downloadBackup() {
-    if (!data) return;
-    const exportData = buildSubmissionBackup(data);
-    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const anchor = document.createElement("a");
-    const stamp = data.periodFrom.slice(0, 7);
-    anchor.href = url;
-    anchor.download = `selfsubmit-${data.trade.replace(/\s+/g, "-").toLowerCase()}-${stamp}.json`;
-    document.body.appendChild(anchor);
-    anchor.click();
-    anchor.remove();
-    URL.revokeObjectURL(url);
-  }
 
   if (loading) {
     return (
@@ -184,25 +142,14 @@ export function SubmissionDetail({ submissionId }: { submissionId: string }) {
           <ArrowLeft className="h-4 w-4" />
           Back to history
         </Link>
-        <div className="flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={() => window.print()}
-            className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-800 shadow-sm hover:bg-slate-50"
-          >
-            <Printer className="h-4 w-4" />
-            Save as PDF
-          </button>
-          <button
-            type="button"
-            onClick={downloadBackup}
-            title="Machine-readable backup for your records or accountant — use Save as PDF for a printable copy"
-            className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-800 shadow-sm hover:bg-slate-50"
-          >
-            <Download className="h-4 w-4" />
-            Backup file
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={() => window.print()}
+          className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-800 shadow-sm hover:bg-slate-50"
+        >
+          <Printer className="h-4 w-4" />
+          Save as PDF
+        </button>
       </div>
 
       <header className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
@@ -276,8 +223,7 @@ export function SubmissionDetail({ submissionId }: { submissionId: string }) {
       ) : null}
 
       <p className="submission-no-print text-xs text-slate-500">
-        <strong>Save as PDF</strong> — printable copy for your records. <strong>Backup file</strong> — the same return
-        data in a simple JSON file (for accountants or spreadsheets), not website code.
+        Tip: choose <strong>Save as PDF</strong>, then pick &ldquo;Save as PDF&rdquo; in your browser&apos;s print dialog.
       </p>
     </article>
   );
