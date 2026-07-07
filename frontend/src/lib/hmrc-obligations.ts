@@ -54,7 +54,7 @@ export async function fetchIncomeAndExpenditureObligations(input: {
   const { fromDate, toDate } = taxYearDateRange(taxYear);
   const nino = input.nino.replace(/\s/g, "").toUpperCase();
 
-  const path = `/obligations/details/${encodeURIComponent(nino)}/income-and-expenditure?fromDate=${fromDate}&toDate=${toDate}&status=Open`;
+  const path = `/obligations/details/${encodeURIComponent(nino)}/income-and-expenditure?fromDate=${fromDate}&toDate=${toDate}&status=open`;
 
   const result = await hmrcApiRequest<ObligationsApiResponse>({
     userId: input.userId,
