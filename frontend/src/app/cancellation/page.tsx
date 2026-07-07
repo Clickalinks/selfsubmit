@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { CompanyDetails } from "@/components/legal/CompanyDetails";
 import { PolicyContactEmail, PolicyRelatedLinks } from "@/components/legal/PolicyHelpers";
 import {
   LegalCallout,
@@ -26,10 +25,6 @@ export default function CancellationPage() {
       description="You can cancel your SelfSubmit subscription at any time. This page explains how cancellation works."
       lastUpdated="6 July 2026"
     >
-      <LegalCallout title="Operator">
-        <CompanyDetails />
-      </LegalCallout>
-
       <LegalH2 id="anytime">1. Cancel anytime</LegalH2>
       <LegalP>
         Paid subscriptions renew monthly until cancelled. There is no minimum contract term beyond the current billing

@@ -4,9 +4,8 @@ import Link from "next/link";
 
 
 
-import { CompanyDetails } from "@/components/legal/CompanyDetails";
-
-import { PolicyContactEmail, PolicyRelatedLinks } from "@/components/legal/PolicyHelpers";
+import { IcoRegistrationSection } from "@/components/legal/CompanyDetails";
+import { DataControllerCallout, PolicyContactEmail, PolicyRelatedLinks } from "@/components/legal/PolicyHelpers";
 
 import { ProcessorList } from "@/components/legal/ProcessorList";
 
@@ -54,29 +53,17 @@ export default function GdprPage() {
 
     >
 
-      <LegalCallout title="Data controller">
-
-        <CompanyDetails />
-
-        <p className="mt-3 text-sm leading-relaxed">
-
+      <DataControllerCallout>
+        <p>
           The organisation named above is the <strong>data controller</strong> for personal data processed through
-
           SelfSubmit when you sign up directly. Business partners processing client data may be separate controllers —
-
           see our{" "}
-
           <Link href="/dpa" className="font-semibold text-brand-green underline underline-offset-2">
-
             DPA
-
           </Link>
-
           .
-
         </p>
-
-      </LegalCallout>
+      </DataControllerCallout>
 
 
 
@@ -250,7 +237,17 @@ export default function GdprPage() {
 
 
 
-      <LegalH2 id="ico">8. Supervisory authority</LegalH2>
+      <LegalH2 id="ico-registration">8. ICO registration</LegalH2>
+      <IcoRegistrationSection />
+      <LegalP>
+        See our{" "}
+        <Link href="/about#company-information" className="text-brand-green underline underline-offset-2">
+          About us
+        </Link>{" "}
+        page for full company registration details.
+      </LegalP>
+
+      <LegalH2 id="ico">9. Supervisory authority</LegalH2>
 
       <LegalP>
 
@@ -278,7 +275,7 @@ export default function GdprPage() {
 
 
 
-      <LegalH2 id="contact">9. Privacy contact</LegalH2>
+      <LegalH2 id="contact">10. Privacy contact</LegalH2>
 
       <LegalP>
 

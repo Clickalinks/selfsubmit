@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { CompanyDetails } from "@/components/legal/CompanyDetails";
 import { PolicyContactEmail, PolicyRelatedLinks } from "@/components/legal/PolicyHelpers";
 import {
   LegalCallout,
@@ -25,10 +24,6 @@ export default function RefundPage() {
       description="This policy explains when subscription payments may be refunded. It should be read with our Cancellation policy and Terms of use."
       lastUpdated="6 July 2026"
     >
-      <LegalCallout title="Operator">
-        <CompanyDetails />
-      </LegalCallout>
-
       <LegalH2 id="billing">1. Billing model</LegalH2>
       <LegalP>
         SelfSubmit is sold as a recurring monthly subscription billed in advance through Stripe. Your plan price is shown

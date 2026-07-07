@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { CompanyDetails } from "@/components/legal/CompanyDetails";
 import { PolicyContactEmail } from "@/components/legal/PolicyHelpers";
 import {
-  LegalCallout,
   LegalFooterNav,
   LegalH2,
   LegalP,
@@ -26,10 +24,6 @@ export default function TrademarkPage() {
       description="How the SelfSubmit name and branding may be used by third parties."
       lastUpdated="6 July 2026"
     >
-      <LegalCallout title="Rights holder">
-        <CompanyDetails />
-      </LegalCallout>
-
       <LegalH2 id="marks">1. Our marks</LegalH2>
       <LegalP>
         &ldquo;SelfSubmit&rdquo;, the SelfSubmit logo, and related trade dress are trademarks or registered trademarks

@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { CompanyDetails } from "@/components/legal/CompanyDetails";
-import { PolicyContactEmail, PolicyRelatedLinks } from "@/components/legal/PolicyHelpers";
+import { DataControllerCallout, PolicyContactEmail, PolicyRelatedLinks } from "@/components/legal/PolicyHelpers";
 import {
   LegalCallout,
   LegalFooterNav,
@@ -26,14 +25,13 @@ export default function DpaPage() {
       description="This page summarises how we process personal data on behalf of customers and the subprocessors we use. It supplements our Privacy policy and GDPR overview."
       lastUpdated="6 July 2026"
     >
-      <LegalCallout title="Data controller">
-        <CompanyDetails />
-        <p className="mt-3 text-sm leading-relaxed">
+      <DataControllerCallout>
+        <p>
           For end users who sign up directly, {COMPANY.legalName} is usually the <strong>data controller</strong>. Where
           a partner organisation uses SelfSubmit to process personal data on its own clients&apos; instructions, that
           organisation may be the controller and we act as a <strong>processor</strong> under UK GDPR Article 28.
         </p>
-      </LegalCallout>
+      </DataControllerCallout>
 
       <LegalH2 id="when">1. When a DPA applies</LegalH2>
       <LegalP>A formal DPA is relevant when:</LegalP>

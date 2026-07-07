@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { CompanyDetails } from "@/components/legal/CompanyDetails";
 import { PolicyContactEmail } from "@/components/legal/PolicyHelpers";
 import {
-  LegalCallout,
   LegalFooterNav,
   LegalH2,
   LegalP,
@@ -25,17 +23,22 @@ export default function DataRetentionPage() {
       description="This policy explains how long we keep different categories of data and when we delete or anonymise them."
       lastUpdated="6 July 2026"
     >
-      <LegalCallout title="Data controller">
-        <CompanyDetails />
-      </LegalCallout>
-
       <LegalH2 id="principle">1. Principle</LegalH2>
       <LegalP>
         We keep personal and business data only as long as necessary for the purposes described in our{" "}
         <Link href="/privacy" className="text-brand-green underline underline-offset-2">
           Privacy policy
         </Link>
-        , or as required by law — whichever is longer where the law demands retention.
+        , or as required by law — whichever is longer where the law demands retention. For data controller and company
+        registration details, see our{" "}
+        <Link href="/privacy" className="text-brand-green underline underline-offset-2">
+          Privacy policy
+        </Link>{" "}
+        and{" "}
+        <Link href="/about#company-information" className="text-brand-green underline underline-offset-2">
+          About us
+        </Link>{" "}
+        pages.
       </LegalP>
 
       <LegalH2 id="tax-records">2. Tax and business records</LegalH2>

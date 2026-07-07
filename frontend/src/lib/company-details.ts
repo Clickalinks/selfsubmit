@@ -21,6 +21,8 @@ export const COMPANY = {
   phone: null as string | null,
   /** Set when VAT registered, e.g. "GB123456789" */
   vatNumber: null as string | null,
+  /** ICO data protection fee registration — set when confirmed, e.g. "Z1234567" */
+  icoRegistrationNumber: null as string | null,
   websiteUrl: "https://www.selfsubmit.co.uk",
   copyrightStartYear: 2026,
 } as const;

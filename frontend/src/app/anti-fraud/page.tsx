@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { CompanyDetails } from "@/components/legal/CompanyDetails";
 import { PolicyContactEmail } from "@/components/legal/PolicyHelpers";
 import {
   LegalCallout,
@@ -25,10 +24,6 @@ export default function AntiFraudPage() {
       description="We take fraud seriously. This policy explains our expectations and how we respond to suspected abuse."
       lastUpdated="6 July 2026"
     >
-      <LegalCallout title="Operator">
-        <CompanyDetails />
-      </LegalCallout>
-
       <LegalH2 id="commitment">1. Our commitment</LegalH2>
       <LegalP>
         SelfSubmit exists to help honest self-employed people and landlords meet their tax obligations. We do not

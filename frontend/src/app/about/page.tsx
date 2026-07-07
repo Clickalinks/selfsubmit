@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { SitePageHero, SitePageShell } from "@/components/landing/SitePageShell";
-import { CompanyDetails } from "@/components/legal/CompanyDetails";
+import { CompanyDetails, IcoRegistrationSection } from "@/components/legal/CompanyDetails";
 import { COMPANY } from "@/lib/company-details";
 
 export const metadata: Metadata = {
@@ -179,7 +179,7 @@ export default function AboutPage() {
           </div>
         </section>
 
-        <section className="mt-12">
+        <section id="company-information" className="mt-12">
           <h2 className="text-xl font-bold text-brand-black sm:text-2xl">Company information</h2>
           <p className="mt-3 text-sm leading-relaxed text-brand-muted sm:text-base">
             SelfSubmit is a trading name of <strong className="text-brand-black">Clicado Media UK Ltd</strong>,
@@ -187,6 +187,10 @@ export default function AboutPage() {
           </p>
           <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
             <CompanyDetails />
+          </div>
+          <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-5 sm:p-6">
+            <h3 className="text-lg font-bold text-brand-black">ICO registration</h3>
+            <IcoRegistrationSection className="mt-3" />
           </div>
         </section>
 

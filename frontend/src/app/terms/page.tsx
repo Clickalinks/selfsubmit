@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { CompanyDetails } from "@/components/legal/CompanyDetails";
+import { CompanyInfoLink } from "@/components/legal/CompanyDetails";
 import { PolicyContactEmail, PolicyRelatedLinks } from "@/components/legal/PolicyHelpers";
 import {
   LegalCallout,
@@ -38,7 +38,7 @@ export default function TermsPage() {
       </LegalCallout>
 
       <LegalH2 id="operator">1. Who we are</LegalH2>
-      <CompanyDetails />
+      <CompanyInfoLink />
       <LegalP>
         In these terms, &ldquo;we&rdquo;, &ldquo;us&rdquo; and &ldquo;our&rdquo; mean {COMPANY.legalName} trading as{" "}
         {COMPANY.tradingAs}. &ldquo;You&rdquo; means the person or business using the service.

@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { CompanyDetails } from "@/components/legal/CompanyDetails";
 import { PolicyContactEmail } from "@/components/legal/PolicyHelpers";
 import {
   LegalCallout,
@@ -26,10 +25,6 @@ export default function ResponsibleDisclosurePage() {
       description="We welcome reports of genuine security vulnerabilities. Please follow this policy so we can fix issues safely."
       lastUpdated="6 July 2026"
     >
-      <LegalCallout title="Operator">
-        <CompanyDetails />
-      </LegalCallout>
-
       <LegalH2 id="welcome">1. We appreciate responsible reports</LegalH2>
       <LegalP>
         If you believe you have found a security vulnerability in selfsubmit.co.uk or the SelfSubmit application, please

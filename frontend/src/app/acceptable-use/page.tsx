@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { CompanyDetails } from "@/components/legal/CompanyDetails";
 import { PolicyContactEmail, PolicyRelatedLinks } from "@/components/legal/PolicyHelpers";
 import {
   LegalCallout,
@@ -26,10 +25,6 @@ export default function AcceptableUsePage() {
       description="This policy sets out how you may use SelfSubmit. It forms part of our Terms of use."
       lastUpdated="6 July 2026"
     >
-      <LegalCallout title="Operator">
-        <CompanyDetails />
-      </LegalCallout>
-
       <LegalH2 id="scope">1. Scope</LegalH2>
       <LegalP>
         This policy applies to all users of selfsubmit.co.uk and the SelfSubmit application, including trial and paid

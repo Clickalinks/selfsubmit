@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { CompanyDetails } from "@/components/legal/CompanyDetails";
 import { PolicyContactEmail } from "@/components/legal/PolicyHelpers";
 import {
-  LegalCallout,
   LegalFooterNav,
   LegalH2,
   LegalP,
@@ -26,16 +24,15 @@ export default function CopyrightPage() {
       description="This page explains who owns the SelfSubmit website and what you may do with our content."
       lastUpdated="6 July 2026"
     >
-      <LegalCallout title="Copyright owner">
-        <CompanyDetails />
-        <p className="mt-3 text-sm font-semibold text-brand-black">{copyrightNotice()}</p>
-      </LegalCallout>
-
       <LegalH2 id="ownership">1. Ownership</LegalH2>
       <LegalP>
-        Unless stated otherwise, all content on selfsubmit.co.uk — including text, graphics, logos, icons, images,
-        software, and page layout — is owned by {COMPANY.legalName} or its licensors and is protected by UK and
-        international copyright laws.
+        {copyrightNotice()} Unless stated otherwise, all content on selfsubmit.co.uk — including text, graphics, logos,
+        icons, images, software, and page layout — is owned by {COMPANY.legalName} trading as {COMPANY.tradingAs} or its
+        licensors and is protected by UK and international copyright laws. See our{" "}
+        <Link href="/about#company-information" className="text-brand-green underline underline-offset-2">
+          About us
+        </Link>{" "}
+        page for company registration details.
       </LegalP>
 
       <LegalH2 id="permitted">2. Permitted use</LegalH2>

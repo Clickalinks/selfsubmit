@@ -1,10 +1,22 @@
 import Link from "next/link";
 
+import { CompanyDetails } from "@/components/legal/CompanyDetails";
+import { LegalCallout } from "@/components/legal/LegalPageShell";
 import { COMPANY } from "@/lib/company-details";
 
 type PolicyRelatedLinksProps = {
   links: { href: string; label: string }[];
 };
+
+/** Full data-controller block with company registration details — use on Privacy, GDPR, and DPA only. */
+export function DataControllerCallout({ children }: { children: React.ReactNode }) {
+  return (
+    <LegalCallout title="Data controller">
+      <CompanyDetails />
+      <div className="mt-3 text-sm leading-relaxed">{children}</div>
+    </LegalCallout>
+  );
+}
 
 export function PolicyRelatedLinks({ links }: PolicyRelatedLinksProps) {
   return (

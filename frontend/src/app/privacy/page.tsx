@@ -4,9 +4,7 @@ import Link from "next/link";
 
 
 
-import { CompanyDetails } from "@/components/legal/CompanyDetails";
-
-import { PolicyContactEmail, PolicyRelatedLinks } from "@/components/legal/PolicyHelpers";
+import { DataControllerCallout, PolicyContactEmail, PolicyRelatedLinks } from "@/components/legal/PolicyHelpers";
 
 import { ProcessorList } from "@/components/legal/ProcessorList";
 
@@ -56,27 +54,16 @@ export default function PrivacyPage() {
 
     >
 
-      <LegalCallout title="Data controller">
-
-        <CompanyDetails />
-
-        <p className="mt-3 text-sm leading-relaxed">
-
+      <DataControllerCallout>
+        <p>
           {COMPANY.legalName} ({COMPANY.tradingName}) is the data controller for personal data processed through
-
           selfsubmit.co.uk, unless we tell you otherwise (for example where a partner acts as controller — see our{" "}
-
           <Link href="/dpa" className="font-semibold text-brand-green underline underline-offset-2">
-
             DPA
-
           </Link>
-
           ).
-
         </p>
-
-      </LegalCallout>
+      </DataControllerCallout>
 
 
 
