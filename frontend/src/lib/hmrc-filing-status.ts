@@ -14,8 +14,13 @@ export const MTD_FILING_ROADMAP = [
   },
   {
     label: "HMRC account connection",
+    status: "live" as const,
+    detail: "Connect sandbox test users in Settings, fetch obligations, and link HMRC businesses.",
+  },
+  {
+    label: "Sandbox quarterly MTD updates",
     status: "in_development" as const,
-    detail: "Connect sandbox test users in Settings and fetch obligations — live filing still planned.",
+    detail: "Submit cumulative quarterly updates to HMRC sandbox — in progress.",
   },
   {
     label: "Live quarterly MTD updates",

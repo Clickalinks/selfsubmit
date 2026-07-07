@@ -75,14 +75,17 @@ model ClientProfile {
 }
 
 model Business {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  name      String
-  category  String
-  createdAt DateTime @default(now())
+  id             String   @id @default(cuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name           String
+  category       String
+  /// HMRC income-source business ID (e.g. XBIS12345678901) when linked for MTD filing
+  hmrcBusinessId String?
+  createdAt      DateTime @default(now())
 
   @@index([userId])
+  @@index([userId, hmrcBusinessId])
 }
 
 model Receipt {
