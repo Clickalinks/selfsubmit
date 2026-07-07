@@ -13,6 +13,18 @@ type SubmissionPayload = {
   expenses?: LineItem[];
   totals?: { incomeGbp: number; expensesGbp: number; netProfitGbp: number };
   vehicleCostMethod?: string | null;
+  preview?: {
+    taxYear?: string;
+    turnover?: number;
+    otherIncome?: number;
+    consolidatedExpenses?: number;
+    netProfit?: number;
+    monthlyRecordCount?: number;
+  };
+  hmrcPayload?: {
+    periodIncome?: { turnover?: number; other?: number };
+    periodExpenses?: { consolidatedExpenses?: number };
+  };
 };
 
 type ReceiptRow = {
@@ -29,6 +41,7 @@ type SubmissionDetailData = {
   trade: string;
   periodFrom: string;
   periodTo: string;
+  submissionType: string | null;
   status: string;
   totalIncomeGbp: number;
   totalExpensesGbp: number;
@@ -40,6 +53,52 @@ type SubmissionDetailData = {
   payload: SubmissionPayload | null;
   receipts: ReceiptRow[];
 };
+
+function isSandboxQuarterlySubmission(data: SubmissionDetailData): boolean {
+  return data.submissionType === "quarterly_hmrc_sandbox" || data.status === "sandbox_submitted";
+}
+
+function getRecordKindLabel(data: SubmissionDetailData): string {
+  return isSandboxQuarterlySubmission(data) ? "Quarterly sandbox update" : "Monthly record";
+}
+
+function getSandboxSummaryLines(payload: SubmissionPayload | null): {
+  income: LineItem[];
+  expenses: LineItem[];
+  meta: string | null;
+} {
+  const preview = payload?.preview;
+  const hmrc = payload?.hmrcPayload;
+
+  const turnover = preview?.turnover ?? hmrc?.periodIncome?.turnover ?? 0;
+  const otherIncome = preview?.otherIncome ?? hmrc?.periodIncome?.other ?? 0;
+  const consolidatedExpenses =
+    preview?.consolidatedExpenses ?? hmrc?.periodExpenses?.consolidatedExpenses ?? 0;
+
+  const income: LineItem[] = [
+    { id: "turnover", label: "Turnover", amount: formatMoney(turnover) },
+  ];
+  if (otherIncome > 0) {
+    income.push({ id: "other-income", label: "Other income", amount: formatMoney(otherIncome) });
+  }
+
+  const expenses: LineItem[] = [
+    {
+      id: "consolidated-expenses",
+      label: "Consolidated expenses",
+      amount: formatMoney(consolidatedExpenses),
+    },
+  ];
+
+  const metaParts: string[] = [];
+  if (preview?.taxYear) metaParts.push(`Tax year ${preview.taxYear}`);
+  if (preview?.monthlyRecordCount !== undefined) {
+    const count = preview.monthlyRecordCount;
+    metaParts.push(`Based on ${count} monthly record${count === 1 ? "" : "s"}`);
+  }
+
+  return { income, expenses, meta: metaParts.length > 0 ? metaParts.join(" · ") : null };
+}
 
 function formatUkDate(iso: string): string {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(iso)) return iso;
@@ -131,8 +190,11 @@ export function SubmissionDetail({ submissionId }: { submissionId: string }) {
     );
   }
 
-  const incomeLines = data.payload?.income ?? [];
-  const expenseLines = data.payload?.expenses ?? [];
+  const sandboxSubmission = isSandboxQuarterlySubmission(data);
+  const sandboxSummary = sandboxSubmission ? getSandboxSummaryLines(data.payload) : null;
+  const incomeLines = sandboxSummary?.income ?? data.payload?.income ?? [];
+  const expenseLines = sandboxSummary?.expenses ?? data.payload?.expenses ?? [];
+  const recordKindLabel = getRecordKindLabel(data);
 
   return (
     <article className="submission-print-root space-y-6">
@@ -155,7 +217,7 @@ export function SubmissionDetail({ submissionId }: { submissionId: string }) {
       </div>
 
       <header className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-        <p className="text-xs font-bold uppercase tracking-wider text-brand-green">Monthly record</p>
+        <p className="text-xs font-bold uppercase tracking-wider text-brand-green">{recordKindLabel}</p>
         <h1 className="mt-1 text-xl font-bold text-slate-900 sm:text-2xl">{data.trade}</h1>
         <p className="mt-2 text-sm text-slate-600">
           Period {formatUkDate(data.periodFrom)} – {formatUkDate(data.periodTo)} · Submitted{" "}
@@ -192,18 +254,32 @@ export function SubmissionDetail({ submissionId }: { submissionId: string }) {
       </header>
 
       <div className="grid gap-4 sm:grid-cols-3">
-        <SummaryCard label="Total income" value={formatMoney(data.totalIncomeGbp)} />
+        <SummaryCard
+          label={sandboxSubmission ? "Total turnover" : "Total income"}
+          value={formatMoney(data.totalIncomeGbp)}
+        />
         <SummaryCard label="Total expenses" value={formatMoney(data.totalExpensesGbp)} />
         <SummaryCard label="Net profit" value={formatMoney(data.netProfitGbp)} accent />
       </div>
 
+      {sandboxSummary?.meta ? (
+        <p className="rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-900">
+          {sandboxSummary.meta}. This cumulative quarterly summary was sent to the HMRC sandbox — not individual
+          monthly line items.
+        </p>
+      ) : null}
+
       <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-        <h2 className="text-base font-bold text-slate-900">Income</h2>
+        <h2 className="text-base font-bold text-slate-900">
+          {sandboxSubmission ? "Income (cumulative)" : "Income"}
+        </h2>
         <LineTable lines={incomeLines} emptyLabel="No income lines recorded." />
       </section>
 
       <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-        <h2 className="text-base font-bold text-slate-900">Expenses</h2>
+        <h2 className="text-base font-bold text-slate-900">
+          {sandboxSubmission ? "Expenses (cumulative)" : "Expenses"}
+        </h2>
         <LineTable lines={expenseLines} emptyLabel="No expense lines recorded." />
       </section>
 
