@@ -42,7 +42,7 @@ export const MTD_INFO_BLOCK_EXTRAS: Record<string, MtdInfoBlockExtras> = {
       "Missing VAT deadlines because only income tax reminders were set",
     ],
     selfSubmitTip:
-      "SelfSubmit focuses on income tax monthly returns today. If you are VAT-registered, use MTD VAT software alongside SelfSubmit for your self-employment records.",
+      "SelfSubmit focuses on income tax monthly records today. If you are VAT-registered, use MTD VAT software alongside SelfSubmit for your self-employment records.",
   },
   "mtd-deadlines": {
     cardIntro:
@@ -136,7 +136,7 @@ export const MTD_INFO_BLOCK_EXTRAS: Record<string, MtdInfoBlockExtras> = {
   },
   "hmrc-approved-software": {
     cardIntro:
-      "HMRC requires functional compatible software that keeps digital records and submits MTD updates securely. You choose from published compatible products — including SelfSubmit for income tax record-keeping.",
+      "HMRC requires functional compatible software that keeps digital records and submits MTD updates securely. You choose from published compatible products listed on GOV.UK.",
     highlights: [
       "Software must connect to HMRC APIs for submissions",
       "Free and paid options exist for different complexity levels",
@@ -150,7 +150,7 @@ export const MTD_INFO_BLOCK_EXTRAS: Record<string, MtdInfoBlockExtras> = {
       "Using incompatible spreadsheets and typing figures manually each quarter",
     ],
     selfSubmitTip:
-      "SelfSubmit helps you maintain monthly digital records aligned with MTD principles. Connect live HMRC submission when you are ready — mock acceptance is available for practice today.",
+      "SelfSubmit helps you maintain monthly digital records aligned with MTD principles. Live HMRC API filing is in development — practice records are available today.",
   },
   "mtd-exemptions": {
     cardIntro:
@@ -204,7 +204,7 @@ export const MTD_INFO_BLOCK_EXTRAS: Record<string, MtdInfoBlockExtras> = {
       "Forgetting property or second trade income in one update",
     ],
     selfSubmitTip:
-      "SelfSubmit monthly returns roll up into clear totals so you can transfer accurate income and expense summaries into your quarterly HMRC submission.",
+      "SelfSubmit monthly records roll up into clear totals ready for your quarterly HMRC update when live filing is enabled.",
   },
   "final-declaration": {
     cardIntro:

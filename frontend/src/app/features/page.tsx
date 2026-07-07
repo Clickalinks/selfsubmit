@@ -2,13 +2,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Check } from "lucide-react";
 
+import { MtdFilingStatusSection } from "@/components/landing/MtdFilingStatusSection";
 import { SitePageHero, SitePageShell } from "@/components/landing/SitePageShell";
 import { ALL_PLAN_FEATURES, SITE_FEATURE_GROUPS } from "@/data/siteFeatures";
 
 export const metadata: Metadata = {
   title: "Features — SelfSubmit",
-  description:
-    "Income and expense tracking, receipt uploads, quarterly MTD submissions, deadline reminders, and secure storage for UK self-employed people.",
+    description:
+    "Income and expense tracking, receipt uploads, MTD record-keeping, deadline reminders, and secure storage for UK self-employed people.",
 };
 
 export default function FeaturesPage() {
@@ -17,10 +18,13 @@ export default function FeaturesPage() {
       <SitePageHero
         eyebrow="Product"
         title="Everything you need for MTD — nothing you don't"
-        description="SelfSubmit focuses on monthly records, quarterly submissions, and document storage. No payroll, invoicing, or bloated bookkeeping."
+        description="SelfSubmit focuses on monthly digital records for MTD. Live HMRC quarterly filing is in development — see status below."
       />
 
       <div className="mx-auto max-w-[1400px] px-5 py-12 sm:px-8 sm:py-16 lg:px-10">
+        <MtdFilingStatusSection />
+
+        <div className="mt-14">
         {SITE_FEATURE_GROUPS.map((group) => (
           <section key={group.title} className="mb-14 last:mb-0">
             <h2 className="text-xl font-bold text-brand-black sm:text-2xl">{group.title}</h2>
@@ -73,6 +77,7 @@ export default function FeaturesPage() {
             </Link>
           </div>
         </section>
+        </div>
       </div>
     </SitePageShell>
   );

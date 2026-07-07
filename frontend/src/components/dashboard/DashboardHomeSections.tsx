@@ -58,7 +58,7 @@ export function DashboardPrimaryActions(props: Props) {
         className={`${btnBase} bg-brand-ink text-white hover:bg-brand-ink/90`}
       >
         <Send className="h-4 w-4" aria-hidden />
-        Submit to HMRC
+        Monthly records
       </Link>
     </div>
   );

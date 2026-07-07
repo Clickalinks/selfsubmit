@@ -27,8 +27,8 @@ export function HeroSection() {
           </h1>
 
           <p className="mt-4 max-w-md text-pretty text-base font-medium leading-relaxed text-slate-600 sm:mt-5 sm:text-[1.05rem] lg:mt-6 lg:text-lg">
-            Easily submit your monthly returns to HMRC in minutes. Pre-filled forms, auto-calculation, and secure
-            submission.
+            Keep digital MTD records in minutes — profession-tailored forms, auto-calculation, and secure storage.
+            Live HMRC filing is in development.
           </p>
 
           <div className="mt-7 flex w-full max-w-sm flex-col items-stretch gap-4 sm:mt-9 sm:gap-5 lg:mt-11 lg:max-w-none lg:items-start">

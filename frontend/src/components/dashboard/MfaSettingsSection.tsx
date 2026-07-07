@@ -192,7 +192,7 @@ export function MfaSettingsSection() {
         <Shield className="h-4 w-4 shrink-0 text-amber-700" />
         <span>
           {mfaActive
-            ? "You are set up. You can now use the dashboard and submit to HMRC."
+            ? "You are set up. You can now use the dashboard and save your MTD records."
             : "Choose at least one method — this is required for all SelfSubmit accounts."}
         </span>
       </div>

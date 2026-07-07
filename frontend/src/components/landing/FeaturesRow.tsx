@@ -2,8 +2,8 @@ import { Calculator, FilePenLine, UploadCloud } from "lucide-react";
 
 const FEATURES = [
   {
-    title: "Quick & Easy Filing",
-    body: "Pre-filled forms tailored for your business. Just review & submit.",
+    title: "Save & review records",
+    body: "Store monthly income and expenses ready for your quarterly MTD update.",
     icon: FilePenLine,
   },
   {
@@ -12,8 +12,8 @@ const FEATURES = [
     icon: Calculator,
   },
   {
-    title: "Submit Direct to HMRC",
-    body: "Secure and compliant submissions. MTD ready for Income Tax.",
+    title: "Built for MTD",
+    body: "Digital record-keeping aligned with HMRC rules. Live API filing coming soon.",
     icon: UploadCloud,
   },
 ] as const;

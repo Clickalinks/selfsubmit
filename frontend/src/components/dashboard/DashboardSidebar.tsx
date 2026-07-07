@@ -18,7 +18,7 @@ const NAV: NavItem[] = [
   { href: "/dashboard/businesses", label: "My businesses", icon: Briefcase },
   { href: "/pricing", label: "Choose plan", icon: CreditCard },
   { href: "/add-business", label: "Create business", icon: Building2 },
-  { href: "/submit", label: "Submit to HMRC", icon: Send },
+  { href: "/submit", label: "Monthly records", icon: Send },
   { href: "/dashboard/receipts", label: "Receipts", icon: Receipt },
   { href: "/dashboard/submissions", label: "Submission history", icon: ClipboardList },
   { href: "/dashboard/settings", label: "Settings", icon: Settings },

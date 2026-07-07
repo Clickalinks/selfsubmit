@@ -23,7 +23,7 @@ export default async function SubmitPage({ searchParams }: Props) {
   if (!activeBusiness) {
     return (
       <div className="mx-auto max-w-lg px-4 py-16 text-center">
-        <p className="text-sm text-brand-muted">Add a business before submitting your return.</p>
+        <p className="text-sm text-brand-muted">Add a business before saving monthly records.</p>
       </div>
     );
   }

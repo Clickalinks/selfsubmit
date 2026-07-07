@@ -39,7 +39,7 @@ export const FAQ_ITEMS: FaqItem[] = [
     id: "included-features",
     question: "What is included in every plan?",
     answer:
-      "Every plan includes income and expense tracking, receipt and CSV uploads, quarterly MTD submissions, final declaration support, deadline reminders, submission history, secure document storage, email support, and mobile-friendly access.",
+      "Every plan includes income and expense tracking, receipt and CSV uploads, practice monthly records for MTD, deadline reminders, submission history, secure document storage, email support, and mobile-friendly access. Live HMRC filing is in development.",
   },
   {
     id: "receipts",

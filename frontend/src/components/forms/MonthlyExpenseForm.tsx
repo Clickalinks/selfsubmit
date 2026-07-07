@@ -1399,8 +1399,8 @@ export function MonthlyExpenseForm({
         </section>
 
         <div className="mt-10 rounded-2xl border border-amber-200/80 bg-amber-50/80 px-4 py-3 text-sm text-brand-black">
-          <strong>Before you submit:</strong> double-check income and expenses. We file to HMRC (mock acceptance until
-          live MTD is connected) and save a copy in your dashboard submissions.
+          <strong>Before you save:</strong> double-check income and expenses. This saves a practice record in
+          SelfSubmit for your MTD records — it is <strong>not sent to HMRC</strong> until live API filing is enabled.
         </div>
 
         {submitError ? (
@@ -1424,10 +1424,10 @@ export function MonthlyExpenseForm({
             {submitting ? (
               <>
                 <Loader2 className="mr-2 inline h-4 w-4 animate-spin" />
-                Submitting…
+                Saving…
               </>
             ) : (
-              "Submit monthly return"
+              "Save monthly record"
             )}
           </button>
           {!allSaved ? (
@@ -1572,7 +1572,7 @@ function ConfirmDialog({
         onClick={(e) => e.stopPropagation()}
       >
         <h2 id="confirm-title" className="text-lg font-bold text-brand-black">
-          Check before you submit
+          Check before you save
         </h2>
         {periodSummaryUk ? (
           <p className="mt-3 rounded-lg border border-black/10 bg-neutral-50 px-3 py-2 text-sm text-brand-black">
@@ -1581,8 +1581,9 @@ function ConfirmDialog({
           </p>
         ) : null}
         <p className="mt-3 text-sm leading-relaxed text-brand-muted">
-          After submitting, you will <strong className="text-brand-black">not</strong> be able to go back and change
-          these figures from this form. Please confirm you have reviewed every amount.
+          This saves a practice record in SelfSubmit — <strong className="text-brand-black">not sent to HMRC</strong> yet.
+          After saving, you will <strong className="text-brand-black">not</strong> be able to change these figures from
+          this form. Please confirm you have reviewed every amount.
         </p>
         <div className="mt-6 flex flex-col-reverse gap-2 min-[900px]:flex-row min-[900px]:justify-end">
           <button
@@ -1597,7 +1598,7 @@ function ConfirmDialog({
             onClick={() => void onConfirm()}
             className="rounded-full bg-gradient-to-b from-brand-green-bright to-brand-green-dark px-5 py-2.5 text-sm font-bold text-white shadow-btn-green hover:brightness-105"
           >
-            Submit anyway
+            Save record
           </button>
         </div>
       </div>

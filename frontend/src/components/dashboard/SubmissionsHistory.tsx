@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 
+import { getSubmissionFilingDisplay } from "@/lib/hmrc-filing-status";
+
 type SubmissionRow = {
   id: string;
   trade: string;
@@ -83,7 +85,7 @@ export function SubmissionsHistory({ highlightId }: SubmissionsHistoryProps) {
       <div className="px-4 py-10 text-center text-slate-500">
         <p className="text-sm">No submissions yet.</p>
         <Link href="/submit" className="mt-3 inline-block text-sm font-semibold text-brand-green hover:underline">
-          Create your first monthly return →
+          Create your first monthly record →
         </Link>
       </div>
     );
@@ -98,7 +100,7 @@ export function SubmissionsHistory({ highlightId }: SubmissionsHistoryProps) {
             <th className="px-4 py-3">Business type</th>
             <th className="px-4 py-3">Period</th>
             <th className="px-4 py-3">Net profit</th>
-            <th className="px-4 py-3">HMRC</th>
+            <th className="px-4 py-3">Filing</th>
             <th className="px-4 py-3">Actions</th>
           </tr>
         </thead>
@@ -121,14 +123,23 @@ export function SubmissionsHistory({ highlightId }: SubmissionsHistoryProps) {
               </td>
               <td className="px-4 py-3 tabular-nums font-semibold text-slate-900">{formatMoney(row.netProfitGbp)}</td>
               <td className="px-4 py-3">
-                {row.hmrcReference ? (
-                  <span className="inline-flex flex-col gap-0.5">
-                    <span className="text-xs font-semibold uppercase text-emerald-700">{row.hmrcStatus ?? "sent"}</span>
-                    <span className="font-mono text-xs text-slate-600">{row.hmrcReference}</span>
-                  </span>
-                ) : (
-                  <span className="text-slate-500">{row.status}</span>
-                )}
+                {(() => {
+                  const filing = getSubmissionFilingDisplay(row);
+                  return (
+                    <span className="inline-flex flex-col gap-0.5">
+                      <span
+                        className={`text-xs font-semibold uppercase ${
+                          filing.tone === "live" ? "text-emerald-700" : "text-amber-800"
+                        }`}
+                      >
+                        {filing.label}
+                      </span>
+                      {filing.detail ? (
+                        <span className="text-xs text-slate-600">{filing.detail}</span>
+                      ) : null}
+                    </span>
+                  );
+                })()}
               </td>
               <td className="px-4 py-3">
                 <Link

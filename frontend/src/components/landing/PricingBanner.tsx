@@ -61,7 +61,7 @@ export function PricingBanner({ interactive = false, footer }: PricingBannerProp
             Simple plans for self-employed MTD
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-white/78 lg:text-base">
-            Every plan includes income and expense tracking, receipt uploads, quarterly MTD submissions, deadline
+            Every plan includes income and expense tracking, receipt uploads, MTD-ready record keeping, deadline
             reminders, and secure document storage — with no payroll, invoicing, or complex bookkeeping.
           </p>
         </div>

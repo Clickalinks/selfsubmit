@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { ArrowLeft, FileText, Loader2, Printer } from "lucide-react";
 
+import { getSubmissionFilingDisplay } from "@/lib/hmrc-filing-status";
+
 type LineItem = { id: string; label: string; amount: string };
 
 type SubmissionPayload = {
@@ -153,7 +155,7 @@ export function SubmissionDetail({ submissionId }: { submissionId: string }) {
       </div>
 
       <header className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-        <p className="text-xs font-bold uppercase tracking-wider text-brand-green">Monthly return</p>
+        <p className="text-xs font-bold uppercase tracking-wider text-brand-green">Monthly record</p>
         <h1 className="mt-1 text-xl font-bold text-slate-900 sm:text-2xl">{data.trade}</h1>
         <p className="mt-2 text-sm text-slate-600">
           Period {formatUkDate(data.periodFrom)} – {formatUkDate(data.periodTo)} · Submitted{" "}
@@ -163,13 +165,30 @@ export function SubmissionDetail({ submissionId }: { submissionId: string }) {
             year: "numeric",
           })}
         </p>
-        {data.hmrcReference ? (
-          <p className="mt-3 text-sm text-slate-700">
-            <span className="font-semibold text-emerald-700">{data.hmrcStatus ?? "sent"}</span>
-            {" · "}
-            <span className="font-mono text-xs">{data.hmrcReference}</span>
-          </p>
-        ) : null}
+        {(() => {
+          const filing = getSubmissionFilingDisplay(data);
+          return (
+            <p className="mt-3 text-sm text-slate-700">
+              <span
+                className={`font-semibold ${filing.tone === "live" ? "text-emerald-700" : "text-amber-800"}`}
+              >
+                {filing.label}
+              </span>
+              {filing.detail ? (
+                <>
+                  {" · "}
+                  <span>{filing.detail}</span>
+                </>
+              ) : null}
+              {data.hmrcMessage ? (
+                <>
+                  {" · "}
+                  <span className="text-slate-600">{data.hmrcMessage}</span>
+                </>
+              ) : null}
+            </p>
+          );
+        })()}
       </header>
 
       <div className="grid gap-4 sm:grid-cols-3">

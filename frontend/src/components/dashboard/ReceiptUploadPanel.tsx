@@ -204,7 +204,7 @@ export function ReceiptUploadPanel() {
         <p className="mt-2 text-xs leading-relaxed text-slate-600 sm:text-sm">
           Store CSV exports here for your records, or import amounts directly on the{" "}
           <a href="/submit" className="font-semibold text-brand-green hover:underline">
-            Submit to HMRC
+            Monthly records
           </a>{" "}
           page using Import from CSV.
         </p>

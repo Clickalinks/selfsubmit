@@ -100,7 +100,7 @@ export async function createMonthlySubmission(userId: string, input: CreateSubmi
         periodTo: parseIsoDate(input.periodTo),
         templateId,
         submissionType: "monthly_return",
-        status: "sent_hmrc",
+        status: "practice_saved",
         payloadJson: JSON.stringify(payload),
         totalIncomeGbp: input.totals.incomeGbp,
         totalExpensesGbp: input.totals.expensesGbp,
