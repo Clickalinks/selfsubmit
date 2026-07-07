@@ -1,23 +1,26 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Suspense } from "react";
 import { auth } from "@clerk/nextjs/server";
 import { CalendarClock, TrendingDown, TrendingUp } from "lucide-react";
 
 import {
-  DashboardGetStartedSteps,
   DashboardPrimaryActions,
   DashboardStat,
   MtdStatusBadge,
   WhatDoINeedTodayCard,
 } from "@/components/dashboard/DashboardHomeSections";
 import { BusinessSwitcher } from "@/components/dashboard/BusinessSwitcher";
+import { DashboardSetupWizard } from "@/components/dashboard/DashboardSetupWizard";
 import { HmrcSandboxStatusCard } from "@/components/dashboard/HmrcSandboxStatusCard";
-import { TaxIdsSection } from "@/components/dashboard/TaxIdsSection";
-import { emptyMtdDashboardSnapshot, formatGbp, getMtdDashboardSnapshot } from "@/lib/mtd-dashboard";
+import { isEncryptionConfigured } from "@/lib/field-encryption";
+import { isHmrcOAuthConfigured } from "@/lib/hmrc-config";
 import { isHmrcSandboxFilingEnabled } from "@/lib/hmrc-filing-status";
+import { emptyMtdDashboardSnapshot, formatGbp, getMtdDashboardSnapshot } from "@/lib/mtd-dashboard";
 import { getClientProfile } from "@/lib/profile-server";
 import { getUserPlan } from "@/lib/subscription-server";
 import { PLAN_DISPLAY_NAMES } from "@/lib/plan-config";
+import { isSetupComplete } from "@/lib/setup-progress";
 
 export const metadata: Metadata = {
   title: "Dashboard — SelfSubmit",
@@ -50,6 +53,7 @@ export default async function DashboardPage({
     console.error("[dashboard/page] snapshot load failed", err);
   }
 
+  const setupComplete = isSetupComplete(snapshot);
   const submitHref = snapshot.activeBusinessId
     ? `/submit?businessId=${encodeURIComponent(snapshot.activeBusinessId)}`
     : "/submit";
@@ -88,31 +92,38 @@ export default async function DashboardPage({
               <>
                 {" "}
                 ·{" "}
-                <Link href="/add-business" className="font-semibold text-brand-green hover:underline">
+                <Link href="/dashboard#setup-wizard" className="font-semibold text-brand-green hover:underline">
                   Add business
                 </Link>
               </>
             ) : null}
           </p>
-        ) : snapshot.hasTaxIds ? (
+        ) : !setupComplete ? (
           <Link
             href="/pricing"
             className="inline-flex items-center justify-center rounded-xl bg-brand-green px-4 py-2 text-sm font-bold text-white hover:bg-brand-green-dark"
           >
-            Get started — choose plan
+            Choose a plan
           </Link>
         ) : null}
       </div>
 
-      <DashboardGetStartedSteps
-        hasPlan={snapshot.hasPlan}
-        hasBusiness={snapshot.hasBusiness}
-        hasTaxIds={snapshot.hasTaxIds}
-      />
-
-      <div id="tax-details">
-        <TaxIdsSection />
-      </div>
+      {!setupComplete ? (
+        <Suspense fallback={null}>
+          <DashboardSetupWizard
+            hasPlan={snapshot.hasPlan}
+            hasBusiness={snapshot.hasBusiness}
+            hasTaxIds={snapshot.hasTaxIds}
+            hmrcConnected={snapshot.hmrcConnected}
+            activeBusinessHmrcId={snapshot.activeBusinessHmrcId}
+            activeBusinessId={snapshot.activeBusinessId}
+            activeBusinessName={snapshot.activeBusinessName}
+            hmrcOAuthConfigured={isHmrcOAuthConfigured()}
+            encryptionConfigured={isEncryptionConfigured()}
+            submitHref={submitHref}
+          />
+        </Suspense>
+      ) : null}
 
       <WhatDoINeedTodayCard
         message={snapshot.todayMessage}
@@ -120,10 +131,11 @@ export default async function DashboardPage({
         hasPlan={snapshot.hasPlan}
         hasBusiness={snapshot.hasBusiness}
         hasTaxIds={snapshot.hasTaxIds}
+        hmrcSandboxReady={snapshot.hmrcSandboxReady}
         submitHref={submitHref}
       />
 
-      {snapshot.hmrcConnected || snapshot.anyBusinessHmrcLinked ? (
+      {setupComplete && (snapshot.hmrcConnected || snapshot.anyBusinessHmrcLinked) ? (
         <HmrcSandboxStatusCard
           hmrcConnected={snapshot.hmrcConnected}
           hmrcSandboxReady={snapshot.hmrcSandboxReady}
@@ -185,6 +197,7 @@ export default async function DashboardPage({
           hasPlan={snapshot.hasPlan}
           hasBusiness={snapshot.hasBusiness}
           hasTaxIds={snapshot.hasTaxIds}
+          hmrcSandboxReady={snapshot.hmrcSandboxReady}
           submitHref={submitHref}
         />
       </div>

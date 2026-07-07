@@ -7,6 +7,7 @@ type OAuthStatePayload = {
   userId: string;
   nonce: string;
   exp: number;
+  businessId?: string;
 };
 
 function stateSecret(): string {
@@ -19,7 +20,10 @@ function sign(payloadB64: string): string {
   return createHmac("sha256", stateSecret()).update(payloadB64).digest("base64url");
 }
 
-export function createOAuthStateCookie(userId: string): {
+export function createOAuthStateCookie(
+  userId: string,
+  options?: { businessId?: string },
+): {
   name: string;
   value: string;
   maxAge: number;
@@ -29,6 +33,7 @@ export function createOAuthStateCookie(userId: string): {
     userId,
     nonce: randomBytes(16).toString("hex"),
     exp: Math.floor(Date.now() / 1000) + MAX_AGE_SEC,
+    ...(options?.businessId ? { businessId: options.businessId } : {}),
   };
   const payloadB64 = Buffer.from(JSON.stringify(payload)).toString("base64url");
   const signature = sign(payloadB64);

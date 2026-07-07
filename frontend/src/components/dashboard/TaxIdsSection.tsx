@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { Check, Loader2 } from "lucide-react";
@@ -100,7 +99,7 @@ export function TaxIdsSection() {
             <h3 className="text-base font-bold text-slate-900">HMRC tax details saved</h3>
             <p className="mt-1 text-sm text-slate-600">
               Your UTR and National Insurance number are stored securely. For HMRC sandbox testing, these must match
-              the test user you connect in Settings.
+              the test user you connect with.
             </p>
             <div className="mt-4 flex flex-wrap gap-3">
               <button
@@ -114,12 +113,6 @@ export function TaxIdsSection() {
               >
                 Update UTR or NI number
               </button>
-              <Link
-                href="/pricing"
-                className="inline-flex rounded-xl bg-brand-green px-5 py-2.5 text-sm font-bold text-white hover:bg-brand-green-dark"
-              >
-                Choose your plan
-              </Link>
             </div>
           </div>
         </div>
@@ -137,7 +130,7 @@ export function TaxIdsSection() {
       <p className="mt-2 text-sm text-slate-600">
         {isUpdate
           ? "Re-enter both values to replace what is stored. For sandbox HMRC testing, use the UTR and NI from the same test user you connect in Settings."
-          : "Your Unique Taxpayer Reference (UTR) and National Insurance number are required before you can choose a plan. They are encrypted and only used for your MTD submissions."}
+          : "Your Unique Taxpayer Reference (UTR) and National Insurance number are required for HMRC. They are encrypted and only used for your MTD submissions."}
       </p>
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2">

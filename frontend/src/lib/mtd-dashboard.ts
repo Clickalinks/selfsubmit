@@ -224,14 +224,20 @@ export async function getMtdDashboardSnapshot(
   let todayMessage = "No action required today.";
   let todayTone: MtdDashboardSnapshot["todayTone"] = "calm";
 
-  if (!hasTaxIds) {
-    todayMessage = "Add your UTR and National Insurance number to continue.";
-    todayTone = "info";
-  } else if (!hasPlan) {
+  if (!hasPlan) {
     todayMessage = "Choose a subscription plan to get started.";
     todayTone = "info";
   } else if (!hasBusiness) {
-    todayMessage = "Select your profession to unlock your income and expense form.";
+    todayMessage = "Select your business and profession to continue setup.";
+    todayTone = "info";
+  } else if (!hasTaxIds) {
+    todayMessage = "Add your UTR and National Insurance number.";
+    todayTone = "info";
+  } else if (!hmrcConnected) {
+    todayMessage = "Connect your HMRC account to link your business.";
+    todayTone = "info";
+  } else if (!activeBusinessHmrcId) {
+    todayMessage = "Link your business to HMRC — this happens automatically when HMRC returns one self-employment business.";
     todayTone = "info";
   } else if (pendingQuarter && now.getTime() > pendingQuarter.deadline.getTime()) {
     todayMessage = `Your ${pendingQuarter.label} update is overdue — submit it as soon as you can.`;

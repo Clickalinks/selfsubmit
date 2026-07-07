@@ -272,7 +272,7 @@ export function HmrcConnectionSection() {
 
           <p>
             Obligations require your{" "}
-            <Link href="/dashboard#tax-details" className="font-semibold text-brand-green hover:underline">
+            <Link href="/dashboard/settings#tax-details" className="font-semibold text-brand-green hover:underline">
               National Insurance number
             </Link>{" "}
             on the dashboard.

@@ -11,6 +11,7 @@ import { LoginSecuritySection } from "@/components/dashboard/LoginSecuritySectio
 import { MfaRequiredNotice } from "@/components/dashboard/MfaRequiredNotice";
 import { MfaSettingsSection } from "@/components/dashboard/MfaSettingsSection";
 import { ManageBillingSection } from "@/components/dashboard/ManageBillingSection";
+import { TaxIdsSection } from "@/components/dashboard/TaxIdsSection";
 export const metadata: Metadata = {
   title: "Settings — SelfSubmit",
 };
@@ -52,6 +53,10 @@ export default function SettingsPage() {
       </DashboardCard>
 
       <ManageBillingSection />
+
+      <div id="tax-details">
+        <TaxIdsSection />
+      </div>
 
       <Suspense fallback={null}>
         <HmrcConnectionSection />

@@ -8,7 +8,6 @@ import type { PlanId } from "@/lib/plan-config";
 import { prisma } from "@/lib/db";
 import { appBaseUrl, getStripe, getStripePriceId, isStripeConfigured } from "@/lib/stripe-server";
 import { setUserPlan } from "@/lib/subscription-server";
-import { getTaxIdsStatus } from "@/lib/tax-ids-server";
 
 export async function POST(req: Request) {
   try {
@@ -42,14 +41,6 @@ export async function POST(req: Request) {
     }
 
     const plan: PlanId = input.plan;
-
-    const taxIds = await getTaxIdsStatus(userId);
-    if (!taxIds.complete) {
-      return NextResponse.json(
-        { error: "Add your UTR and National Insurance number on the dashboard before choosing a plan." },
-        { status: 403 },
-      );
-    }
 
     if (!isStripeConfigured()) {
       await setUserPlan(userId, plan);
