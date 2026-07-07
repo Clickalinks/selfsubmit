@@ -3,10 +3,20 @@
 import { useState } from "react";
 import { Download, Loader2 } from "lucide-react";
 
-export function DataExportButton({ className = "" }: { className?: string }) {
+type DataExportButtonProps = {
+  className?: string;
+  /** Shown on the leave-account flow in Settings. */
+  variant?: "default" | "leave";
+  onDownloaded?: () => void;
+};
+
+export function DataExportButton({ className = "", variant = "default", onDownloaded }: DataExportButtonProps) {
   const [exporting, setExporting] = useState(false);
   const [exportDone, setExportDone] = useState(false);
   const [exportError, setExportError] = useState<string | null>(null);
+
+  const buttonLabel =
+    variant === "leave" ? "Download all my submissions & files (ZIP)" : "Download my records (ZIP)";
 
   async function downloadData() {
     setExportError(null);
@@ -42,6 +52,7 @@ export function DataExportButton({ className = "" }: { className?: string }) {
       anchor.remove();
       URL.revokeObjectURL(url);
       setExportDone(true);
+      onDownloaded?.();
     } catch {
       setExportError("Could not download your data. Please try again.");
     } finally {
@@ -58,12 +69,13 @@ export function DataExportButton({ className = "" }: { className?: string }) {
         className="inline-flex items-center gap-2 rounded-xl border border-brand-green/20 bg-white px-4 py-2.5 text-sm font-semibold text-brand-green-dark shadow-sm transition hover:bg-brand-mint disabled:opacity-60"
       >
         {exporting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
-        {exporting ? "Preparing download…" : "Download my records (ZIP)"}
+        {exporting ? "Preparing download…" : buttonLabel}
       </button>
       {exportDone ? (
         <p className="mt-2 text-xs font-medium text-emerald-700">
-          Download started — open README.txt in the ZIP for a guide. Use Save as PDF on a submission for a printable
-          return.
+          {variant === "leave"
+            ? "Download complete — keep the ZIP safe, then confirm deletion below."
+            : "Download started — check your downloads folder."}
         </p>
       ) : null}
       {exportError ? <p className="mt-2 text-xs font-medium text-red-600">{exportError}</p> : null}

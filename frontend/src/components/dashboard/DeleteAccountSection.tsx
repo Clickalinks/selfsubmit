@@ -1,6 +1,7 @@
 "use client";
 
 import { useClerk } from "@clerk/nextjs";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { DataExportButton } from "@/components/dashboard/DataExportButton";
@@ -8,21 +9,17 @@ import { AlertTriangle, Check } from "lucide-react";
 
 const CONFIRM_PHRASE = "DELETE MY ACCOUNT";
 
-const CHECKLIST = [
-  "Download your data or submission history (recommended)",
-  "Confirm that you want to delete your account",
-  `Type '${CONFIRM_PHRASE}' in the box below`,
-] as const;
-
 export function DeleteAccountSection() {
   const { signOut } = useClerk();
   const router = useRouter();
 
   const [confirmText, setConfirmText] = useState("");
+  const [downloadedConfirmed, setDownloadedConfirmed] = useState(false);
   const [loading, setLoading] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
-  const canDelete = confirmText.trim() === CONFIRM_PHRASE;
+  const phraseOk = confirmText.trim() === CONFIRM_PHRASE;
+  const canDelete = phraseOk && downloadedConfirmed;
 
   async function handleDelete() {
     if (!canDelete) return;
@@ -52,64 +49,93 @@ export function DeleteAccountSection() {
             6
           </span>
           <div>
-            <h2 className="text-base font-bold text-slate-900 min-[900px]:text-lg">Account Deletion</h2>
-            <p className="text-sm text-slate-500">Safe account deletion flow</p>
+            <h2 className="text-base font-bold text-slate-900 min-[900px]:text-lg">Leaving SelfSubmit</h2>
+            <p className="text-sm text-slate-500">Download your records, then delete your account securely</p>
           </div>
         </div>
       </header>
 
       <div className="space-y-6 px-5 py-6 min-[900px]:px-6">
         <div>
-          <h3 className="text-xl font-bold text-slate-900">Delete Account</h3>
-          <p className="mt-1 text-sm text-slate-600">
-            This action cannot be undone. Please review the information below.
+          <p className="text-sm leading-relaxed text-slate-600">
+            If you want to leave SelfSubmit completely, our{" "}
+            <Link href="/terms" className="font-semibold text-brand-green underline-offset-2 hover:underline">
+              Terms
+            </Link>{" "}
+            ask you to <strong>download all your files first</strong>, then delete your account. After deletion we
+            remove your profile, submissions, receipts, and sign-in access from our systems.
           </p>
+        </div>
+
+        <div className="rounded-xl border border-brand-green/25 bg-brand-mint/50 px-4 py-5">
+          <p className="text-xs font-bold uppercase tracking-wide text-brand-green">Step 1 — Download everything</p>
+          <p className="mt-2 text-sm leading-relaxed text-brand-forest">
+            One ZIP with all monthly submissions (plain text), receipt photos, your profile, and businesses. Save it
+            somewhere safe on your computer before you continue.
+          </p>
+          <ul className="mt-3 space-y-1.5 text-sm text-brand-forest">
+            <li className="flex items-start gap-2">
+              <Check className="mt-0.5 h-4 w-4 shrink-0 text-brand-green" strokeWidth={2.5} />
+              <span>Every filed monthly return</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <Check className="mt-0.5 h-4 w-4 shrink-0 text-brand-green" strokeWidth={2.5} />
+              <span>Uploaded receipt images and PDFs</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <Check className="mt-0.5 h-4 w-4 shrink-0 text-brand-green" strokeWidth={2.5} />
+              <span>Profile and business details</span>
+            </li>
+          </ul>
+          <DataExportButton
+            className="mt-4"
+            variant="leave"
+            onDownloaded={() => setDownloadedConfirmed(true)}
+          />
         </div>
 
         <div className="rounded-xl border border-orange-200 bg-orange-50 px-4 py-4">
           <div className="flex gap-3">
             <AlertTriangle className="h-5 w-5 shrink-0 text-red-600" strokeWidth={2} />
             <div>
-              <p className="text-sm font-bold text-red-700">Permanent Deletion</p>
+              <p className="text-sm font-bold text-red-700">Step 2 — Delete account permanently</p>
               <p className="mt-1 text-sm leading-relaxed text-red-900/90">
-                All your data, receipts, submissions, and business information will be permanently deleted.
+                This cannot be undone. All data stored on SelfSubmit for your account will be permanently removed and
+                you will be signed out.
               </p>
             </div>
           </div>
         </div>
 
-        <div>
-          <p className="text-sm font-semibold text-slate-800">To delete your account, please:</p>
-          <ul className="mt-3 space-y-2.5">
-            {CHECKLIST.map((item) => (
-              <li key={item} className="flex items-start gap-2.5 text-sm text-slate-700">
-                <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" strokeWidth={2.5} />
-                <span>{item}</span>
-              </li>
-            ))}
-          </ul>
-
-          <div className="mt-4 rounded-xl border border-brand-mint bg-brand-mint/60 px-4 py-4">
-            <p className="text-sm text-brand-forest">
-              Before you leave, download a plain-text backup of your profile, monthly returns, and receipt photos. This
-              is for your records — not website code. To print one return, use Save as PDF on the submission page.
-            </p>
-            <DataExportButton className="mt-3" />
-          </div>
-        </div>
+        <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+          <input
+            type="checkbox"
+            className="mt-1 h-4 w-4 rounded border-slate-300 text-brand-green focus:ring-brand-green"
+            checked={downloadedConfirmed}
+            onChange={(e) => setDownloadedConfirmed(e.target.checked)}
+          />
+          <span className="text-sm leading-relaxed text-slate-700">
+            I have downloaded my submissions and files (or already have a copy) and I want to permanently delete my
+            SelfSubmit account.
+          </span>
+        </label>
 
         <div>
           <label className="block text-sm font-semibold text-slate-800" htmlFor="delete-confirm">
-            Type &apos;{CONFIRM_PHRASE}&apos; to confirm
+            Type &apos;{CONFIRM_PHRASE}&apos; to confirm deletion
           </label>
           <input
             id="delete-confirm"
-            className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
+            className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-red-500 focus:ring-2 focus:ring-red-500/20 disabled:bg-slate-100 disabled:text-slate-400"
             value={confirmText}
             onChange={(e) => setConfirmText(e.target.value)}
             placeholder={CONFIRM_PHRASE}
             autoComplete="off"
+            disabled={!downloadedConfirmed}
           />
+          {!downloadedConfirmed ? (
+            <p className="mt-2 text-xs text-slate-500">Complete step 1 and confirm the checkbox above to continue.</p>
+          ) : null}
         </div>
 
         {deleteError ? (
@@ -121,6 +147,7 @@ export function DeleteAccountSection() {
             type="button"
             onClick={() => {
               setConfirmText("");
+              setDownloadedConfirmed(false);
               setDeleteError(null);
             }}
             className="rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
@@ -133,7 +160,7 @@ export function DeleteAccountSection() {
             onClick={() => void handleDelete()}
             className="rounded-xl bg-red-600 px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-red-600/25 transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {loading ? "Deleting…" : "Delete account"}
+            {loading ? "Deleting your account…" : "Delete my account permanently"}
           </button>
         </div>
       </div>

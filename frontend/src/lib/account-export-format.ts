@@ -43,21 +43,24 @@ function formatMoney(n: number): string {
   return `£${n.toFixed(2)}`;
 }
 
-export const ACCOUNT_EXPORT_README = `SELF SUBMIT — YOUR PERSONAL DATA BACKUP
-=====================================
+export const ACCOUNT_EXPORT_README = `SELF SUBMIT — YOUR COMPLETE RECORDS BACKUP
+=========================================
 
-This ZIP is a backup of your tax records stored on SelfSubmit.
-It is NOT website code or programming.
+Download this ZIP before deleting your account, as described in our Terms.
+
+This archive is your personal tax records — NOT website code.
 
 What's inside:
   profile.txt       — your name, address, and contact details
-  businesses.txt    — businesses linked to your account
-  submissions/      — one text file per monthly return (income, expenses, totals)
-  receipts/         — your uploaded receipt photos and PDFs (if any)
+  businesses.txt    — businesses on your account
+  submissions/      — every monthly return (income, expenses, totals) as plain text
+  receipts/         — receipt photos and PDFs you uploaded (if any)
 
-Open the .txt files with Notepad or any text editor on your computer.
+Keep this ZIP somewhere safe (e.g. your computer or cloud storage) before you
+delete your account. After deletion, SelfSubmit removes your data from our systems.
 
-To print a single return: open it in SelfSubmit → Submission history → View → Save as PDF.
+Open .txt files with Notepad or any text editor. For a printable copy of one
+return, use Save as PDF on that submission in SelfSubmit before you leave.
 `;
 
 export function formatProfileText(profile: ProfileExport | null): string {

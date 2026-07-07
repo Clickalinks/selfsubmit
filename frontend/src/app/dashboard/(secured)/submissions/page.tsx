@@ -18,7 +18,7 @@ export default async function SubmissionsPage({ searchParams }: Props) {
   return (
     <DashboardCard
       title="Submission history"
-      description="Open any return below to view details and save a PDF. For a full account backup, go to Settings → Delete account."
+      description="Open any return to view details and save a PDF. To download everything and leave SelfSubmit, go to Settings → Leaving SelfSubmit."
     >
       <SubmissionsHistory highlightId={highlightId} />
     </DashboardCard>
