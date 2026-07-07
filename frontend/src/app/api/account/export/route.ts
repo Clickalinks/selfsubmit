@@ -4,7 +4,6 @@ import {
   ACCOUNT_EXPORT_README,
   formatBusinessesText,
   formatProfileText,
-  formatSubmissionText,
   parseSubmissionPayload,
   submissionArchiveName,
 } from "@/lib/account-export-format";
@@ -13,6 +12,7 @@ import { prisma } from "@/lib/db";
 import { buildZipBuffer } from "@/lib/export-zip";
 import { getClientProfile } from "@/lib/profile-server";
 import { readReceiptFileBuffer } from "@/lib/receipt-storage";
+import { buildSubmissionPdfBuffer } from "@/lib/submission-pdf";
 
 export const maxDuration = 60;
 
@@ -85,7 +85,8 @@ export async function GET() {
       archive.append(formatBusinessesText(businessesExport), { name: "businesses.txt" });
 
       for (const submission of submissionsExport) {
-        archive.append(formatSubmissionText(submission), {
+        const pdfBuffer = await buildSubmissionPdfBuffer(submission);
+        archive.append(pdfBuffer, {
           name: `submissions/${submissionArchiveName(submission)}`,
         });
       }

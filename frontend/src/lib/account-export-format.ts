@@ -1,4 +1,4 @@
-type ProfileExport = {
+export type ProfileExport = {
   firstName: string;
   lastName: string;
   homeAddress: string;
@@ -10,15 +10,15 @@ type ProfileExport = {
   primaryProfession: string | null;
 };
 
-type BusinessExport = {
+export type BusinessExport = {
   name: string;
   category: string;
   createdAt: string;
 };
 
-type LineItem = { label: string; amount: string };
+export type LineItem = { label: string; amount: string };
 
-type SubmissionExport = {
+export type SubmissionExport = {
   trade: string;
   periodFrom: string;
   periodTo: string;
@@ -39,10 +39,6 @@ function formatUkDate(iso: string): string {
   return `${d}/${m}/${y}`;
 }
 
-function formatMoney(n: number): string {
-  return `£${n.toFixed(2)}`;
-}
-
 export const ACCOUNT_EXPORT_README = `SELF SUBMIT — YOUR COMPLETE RECORDS BACKUP
 =========================================
 
@@ -53,14 +49,13 @@ This archive is your personal tax records — NOT website code.
 What's inside:
   profile.txt       — your name, address, and contact details
   businesses.txt    — businesses on your account
-  submissions/      — every monthly return (income, expenses, totals) as plain text
+  submissions/      — every monthly return as a PDF (income, expenses, totals)
   receipts/         — receipt photos and PDFs you uploaded (if any)
 
 Keep this ZIP somewhere safe (e.g. your computer or cloud storage) before you
 delete your account. After deletion, SelfSubmit removes your data from our systems.
 
-Open .txt files with Notepad or any text editor. For a printable copy of one
-return, use Save as PDF on that submission in SelfSubmit before you leave.
+Open profile.txt and businesses.txt with Notepad. Open submission PDFs with any PDF reader.
 `;
 
 export function formatProfileText(profile: ProfileExport | null): string {
@@ -99,56 +94,9 @@ export function formatBusinessesText(businesses: BusinessExport[]): string {
   return lines.join("\n");
 }
 
-function formatLineItems(title: string, items: LineItem[]): string[] {
-  const lines = [title, "-".repeat(title.length)];
-  const withAmount = items.filter((item) => item.amount && item.amount !== "0.00" && item.amount !== "0");
-  if (withAmount.length === 0) {
-    lines.push("  (none recorded)");
-  } else {
-    for (const item of withAmount) {
-      lines.push(`  ${item.label}: ${item.amount.startsWith("£") ? item.amount : `£${item.amount}`}`);
-    }
-  }
-  lines.push("");
-  return lines;
-}
-
-export function formatSubmissionText(submission: SubmissionExport): string {
-  const lines = [
-    "MONTHLY RETURN",
-    "==============",
-    "",
-    `Trade: ${submission.trade}`,
-    `Period: ${formatUkDate(submission.periodFrom)} to ${formatUkDate(submission.periodTo)}`,
-    `Submitted: ${new Date(submission.submittedAt).toLocaleDateString("en-GB", {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    })}`,
-    `Status: ${submission.status}`,
-  ];
-
-  if (submission.hmrcReference) {
-    lines.push(`HMRC reference: ${submission.hmrcReference} (${submission.hmrcStatus ?? "sent"})`);
-  }
-
-  lines.push(
-    "",
-    `Total income:  ${formatMoney(submission.totalIncomeGbp)}`,
-    `Total expenses: ${formatMoney(submission.totalExpensesGbp)}`,
-    `Net profit:    ${formatMoney(submission.netProfitGbp)}`,
-    "",
-  );
-
-  lines.push(...formatLineItems("INCOME", submission.income));
-  lines.push(...formatLineItems("EXPENSES", submission.expenses));
-
-  return lines.join("\n");
-}
-
 export function submissionArchiveName(submission: SubmissionExport): string {
   const trade = submission.trade.replace(/[^\w.\-()+ ]/g, "_").replace(/\s+/g, "-");
-  return `${submission.periodFrom}_to_${submission.periodTo}_${trade}.txt`;
+  return `${submission.periodFrom}_to_${submission.periodTo}_${trade}.pdf`;
 }
 
 export function parseSubmissionPayload(payloadJson: string): { income: LineItem[]; expenses: LineItem[] } {

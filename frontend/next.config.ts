@@ -96,7 +96,7 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  serverExternalPackages: ["@prisma/client", "prisma", "archiver", "@vercel/blob"],
+  serverExternalPackages: ["@prisma/client", "prisma", "archiver", "@vercel/blob", "pdfkit"],
   env: {
     NEXT_PUBLIC_CLERK_PROXY_URL: resolvedPublicClerkProxyUrl(),
   },

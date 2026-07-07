@@ -70,7 +70,7 @@ export function DeleteAccountSection() {
         <div className="rounded-xl border border-brand-green/25 bg-brand-mint/50 px-4 py-5">
           <p className="text-xs font-bold uppercase tracking-wide text-brand-green">Step 1 — Download everything</p>
           <p className="mt-2 text-sm leading-relaxed text-brand-forest">
-            One ZIP with all monthly submissions (plain text), receipt photos, your profile, and businesses. Save it
+            One ZIP with all monthly submissions as PDFs, receipt photos, your profile, and businesses. Save it
             somewhere safe on your computer before you continue.
           </p>
           <ul className="mt-3 space-y-1.5 text-sm text-brand-forest">
