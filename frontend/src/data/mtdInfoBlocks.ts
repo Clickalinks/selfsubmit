@@ -1,5 +1,3 @@
-import type { LucideIcon } from "lucide-react";
-
 import { MTD_CATEGORY_CONTENT, type MtdCategoryContent } from "@/data/mtdCategoryContent";
 import { getInfoBlockExtras, type MtdInfoBlockExtras } from "@/data/mtdInfoBlockExtras";
 
