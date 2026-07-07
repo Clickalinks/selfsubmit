@@ -23,13 +23,14 @@ export type BusinessSummary = {
   id: string;
   name: string;
   category: string;
+  hmrcBusinessId: string | null;
 };
 
 export async function listBusinessesForUser(userId: string): Promise<BusinessSummary[]> {
   return prisma.business.findMany({
     where: { userId },
     orderBy: { createdAt: "asc" },
-    select: { id: true, name: true, category: true },
+    select: { id: true, name: true, category: true, hmrcBusinessId: true },
   });
 }
 
@@ -70,7 +71,7 @@ export async function getActiveBusinessContext(userId: string, preferredId?: str
 export async function assertBusinessOwned(userId: string, businessId: string): Promise<BusinessSummary> {
   const business = await prisma.business.findFirst({
     where: { id: businessId, userId },
-    select: { id: true, name: true, category: true },
+    select: { id: true, name: true, category: true, hmrcBusinessId: true },
   });
   if (!business) {
     throw new Error("Business not found");

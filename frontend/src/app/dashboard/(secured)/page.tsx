@@ -11,6 +11,7 @@ import {
   WhatDoINeedTodayCard,
 } from "@/components/dashboard/DashboardHomeSections";
 import { BusinessSwitcher } from "@/components/dashboard/BusinessSwitcher";
+import { HmrcSandboxStatusCard } from "@/components/dashboard/HmrcSandboxStatusCard";
 import { TaxIdsSection } from "@/components/dashboard/TaxIdsSection";
 import { emptyMtdDashboardSnapshot, formatGbp, getMtdDashboardSnapshot } from "@/lib/mtd-dashboard";
 import { getClientProfile } from "@/lib/profile-server";
@@ -120,6 +121,16 @@ export default async function DashboardPage({
         hasTaxIds={snapshot.hasTaxIds}
         submitHref={submitHref}
       />
+
+      {snapshot.hmrcConnected || snapshot.anyBusinessHmrcLinked ? (
+        <HmrcSandboxStatusCard
+          hmrcConnected={snapshot.hmrcConnected}
+          hmrcSandboxReady={snapshot.hmrcSandboxReady}
+          activeBusinessName={snapshot.activeBusinessName}
+          activeBusinessHmrcId={snapshot.activeBusinessHmrcId}
+          anyBusinessHmrcLinked={snapshot.anyBusinessHmrcLinked}
+        />
+      ) : null}
 
       {snapshot.canSwitchBusiness ? (
         <section className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm sm:p-5">

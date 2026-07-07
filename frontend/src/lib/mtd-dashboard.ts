@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import { getActiveBusinessContext } from "@/lib/active-business";
+import { getHmrcConnectionStatus } from "@/lib/hmrc-connection-server";
 import { getTaxIdsStatus } from "@/lib/tax-ids-server";
 import { getBusinessCount, getUserPlan } from "@/lib/subscription-server";
 
@@ -33,6 +34,10 @@ export type MtdDashboardSnapshot = {
   activeBusinessName: string | null;
   activeBusinessCategory: string | null;
   canSwitchBusiness: boolean;
+  hmrcConnected: boolean;
+  activeBusinessHmrcId: string | null;
+  hmrcSandboxReady: boolean;
+  anyBusinessHmrcLinked: boolean;
 };
 
 function startOfDay(d: Date): Date {
@@ -119,6 +124,10 @@ export function emptyMtdDashboardSnapshot(reference = new Date()): MtdDashboardS
     activeBusinessName: null,
     activeBusinessCategory: null,
     canSwitchBusiness: false,
+    hmrcConnected: false,
+    activeBusinessHmrcId: null,
+    hmrcSandboxReady: false,
+    anyBusinessHmrcLinked: false,
   };
 }
 
@@ -130,16 +139,20 @@ export async function getMtdDashboardSnapshot(
   const currentQuarter = getCurrentQuarter(now);
   const quarters = getUkTaxYearQuarters(now);
 
-  const [plan, businessCount, businessContext, receiptCount, taxIds] = await Promise.all([
+  const [plan, businessCount, businessContext, receiptCount, taxIds, hmrcConnection] = await Promise.all([
     getUserPlan(userId),
     getBusinessCount(userId),
     getActiveBusinessContext(userId, preferredBusinessId),
     prisma.receipt.count({ where: { userId } }),
     getTaxIdsStatus(userId),
+    getHmrcConnectionStatus(userId),
   ]);
 
   const activeBusiness = businessContext.activeBusiness;
   const activeCategory = activeBusiness?.category ?? null;
+  const hmrcConnected = hmrcConnection.connected;
+  const activeBusinessHmrcId = activeBusiness?.hmrcBusinessId ?? null;
+  const anyBusinessHmrcLinked = businessContext.businesses.some((b) => Boolean(b.hmrcBusinessId));
 
   const submissionWhere = activeBusiness
     ? {
@@ -167,6 +180,7 @@ export async function getMtdDashboardSnapshot(
   const hasPlan = Boolean(plan);
   const hasBusiness = businessCount > 0;
   const hasTaxIds = taxIds.complete;
+  const hmrcSandboxReady = hmrcConnected && hasTaxIds && Boolean(activeBusinessHmrcId);
 
   const quarterSubmissions = submissions.filter((s) =>
     periodsOverlap(s.periodFrom, s.periodTo, currentQuarter.from, currentQuarter.to),
@@ -224,6 +238,14 @@ export async function getMtdDashboardSnapshot(
   } else if (pendingQuarter && daysUntilDeadline <= 10) {
     todayMessage = `Quarterly update due in ${daysUntilDeadline} day${daysUntilDeadline === 1 ? "" : "s"}.`;
     todayTone = daysUntilDeadline <= 3 ? "urgent" : "warning";
+  } else if (hmrcSandboxReady && quarterIncomeGbp + quarterExpensesGbp > 0) {
+    todayMessage =
+      "Your HMRC sandbox account is linked. Sandbox quarterly submission to HMRC is coming in the next milestone.";
+    todayTone = "info";
+  } else if (hmrcConnected && anyBusinessHmrcLinked && !activeBusinessHmrcId) {
+    todayMessage =
+      "This business is not linked to HMRC. Switch to your linked business or link this one in Settings.";
+    todayTone = "warning";
   } else if (hasBusiness && receiptCount === 0 && quarterSubmissions.length === 0) {
     todayMessage = "Upload expense records to keep your quarterly summary up to date.";
     todayTone = "info";
@@ -255,6 +277,10 @@ export async function getMtdDashboardSnapshot(
     activeBusinessName: activeBusiness?.name ?? null,
     activeBusinessCategory: activeCategory,
     canSwitchBusiness: businessContext.canSwitchBusiness,
+    hmrcConnected,
+    activeBusinessHmrcId,
+    hmrcSandboxReady,
+    anyBusinessHmrcLinked,
   };
 }
 

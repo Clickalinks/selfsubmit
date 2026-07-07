@@ -43,5 +43,10 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: result.error }, { status: 502 });
   }
 
-  return NextResponse.json({ obligations: result.obligations });
+  const businessId = new URL(request.url).searchParams.get("businessId")?.trim();
+  const obligations = businessId
+    ? result.obligations.filter((row) => row.businessId === businessId)
+    : result.obligations;
+
+  return NextResponse.json({ obligations });
 }
