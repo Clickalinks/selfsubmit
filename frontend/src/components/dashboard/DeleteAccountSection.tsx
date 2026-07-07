@@ -91,8 +91,8 @@ export function DeleteAccountSection() {
 
           <div className="mt-4 rounded-xl border border-brand-mint bg-brand-mint/60 px-4 py-4">
             <p className="text-sm text-brand-forest">
-              Before you leave, download a copy of your profile, receipt photos, and submission history. The ZIP file
-              includes everything we store for your account.
+              Before you leave, download a plain-text backup of your profile, monthly returns, and receipt photos. This
+              is for your records — not website code. To print one return, use Save as PDF on the submission page.
             </p>
             <DataExportButton className="mt-3" />
           </div>

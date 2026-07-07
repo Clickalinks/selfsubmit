@@ -36,7 +36,7 @@ export function DataExportButton({ className = "" }: { className?: string }) {
       const anchor = document.createElement("a");
       const stamp = new Date().toISOString().slice(0, 10);
       anchor.href = url;
-      anchor.download = `selfsubmit-export-${stamp}.zip`;
+      anchor.download = `selfsubmit-my-records-${stamp}.zip`;
       document.body.appendChild(anchor);
       anchor.click();
       anchor.remove();
@@ -58,10 +58,13 @@ export function DataExportButton({ className = "" }: { className?: string }) {
         className="inline-flex items-center gap-2 rounded-xl border border-brand-green/20 bg-white px-4 py-2.5 text-sm font-semibold text-brand-green-dark shadow-sm transition hover:bg-brand-mint disabled:opacity-60"
       >
         {exporting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
-        {exporting ? "Preparing download…" : "Download all my data (ZIP)"}
+        {exporting ? "Preparing download…" : "Download my records (ZIP)"}
       </button>
       {exportDone ? (
-        <p className="mt-2 text-xs font-medium text-emerald-700">Download started — check your downloads folder.</p>
+        <p className="mt-2 text-xs font-medium text-emerald-700">
+          Download started — open README.txt in the ZIP for a guide. Use Save as PDF on a submission for a printable
+          return.
+        </p>
       ) : null}
       {exportError ? <p className="mt-2 text-xs font-medium text-red-600">{exportError}</p> : null}
     </div>

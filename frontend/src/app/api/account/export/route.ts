@@ -1,5 +1,13 @@
 import { auth } from "@clerk/nextjs/server";
 
+import {
+  ACCOUNT_EXPORT_README,
+  formatBusinessesText,
+  formatProfileText,
+  formatSubmissionText,
+  parseSubmissionPayload,
+  submissionArchiveName,
+} from "@/lib/account-export-format";
 import { API_RATE_LIMITS, checkApiRateLimit, rateLimitKey } from "@/lib/api-rate-limit";
 import { prisma } from "@/lib/db";
 import { buildZipBuffer } from "@/lib/export-zip";
@@ -7,20 +15,6 @@ import { getClientProfile } from "@/lib/profile-server";
 import { readReceiptFileBuffer } from "@/lib/receipt-storage";
 
 export const maxDuration = 60;
-
-const README = `SelfSubmit data export
-======================
-
-This archive contains your account data at the time of export.
-
-Contents:
-- profile.json — personal and business details (if saved)
-- businesses.json — businesses linked to your account
-- submissions.json — submission history with line-item detail
-- receipts/ — receipt photos and documents uploaded to your account
-
-Keep this file safe if you need your records after leaving SelfSubmit.
-`;
 
 export async function GET() {
   const { userId } = await auth();
@@ -47,64 +41,54 @@ export async function GET() {
       prisma.receipt.findMany({ where: { userId }, orderBy: { uploadedAt: "desc" } }),
     ]);
 
-    const exportPayload = {
-      exportedAt: new Date().toISOString(),
-      profile: profile
-        ? {
-            firstName: profile.firstName,
-            lastName: profile.lastName,
-            homeAddress: profile.homeAddress,
-            email: profile.email,
-            phone: profile.phone,
-            businessAddress: profile.businessAddress,
-            businessName: profile.businessName,
-            businessSameAsHome: profile.businessSameAsHome,
-            primaryProfession: profile.primaryProfession,
-            createdAt: profile.createdAt.toISOString(),
-            updatedAt: profile.updatedAt.toISOString(),
-          }
-        : null,
-      businesses: businesses.map((b) => ({
-        id: b.id,
-        name: b.name,
-        category: b.category,
-        createdAt: b.createdAt.toISOString(),
-      })),
-      submissions: submissions.map((s) => ({
-        id: s.id,
+    const profileExport = profile
+      ? {
+          firstName: profile.firstName,
+          lastName: profile.lastName,
+          homeAddress: profile.homeAddress,
+          email: profile.email,
+          phone: profile.phone,
+          businessAddress: profile.businessAddress,
+          businessName: profile.businessName,
+          businessSameAsHome: profile.businessSameAsHome,
+          primaryProfession: profile.primaryProfession,
+        }
+      : null;
+
+    const businessesExport = businesses.map((b) => ({
+      name: b.name,
+      category: b.category,
+      createdAt: b.createdAt.toISOString(),
+    }));
+
+    const submissionsExport = submissions.map((s) => {
+      const { income, expenses } = parseSubmissionPayload(s.payloadJson);
+      return {
         trade: s.trade,
         periodFrom: s.periodFrom.toISOString().slice(0, 10),
         periodTo: s.periodTo.toISOString().slice(0, 10),
-        templateId: s.templateId,
-        submissionType: s.submissionType,
+        submittedAt: s.submittedAt.toISOString(),
         status: s.status,
         totalIncomeGbp: s.totalIncomeGbp,
         totalExpensesGbp: s.totalExpensesGbp,
         netProfitGbp: s.netProfitGbp,
         hmrcReference: s.hmrcReference,
         hmrcStatus: s.hmrcStatus,
-        hmrcMessage: s.hmrcMessage,
-        submittedAt: s.submittedAt.toISOString(),
-        payloadJson: s.payloadJson,
-      })),
-      receipts: receipts.map((r) => ({
-        id: r.id,
-        fileName: r.fileName,
-        title: r.title,
-        mimeType: r.mimeType,
-        amountGbp: r.amountGbp,
-        submissionId: r.submissionId,
-        uploadedAt: r.uploadedAt.toISOString(),
-        archivePath: `receipts/${r.id}-${r.fileName}`,
-      })),
-    };
+        income,
+        expenses,
+      };
+    });
 
     const zipBuffer = await buildZipBuffer(async (archive) => {
-      archive.append(README, { name: "README.txt" });
-      archive.append(JSON.stringify(exportPayload, null, 2), { name: "data.json" });
-      archive.append(JSON.stringify(exportPayload.profile, null, 2), { name: "profile.json" });
-      archive.append(JSON.stringify(exportPayload.businesses, null, 2), { name: "businesses.json" });
-      archive.append(JSON.stringify(exportPayload.submissions, null, 2), { name: "submissions.json" });
+      archive.append(ACCOUNT_EXPORT_README, { name: "README.txt" });
+      archive.append(formatProfileText(profileExport), { name: "profile.txt" });
+      archive.append(formatBusinessesText(businessesExport), { name: "businesses.txt" });
+
+      for (const submission of submissionsExport) {
+        archive.append(formatSubmissionText(submission), {
+          name: `submissions/${submissionArchiveName(submission)}`,
+        });
+      }
 
       for (const receipt of receipts) {
         const safeName = `${receipt.id}-${receipt.fileName.replace(/[^\w.\-()+ ]/g, "_")}`;
@@ -123,7 +107,7 @@ export async function GET() {
     return new Response(new Uint8Array(zipBuffer), {
       headers: {
         "Content-Type": "application/zip",
-        "Content-Disposition": `attachment; filename="selfsubmit-export-${stamp}.zip"`,
+        "Content-Disposition": `attachment; filename="selfsubmit-my-records-${stamp}.zip"`,
         "Content-Length": String(zipBuffer.length),
         "Cache-Control": "no-store",
       },
