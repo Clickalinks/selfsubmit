@@ -250,7 +250,7 @@ export async function getMtdDashboardSnapshot(
     todayTone = "info";
   } else if (hmrcConnected && anyBusinessHmrcLinked && !activeBusinessHmrcId) {
     todayMessage =
-      "This business is not linked to HMRC. Switch to your linked business or link this one in Settings.";
+      "This business is not linked to HMRC. Switch to your linked business or link this one on HMRC connect.";
     todayTone = "warning";
   } else if (hasBusiness && receiptCount === 0 && quarterSubmissions.length === 0) {
     todayMessage = "Upload expense records to keep your quarterly summary up to date.";

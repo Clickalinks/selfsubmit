@@ -327,10 +327,10 @@ export function HmrcSandboxStatusCard({
       ) : (
         <p className="mt-4 text-sm text-slate-600">
           {hmrcConnected && anyBusinessHmrcLinked && !activeBusinessHmrcId
-            ? "Switch to your linked business using the business switcher, or link this business in Settings."
-            : "Connect HMRC and link a business in Settings to prepare for sandbox filing."}{" "}
-          <Link href="/dashboard/settings" className="font-semibold text-brand-green hover:underline">
-            Open Settings
+            ? "Switch to your linked business using the business switcher, or link this business on HMRC connect."
+            : "Connect HMRC and link a business to prepare for sandbox filing."}{" "}
+          <Link href="/dashboard/hmrc-connect" className="font-semibold text-brand-green hover:underline">
+            Open HMRC connect
           </Link>
         </p>
       )}

@@ -125,11 +125,11 @@ export function TaxIdsSection() {
   return (
     <section id="tax-details" className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm sm:p-8">
       <h3 className="text-lg font-bold text-slate-900">
-        {isUpdate ? "Update your UTR and NI number" : "Step 1 — Add your UTR and NI number"}
+        {isUpdate ? "Update your UTR and NI number" : "UTR and NI number"}
       </h3>
       <p className="mt-2 text-sm text-slate-600">
         {isUpdate
-          ? "Re-enter both values to replace what is stored. For sandbox HMRC testing, use the UTR and NI from the same test user you connect in Settings."
+          ? "Re-enter both values to replace what is stored. For sandbox HMRC testing, use the UTR and NI from the same test user you connect on HMRC connect."
           : "Your Unique Taxpayer Reference (UTR) and National Insurance number are required for HMRC. They are encrypted and only used for your MTD submissions."}
       </p>
 

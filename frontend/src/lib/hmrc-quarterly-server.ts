@@ -16,7 +16,7 @@ export async function assertSandboxQuarterlyReady(
 
   const connection = await getHmrcConnectionStatus(userId);
   if (!connection.connected) {
-    throw new Error("Connect your HMRC account in Settings first.");
+    throw new Error("Connect your HMRC account on HMRC connect first.");
   }
 
   const taxIds = await getDecryptedTaxIds(userId);
@@ -32,7 +32,7 @@ export async function assertSandboxQuarterlyReady(
     throw new Error("Business not found");
   }
   if (!business.hmrcBusinessId) {
-    throw new Error("Link this business to HMRC in Settings first.");
+    throw new Error("Link this business to HMRC on HMRC connect first.");
   }
 
   return {

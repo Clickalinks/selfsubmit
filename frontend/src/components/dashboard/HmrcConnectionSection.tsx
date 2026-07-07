@@ -72,7 +72,7 @@ function formatDate(iso: string): string {
 
 function formatHmrcObligationsError(message: string): string {
   if (/not authorised/i.test(message)) {
-    return `${message} For sandbox testing, the NI number saved on your dashboard must exactly match the HMRC test user you connected with. Open Dashboard → Update UTR or NI number, then try Fetch obligations again.`;
+    return `${message} For sandbox testing, the NI number saved on HMRC connect must exactly match the HMRC test user you connected with. Update your UTR or NI number, then try Fetch obligations again.`;
   }
   return message;
 }
@@ -272,10 +272,10 @@ export function HmrcConnectionSection() {
 
           <p>
             Obligations require your{" "}
-            <Link href="/dashboard/settings#tax-details" className="font-semibold text-brand-green hover:underline">
+            <Link href="/dashboard/hmrc-connect#tax-details" className="font-semibold text-brand-green hover:underline">
               National Insurance number
             </Link>{" "}
-            on the dashboard.
+            on the HMRC connect page.
           </p>
 
           <div className="flex flex-wrap gap-3">

@@ -156,7 +156,7 @@ function DashboardSetupWizardInner({
     } else if (setup === "link-multiple") {
       setBanner({
         tone: "info",
-        text: "HMRC returned more than one self-employment business. Use Settings → HMRC business link to choose the right one.",
+        text: "HMRC returned more than one self-employment business. Use HMRC connect → business link to choose the right one.",
       });
       router.replace("/dashboard", { scroll: false });
     } else if (setup === "hmrc-error") {
@@ -552,8 +552,8 @@ function DashboardSetupWizardInner({
                       </button>
                       <p className="mt-2 text-xs text-slate-500">
                         Multiple businesses on HMRC?{" "}
-                        <Link href="/dashboard/settings" className="font-semibold text-brand-green hover:underline">
-                          Link manually in Settings
+                        <Link href="/dashboard/hmrc-connect" className="font-semibold text-brand-green hover:underline">
+                          Link manually on HMRC connect
                         </Link>
                         .
                       </p>
