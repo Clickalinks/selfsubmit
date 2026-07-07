@@ -12,11 +12,24 @@ export async function sendReminderEmail(
   subject: string,
   html: string,
   text: string,
+  options?: { replyTo?: string },
 ): Promise<SendEmailResult> {
   const apiKey = process.env.RESEND_API_KEY?.trim();
   const from = process.env.REMINDER_FROM_EMAIL?.trim();
   if (!apiKey || !from) {
     return { ok: false, error: "Resend is not configured." };
+  }
+
+  const replyTo = options?.replyTo?.trim();
+  const body: Record<string, unknown> = {
+    from,
+    to: [to.trim()],
+    subject,
+    html,
+    text,
+  };
+  if (replyTo) {
+    body.reply_to = replyTo;
   }
 
   const response = await fetch("https://api.resend.com/emails", {
@@ -25,13 +38,7 @@ export async function sendReminderEmail(
       Authorization: `Bearer ${apiKey}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({
-      from,
-      to: [to.trim()],
-      subject,
-      html,
-      text,
-    }),
+    body: JSON.stringify(body),
   });
 
   const payload = (await response.json().catch(() => null)) as { id?: string; message?: string } | null;

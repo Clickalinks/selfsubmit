@@ -43,6 +43,8 @@ export const API_RATE_LIMITS = {
   billing: { max: 10, windowMs: 15 * 60 * 1000 },
   /** Account data export */
   export: { max: 3, windowMs: 60 * 60 * 1000 },
+  /** Public contact form */
+  contact: { max: 5, windowMs: 60 * 60 * 1000 },
 } as const;
 
 export function rateLimitKey(prefix: string, identifier: string): string {

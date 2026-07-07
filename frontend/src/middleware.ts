@@ -18,6 +18,7 @@ const isPublicApi = createRouteMatcher([
   "/api/address(.*)",
   "/api/auth/login-protection(.*)",
   "/api/consent",
+  "/api/contact",
   "/api/webhooks/clerk(.*)",
   "/api/webhooks/stripe(.*)",
 ]);
