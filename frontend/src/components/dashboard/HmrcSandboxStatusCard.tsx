@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { AlertCircle, Check, Loader2 } from "lucide-react";
+import { AlertCircle, Check, Eye, Loader2, Send } from "lucide-react";
 
 type ObligationRow = {
   periodStart: string;
@@ -11,13 +11,30 @@ type ObligationRow = {
   status: string;
 };
 
+type QuarterlyPreview = {
+  taxYear: string;
+  periodStartDate: string;
+  periodEndDate: string;
+  turnover: number;
+  otherIncome: number;
+  consolidatedExpenses: number;
+  netProfit: number;
+  monthlyRecordCount: number;
+};
+
 type Props = {
   hmrcConnected: boolean;
   hmrcSandboxReady: boolean;
+  sandboxFilingEnabled: boolean;
+  activeBusinessId: string | null;
   activeBusinessName: string | null;
   activeBusinessHmrcId: string | null;
   anyBusinessHmrcLinked: boolean;
 };
+
+function formatGbp(amount: number): string {
+  return new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP" }).format(amount);
+}
 
 function formatDate(iso: string): string {
   try {
@@ -34,6 +51,8 @@ function formatDate(iso: string): string {
 export function HmrcSandboxStatusCard({
   hmrcConnected,
   hmrcSandboxReady,
+  sandboxFilingEnabled,
+  activeBusinessId,
   activeBusinessName,
   activeBusinessHmrcId,
   anyBusinessHmrcLinked,
@@ -41,6 +60,10 @@ export function HmrcSandboxStatusCard({
   const [loading, setLoading] = useState(false);
   const [obligations, setObligations] = useState<ObligationRow[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [preview, setPreview] = useState<QuarterlyPreview | null>(null);
+  const [previewError, setPreviewError] = useState<string | null>(null);
+  const [submitMessage, setSubmitMessage] = useState<string | null>(null);
+  const [busy, setBusy] = useState<string | null>(null);
 
   useEffect(() => {
     if (!hmrcSandboxReady || !activeBusinessHmrcId) {
@@ -79,6 +102,76 @@ export function HmrcSandboxStatusCard({
       cancelled = true;
     };
   }, [activeBusinessHmrcId, hmrcSandboxReady]);
+
+  const loadPreview = async () => {
+    if (!activeBusinessId) return;
+    setBusy("preview");
+    setPreviewError(null);
+    setSubmitMessage(null);
+    try {
+      const params = new URLSearchParams({ businessId: activeBusinessId });
+      const res = await fetch(`/api/hmrc/quarterly-preview?${params.toString()}`);
+      const data = (await res.json().catch(() => ({}))) as { preview?: QuarterlyPreview; error?: string };
+      if (!res.ok) {
+        setPreviewError(data.error ?? "Could not load preview.");
+        setPreview(null);
+        return;
+      }
+      setPreview(data.preview ?? null);
+    } catch {
+      setPreviewError("Could not load preview.");
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const submitToHmrc = async () => {
+    if (!activeBusinessId) return;
+    setBusy("submit");
+    setPreviewError(null);
+    setSubmitMessage(null);
+    try {
+      const deviceId = (() => {
+        const key = "hmrc_device_id";
+        let id = localStorage.getItem(key);
+        if (!id) {
+          id = crypto.randomUUID();
+          localStorage.setItem(key, id);
+        }
+        return id;
+      })();
+      const screen = window.screen;
+      await fetch("/api/hmrc/fraud-context", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          deviceId,
+          browserJsUserAgent: navigator.userAgent,
+          screens: `width=${screen.width}&height=${screen.height}&scaling-factor=${window.devicePixelRatio || 1}&colour-depth=${screen.colorDepth}`,
+          windowSize: `width=${window.innerWidth}&height=${window.innerHeight}`,
+        }),
+      });
+
+      const res = await fetch("/api/hmrc/quarterly-submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ businessId: activeBusinessId, periodEndDate: preview?.periodEndDate }),
+      });
+      const data = (await res.json().catch(() => ({}))) as {
+        reference?: string;
+        error?: string;
+      };
+      if (!res.ok) {
+        setPreviewError(data.error ?? "Could not submit to HMRC sandbox.");
+        return;
+      }
+      setSubmitMessage(`Submitted to HMRC sandbox. Reference: ${data.reference ?? "saved"}.`);
+    } catch {
+      setPreviewError("Could not submit to HMRC sandbox.");
+    } finally {
+      setBusy(null);
+    }
+  };
 
   if (!hmrcConnected && !anyBusinessHmrcLinked) {
     return null;
@@ -160,9 +253,76 @@ export function HmrcSandboxStatusCard({
           ) : (
             <p>No open obligations returned for this business in the current tax year.</p>
           )}
-          <p className="mt-2 text-xs text-slate-500">
-            Sandbox quarterly submission to HMRC will be enabled in the next milestone.
-          </p>
+
+          {sandboxFilingEnabled ? (
+            <div className="mt-4 space-y-3 border-t border-slate-200 pt-4">
+              <p className="font-semibold text-slate-800">Sandbox quarterly update</p>
+              <p className="text-xs text-slate-500">
+                Cumulative year-to-date totals from your monthly records will be sent to HMRC sandbox (not live filing).
+              </p>
+              {previewError ? <p className="text-sm text-red-700">{previewError}</p> : null}
+              {submitMessage ? (
+                <p className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-900">
+                  {submitMessage}
+                </p>
+              ) : null}
+              {preview ? (
+                <dl className="grid gap-2 text-sm sm:grid-cols-2">
+                  <div>
+                    <dt className="text-slate-500">Tax year</dt>
+                    <dd className="font-medium text-slate-900">{preview.taxYear}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-slate-500">Period</dt>
+                    <dd className="font-medium text-slate-900">
+                      {formatDate(preview.periodStartDate)} – {formatDate(preview.periodEndDate)}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-slate-500">Turnover (cumulative)</dt>
+                    <dd className="font-medium text-slate-900">{formatGbp(preview.turnover)}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-slate-500">Expenses (consolidated)</dt>
+                    <dd className="font-medium text-slate-900">{formatGbp(preview.consolidatedExpenses)}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-slate-500">Net profit</dt>
+                    <dd className="font-medium text-emerald-800">{formatGbp(preview.netProfit)}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-slate-500">Monthly records included</dt>
+                    <dd className="font-medium text-slate-900">{preview.monthlyRecordCount}</dd>
+                  </div>
+                </dl>
+              ) : null}
+              <div className="flex flex-wrap gap-3">
+                <button
+                  type="button"
+                  disabled={busy !== null || !activeBusinessId}
+                  onClick={() => void loadPreview()}
+                  className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-60"
+                >
+                  {busy === "preview" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Eye className="h-4 w-4" />}
+                  Preview HMRC totals
+                </button>
+                <button
+                  type="button"
+                  disabled={busy !== null || !preview}
+                  onClick={() => void submitToHmrc()}
+                  className="inline-flex items-center gap-2 rounded-xl bg-brand-green px-4 py-2.5 text-sm font-bold text-white hover:bg-brand-green/90 disabled:opacity-60"
+                >
+                  {busy === "submit" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                  Submit to HMRC sandbox
+                </button>
+              </div>
+            </div>
+          ) : (
+            <p className="mt-2 text-xs text-slate-500">
+              Sandbox quarterly submission will appear here once enabled on the server (
+              <code className="text-[11px]">HMRC_SANDBOX_FILING_ENABLED=true</code>).
+            </p>
+          )}
         </div>
       ) : (
         <p className="mt-4 text-sm text-slate-600">

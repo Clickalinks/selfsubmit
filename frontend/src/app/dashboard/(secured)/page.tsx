@@ -14,6 +14,7 @@ import { BusinessSwitcher } from "@/components/dashboard/BusinessSwitcher";
 import { HmrcSandboxStatusCard } from "@/components/dashboard/HmrcSandboxStatusCard";
 import { TaxIdsSection } from "@/components/dashboard/TaxIdsSection";
 import { emptyMtdDashboardSnapshot, formatGbp, getMtdDashboardSnapshot } from "@/lib/mtd-dashboard";
+import { isHmrcSandboxFilingEnabled } from "@/lib/hmrc-filing-status";
 import { getClientProfile } from "@/lib/profile-server";
 import { getUserPlan } from "@/lib/subscription-server";
 import { PLAN_DISPLAY_NAMES } from "@/lib/plan-config";
@@ -126,6 +127,8 @@ export default async function DashboardPage({
         <HmrcSandboxStatusCard
           hmrcConnected={snapshot.hmrcConnected}
           hmrcSandboxReady={snapshot.hmrcSandboxReady}
+          sandboxFilingEnabled={isHmrcSandboxFilingEnabled()}
+          activeBusinessId={snapshot.activeBusinessId}
           activeBusinessName={snapshot.activeBusinessName}
           activeBusinessHmrcId={snapshot.activeBusinessHmrcId}
           anyBusinessHmrcLinked={snapshot.anyBusinessHmrcLinked}

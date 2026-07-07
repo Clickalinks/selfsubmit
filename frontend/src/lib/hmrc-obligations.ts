@@ -78,7 +78,7 @@ export async function fetchIncomeAndExpenditureObligations(input: {
         periodStart: detail.periodStartDate,
         periodEnd: detail.periodEndDate,
         dueDate: detail.dueDate,
-        status: detail.status ?? "Open",
+        status: detail.status ?? "open",
         type: group.typeOfBusiness ?? "self-employment",
         businessId: group.businessId,
       });

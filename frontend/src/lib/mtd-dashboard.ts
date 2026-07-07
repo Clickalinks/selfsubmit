@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
 import { getActiveBusinessContext } from "@/lib/active-business";
 import { getHmrcConnectionStatus } from "@/lib/hmrc-connection-server";
+import { isHmrcSandboxFilingEnabled } from "@/lib/hmrc-filing-status";
 import { getTaxIdsStatus } from "@/lib/tax-ids-server";
 import { getBusinessCount, getUserPlan } from "@/lib/subscription-server";
 
@@ -81,7 +82,7 @@ export function getUkTaxYearQuarters(reference = new Date()): MtdQuarter[] {
   ];
 }
 
-function getCurrentQuarter(reference = new Date()): MtdQuarter {
+export function getCurrentQuarter(reference = new Date()): MtdQuarter {
   const quarters = getUkTaxYearQuarters(reference);
   const now = reference.getTime();
   for (const q of quarters) {
@@ -238,9 +239,8 @@ export async function getMtdDashboardSnapshot(
   } else if (pendingQuarter && daysUntilDeadline <= 10) {
     todayMessage = `Quarterly update due in ${daysUntilDeadline} day${daysUntilDeadline === 1 ? "" : "s"}.`;
     todayTone = daysUntilDeadline <= 3 ? "urgent" : "warning";
-  } else if (hmrcSandboxReady && quarterIncomeGbp + quarterExpensesGbp > 0) {
-    todayMessage =
-      "Your HMRC sandbox account is linked. Sandbox quarterly submission to HMRC is coming in the next milestone.";
+  } else if (hmrcSandboxReady && isHmrcSandboxFilingEnabled() && quarterIncomeGbp + quarterExpensesGbp > 0) {
+    todayMessage = "Preview and submit your cumulative quarterly update to HMRC sandbox from the card below.";
     todayTone = "info";
   } else if (hmrcConnected && anyBusinessHmrcLinked && !activeBusinessHmrcId) {
     todayMessage =

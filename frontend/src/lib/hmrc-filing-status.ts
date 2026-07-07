@@ -1,6 +1,11 @@
 /** Flip to true once live HMRC MTD API filing is enabled in production. */
 export const HMRC_LIVE_FILING_ENABLED = false;
 
+/** Sandbox cumulative quarterly updates to HMRC test API (Phase 3). */
+export function isHmrcSandboxFilingEnabled(): boolean {
+  return process.env.HMRC_SANDBOX_FILING_ENABLED === "true";
+}
+
 export const MTD_FILING_ROADMAP = [
   {
     label: "Digital record-keeping",
@@ -20,7 +25,7 @@ export const MTD_FILING_ROADMAP = [
   {
     label: "Sandbox quarterly MTD updates",
     status: "in_development" as const,
-    detail: "Submit cumulative quarterly updates to HMRC sandbox — in progress.",
+    detail: "Preview and submit cumulative quarterly updates to HMRC sandbox from your dashboard.",
   },
   {
     label: "Live quarterly MTD updates",
@@ -39,6 +44,11 @@ export function isPracticeHmrcReference(reference: string | null | undefined): b
   return reference.startsWith("HMRC-MOCK-");
 }
 
+export function isSandboxHmrcReference(reference: string | null | undefined): boolean {
+  if (!reference) return false;
+  return /^\d{4}-\d{2}-\d{2}_\d{4}-\d{2}-\d{2}$/.test(reference);
+}
+
 export type SubmissionFilingDisplay = {
   label: string;
   detail: string | null;
@@ -55,11 +65,23 @@ export function getSubmissionFilingDisplay(input: {
     input.status === "sent_hmrc" ||
     isPracticeHmrcReference(input.hmrcReference);
 
-  if (HMRC_LIVE_FILING_ENABLED && input.hmrcReference && !isPracticeHmrcReference(input.hmrcReference)) {
+  const sandbox =
+    input.status === "sandbox_submitted" ||
+    (input.hmrcReference && isSandboxHmrcReference(input.hmrcReference));
+
+  if (HMRC_LIVE_FILING_ENABLED && input.hmrcReference && !isPracticeHmrcReference(input.hmrcReference) && !sandbox) {
     return {
       label: "Filed to HMRC",
       detail: input.hmrcReference,
       tone: "live",
+    };
+  }
+
+  if (sandbox && input.hmrcReference) {
+    return {
+      label: "Sandbox submitted to HMRC",
+      detail: input.hmrcReference,
+      tone: "neutral",
     };
   }
 

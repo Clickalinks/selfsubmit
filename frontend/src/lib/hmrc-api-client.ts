@@ -69,5 +69,9 @@ export async function hmrcApiRequest<T>(input: {
     };
   }
 
+  if (response.status === 204 || !text) {
+    return { ok: true, data: {} as T };
+  }
+
   return { ok: true, data: payload as T };
 }
