@@ -5,6 +5,7 @@ import { Suspense } from "react";
 import { AccountCredentialsSection } from "@/components/dashboard/AccountCredentialsSection";
 import { DeleteAccountSection } from "@/components/dashboard/DeleteAccountSection";
 import { DashboardCard } from "@/components/dashboard/DashboardCard";
+import { HmrcConnectionSection } from "@/components/dashboard/HmrcConnectionSection";
 import { LoginSecuritySection } from "@/components/dashboard/LoginSecuritySection";
 import { MfaRequiredNotice } from "@/components/dashboard/MfaRequiredNotice";
 import { MfaSettingsSection } from "@/components/dashboard/MfaSettingsSection";
@@ -50,6 +51,10 @@ export default function SettingsPage() {
       </DashboardCard>
 
       <ManageBillingSection />
+
+      <Suspense fallback={null}>
+        <HmrcConnectionSection />
+      </Suspense>
 
       <AccountCredentialsSection />
 

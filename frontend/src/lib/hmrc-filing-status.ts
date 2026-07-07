@@ -15,7 +15,7 @@ export const MTD_FILING_ROADMAP = [
   {
     label: "HMRC account connection",
     status: "in_development" as const,
-    detail: "OAuth authorisation and sandbox testing — in progress.",
+    detail: "Connect sandbox test users in Settings and fetch obligations — live filing still planned.",
   },
   {
     label: "Live quarterly MTD updates",

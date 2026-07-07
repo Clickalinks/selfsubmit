@@ -1,0 +1,81 @@
+import { createHash } from "crypto";
+
+import type { HmrcFraudClientContext } from "@/lib/hmrc-fraud-context";
+import { getRequestIp } from "@/lib/request-ip";
+
+const PRODUCT_NAME = "SelfSubmit";
+const VENDOR_VERSION = "selfsubmit=1.0.0";
+
+function percentEncode(value: string): string {
+  return encodeURIComponent(value);
+}
+
+function hashUserId(userId: string): string {
+  return createHash("sha256").update(userId).digest("hex");
+}
+
+function formatUtcTimestamp(date: Date): string {
+  return date.toISOString().replace(/\.\d{3}Z$/, ".000Z");
+}
+
+export function buildHmrcFraudPreventionHeaders(input: {
+  request: Request;
+  userId: string;
+  userLoginId?: string | null;
+  fraudContext?: HmrcFraudClientContext | null;
+}): Record<string, string> {
+  const clientIp = getRequestIp(input.request);
+  const now = new Date();
+  const ctx = input.fraudContext;
+  const publicIp = clientIp !== "unknown" ? clientIp : "198.51.100.0";
+  const publicPort = "12345";
+
+  const headers: Record<string, string> = {
+    "Gov-Client-Connection-Method": "WEB_APP_VIA_SERVER",
+    "Gov-Vendor-Product-Name": percentEncode(PRODUCT_NAME),
+    "Gov-Vendor-Version": VENDOR_VERSION,
+    "Gov-Client-Public-IP": publicIp,
+    "Gov-Client-Public-IP-Timestamp": formatUtcTimestamp(now),
+    "Gov-Client-Public-Port": publicPort,
+    "Gov-Vendor-Public-IP": publicIp,
+    "Gov-Vendor-Forwarded": `by=${encodeURIComponent(publicIp)}&for=${encodeURIComponent(publicIp)}`,
+  };
+
+  if (ctx?.browserJsUserAgent) {
+    headers["Gov-Client-Browser-JS-User-Agent"] = ctx.browserJsUserAgent;
+  } else {
+    const ua = input.request.headers.get("user-agent");
+    if (ua) headers["Gov-Client-Browser-JS-User-Agent"] = ua;
+  }
+
+  if (ctx?.deviceId) {
+    headers["Gov-Client-Device-ID"] = ctx.deviceId;
+  }
+
+  if (ctx?.screens) {
+    headers["Gov-Client-Screens"] = ctx.screens;
+  } else {
+    headers["Gov-Client-Screens"] = "width=1920&height=1080&scaling-factor=1&colour-depth=24";
+  }
+
+  if (ctx?.windowSize) {
+    headers["Gov-Client-Window-Size"] = ctx.windowSize;
+  } else {
+    headers["Gov-Client-Window-Size"] = "width=1280&height=800";
+  }
+
+  if (ctx?.timezone) {
+    headers["Gov-Client-Timezone"] = ctx.timezone;
+  } else {
+    headers["Gov-Client-Timezone"] = "UTC+00:00";
+  }
+
+  const loginId = input.userLoginId?.trim() || hashUserId(input.userId);
+  headers["Gov-Client-User-IDs"] = `selfsubmit=${percentEncode(loginId)}`;
+
+  const mfaTimestamp = formatUtcTimestamp(now).replace(".000Z", "Z");
+  headers["Gov-Client-Multi-Factor"] =
+    `type=OTHER&timestamp=${encodeURIComponent(mfaTimestamp)}&unique-reference=${hashUserId(input.userId)}`;
+
+  return headers;
+}
