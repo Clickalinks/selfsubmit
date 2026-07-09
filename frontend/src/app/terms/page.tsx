@@ -52,9 +52,8 @@ export default function TermsPage() {
 
       <LegalH2 id="service">3. The service</LegalH2>
       <LegalP>
-        SelfSubmit provides record-keeping, submission tools, and guidance for UK self-employed users and landlords
-        preparing Making Tax Digital updates. Some features may be labelled beta or illustrative until we confirm live
-        HMRC filing for a specific release.
+        SelfSubmit provides record-keeping, HMRC connection, quarterly update tools, and guidance for UK self-employed
+        users and landlords preparing Making Tax Digital updates.
       </LegalP>
 
       <LegalH2 id="accounts">4. Accounts and eligibility</LegalH2>

@@ -150,7 +150,7 @@ export const MTD_INFO_BLOCK_EXTRAS: Record<string, MtdInfoBlockExtras> = {
       "Using incompatible spreadsheets and typing figures manually each quarter",
     ],
     selfSubmitTip:
-      "SelfSubmit helps you maintain monthly digital records aligned with MTD principles. Live HMRC API filing is in development — practice records are available today.",
+      "SelfSubmit helps you maintain monthly digital records aligned with MTD principles. Connect your HMRC account to preview and submit quarterly updates from your dashboard.",
   },
   "mtd-exemptions": {
     cardIntro:

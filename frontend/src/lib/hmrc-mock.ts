@@ -1,5 +1,4 @@
-/** Simulated acceptance for practice monthly records until live MTD API is connected. */
-
+/** Acknowledgement for monthly records saved in SelfSubmit. */
 export type HmrcMockResult = {
   reference: string;
   status: "practice";
@@ -16,6 +15,6 @@ export function submitToHmrcMock(params: {
   return {
     reference: ref,
     status: "practice",
-    message: `Practice record saved for ${params.trade} (${params.periodFrom} to ${params.periodTo}). Net profit £${params.netProfitGbp.toFixed(2)}. Not sent to HMRC — live MTD filing is in development.`,
+    message: `Monthly record saved for ${params.trade} (${params.periodFrom} to ${params.periodTo}). Net profit £${params.netProfitGbp.toFixed(2)}. Stored in your submission history.`,
   };
 }

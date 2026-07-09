@@ -51,12 +51,10 @@ export default function SettingsPage() {
             </p>
           </li>
           <li>
-            <p className="font-semibold text-slate-400">Notification preferences</p>
-            <p className="mt-0.5 text-slate-500">Coming soon</p>
-          </li>
-          <li>
-            <p className="font-semibold text-slate-400">Privacy settings</p>
-            <p className="mt-0.5 text-slate-500">Coming soon</p>
+            <p className="font-semibold text-slate-800">Email &amp; SMS reminders</p>
+            <p className="mt-0.5 text-slate-500">
+              Quarterly deadline reminders are sent automatically when your mobile number is saved on your profile.
+            </p>
           </li>
         </ul>
       </DashboardCard>

@@ -32,8 +32,8 @@ const VALUES = [
 const CURRENT_FEATURES = [
   "Profession-led navigation and simple tools tailored to self-employed businesses.",
   "Monthly income and expense forms with built-in business expense categories.",
-  "An illustrative tax calculator.",
-  "HMRC guidance where relevant to help users understand common tax rules.",
+  "A UK self-employed tax calculator for quick estimates.",
+  "HMRC connection, quarterly update preparation, and secure document storage.",
 ] as const;
 
 export default function AboutPage() {
@@ -161,20 +161,15 @@ export default function AboutPage() {
         </section>
 
         <section className="mt-12 rounded-2xl border border-slate-200 bg-slate-50 p-6 sm:p-8">
-          <h2 className="text-xl font-bold text-brand-black sm:text-2xl">Product roadmap</h2>
+          <h2 className="text-xl font-bold text-brand-black sm:text-2xl">Built for the long term</h2>
           <div className="mt-4 space-y-4 text-sm leading-relaxed text-brand-muted sm:text-base">
             <p>
-              We&apos;re continuously improving SelfSubmit and adding new features to support the future of Making Tax
-              Digital.
+              SelfSubmit is a live subscription service with secure accounts, Stripe billing, receipt storage, monthly
+              record-keeping, and HMRC quarterly update support.
             </p>
             <p>
-              Planned developments include secure user accounts, cloud storage, subscription management, and additional
-              tools that make tax record-keeping even easier.
-            </p>
-            <p className="text-xs text-slate-600 sm:text-sm">
-              Where SelfSubmit refers to Making Tax Digital or tax submission, this reflects the intended direction of
-              the platform. Live submission to HMRC will only be described as available once officially implemented and
-              supported.
+              We continue to improve the platform as Making Tax Digital evolves — including production HMRC filing and
+              GOV.UK software recognition when those approvals are complete.
             </p>
           </div>
         </section>

@@ -1,30 +1,29 @@
 import Link from "next/link";
 
-import { MTD_FILING_ROADMAP } from "@/lib/hmrc-filing-status";
+import { MTD_PLATFORM_FEATURES } from "@/lib/hmrc-filing-status";
 
 const STATUS_STYLES = {
   live: "bg-emerald-100 text-emerald-800",
-  in_development: "bg-amber-100 text-amber-900",
+  in_development: "bg-emerald-100 text-emerald-800",
   planned: "bg-slate-100 text-slate-700",
 } as const;
 
 const STATUS_LABELS = {
-  live: "Live",
-  in_development: "In development",
+  live: "Available",
+  in_development: "Available",
   planned: "Planned",
 } as const;
 
 export function MtdFilingStatusSection() {
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-      <h2 className="text-xl font-bold text-brand-black sm:text-2xl">MTD &amp; HMRC filing status</h2>
+      <h2 className="text-xl font-bold text-brand-black sm:text-2xl">What SelfSubmit includes</h2>
       <p className="mt-2 max-w-3xl text-sm leading-relaxed text-brand-muted sm:text-base">
-        SelfSubmit is built for Making Tax Digital record-keeping. We are honest about what is live today versus what
-        we are building with HMRC&apos;s APIs. Live HMRC filing will only be marketed once it is implemented and
-        approved.
+        SelfSubmit is a subscription service for UK self-employed record-keeping and Making Tax Digital quarterly
+        updates. Every plan includes the same core tools — you only pay more when you need additional businesses.
       </p>
       <ul className="mt-6 space-y-4">
-        {MTD_FILING_ROADMAP.map((item) => (
+        {MTD_PLATFORM_FEATURES.map((item) => (
           <li
             key={item.label}
             className="flex flex-col gap-2 rounded-xl border border-slate-100 bg-slate-50/80 px-4 py-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4"

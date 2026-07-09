@@ -13,7 +13,7 @@ const SLIDES = [
     href: "/how-it-works",
   },
   {
-    image: "/landing/hero-illustration.png",
+    image: "/landing/hero-team.png",
     label: "IMPORTANT DATES",
     title: "Know Your MTD Deadlines",
     href: "/how-it-works",

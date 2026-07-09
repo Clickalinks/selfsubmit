@@ -27,9 +27,9 @@ const SERVICES: { name: string; description: string; status: StatusLevel }[] = [
   { name: "Email reminders", description: "Quarterly deadline notifications", status: "operational" },
   { name: "SMS reminders", description: "Optional UK mobile reminders", status: "operational" },
   {
-    name: "HMRC submissions",
-    description: "Live filing and HMRC Developer Hub sandbox testing",
-    status: "testing",
+    name: "HMRC quarterly updates",
+    description: "Preview and submit cumulative quarterly updates when your HMRC account is connected",
+    status: "operational",
   },
 ];
 
@@ -75,8 +75,7 @@ export default function StatusPage() {
 
         <p className="mt-8 text-sm leading-relaxed text-brand-muted">
           Last checked: {new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}.
-          HMRC submission status reflects our current sandbox and production rollout — it will move to operational when
-          live filing is generally available.
+          If a service shows degraded or maintenance, we will post updates here and by email where appropriate.
         </p>
 
         <div className="mt-8 rounded-2xl border border-slate-200/80 bg-slate-50 px-5 py-6 sm:px-8">

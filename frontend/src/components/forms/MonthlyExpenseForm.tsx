@@ -1399,8 +1399,8 @@ export function MonthlyExpenseForm({
         </section>
 
         <div className="mt-10 rounded-2xl border border-amber-200/80 bg-amber-50/80 px-4 py-3 text-sm text-brand-black">
-          <strong>Before you save:</strong> double-check income and expenses. This saves a practice record in
-          SelfSubmit for your MTD records — it is <strong>not sent to HMRC</strong> until live API filing is enabled.
+          <strong>Before you save:</strong> double-check income and expenses. This stores your monthly record in
+          SelfSubmit for your MTD records. Connect HMRC from your dashboard to prepare quarterly updates.
         </div>
 
         {submitError ? (
@@ -1581,9 +1581,8 @@ function ConfirmDialog({
           </p>
         ) : null}
         <p className="mt-3 text-sm leading-relaxed text-brand-muted">
-          This saves a practice record in SelfSubmit — <strong className="text-brand-black">not sent to HMRC</strong> yet.
-          After saving, you will <strong className="text-brand-black">not</strong> be able to change these figures from
-          this form. Please confirm you have reviewed every amount.
+          This saves your monthly record in SelfSubmit. After saving, you will <strong className="text-brand-black">not</strong> be
+          able to change these figures from this form. Please confirm you have reviewed every amount.
         </p>
         <div className="mt-6 flex flex-col-reverse gap-2 min-[900px]:flex-row min-[900px]:justify-end">
           <button

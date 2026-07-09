@@ -14,54 +14,63 @@ import {
 export const metadata: Metadata = {
   title: "How it works — SelfSubmit",
   description:
-    "Steps to record income and expenses, choose vehicle costing, and understand what happens when you submit on SelfSubmit.",
+    "Steps to record income and expenses, upload receipts, connect HMRC, and submit quarterly updates with SelfSubmit.",
 };
 
 export default function HowItWorksPage() {
   return (
     <LegalPageShell
       title="How it works"
-      description="SelfSubmit helps UK self-employed people capture a period’s income and expenses in one place, ready for your records or your accountant."
-      lastUpdated="16 April 2026"
+      description="SelfSubmit helps UK self-employed people capture each period’s income and expenses, keep receipts, and prepare Making Tax Digital quarterly updates."
+      lastUpdated="9 July 2026"
     >
-      <LegalCallout title="Illustration vs real filing">
+      <LegalCallout title="Your responsibility">
         <p>
-          The monthly return screen is a <strong>demonstration</strong>: submitting logs to the browser console and
-          does not send data to HMRC or store a legal return by itself. A production product would connect to your
-          chosen filing route and your own backend. See also our{" "}
+          SelfSubmit helps you keep digital records and submit quarterly updates when your HMRC account is connected.
+          You remain responsible for checking every figure before saving or submitting. See our{" "}
           <Link href="/disclaimer" className="font-semibold text-brand-green underline underline-offset-2">
-            Disclaimer &amp; illustrative content
+            Disclaimer
           </Link>{" "}
-          page.
+          for limits on tax calculator estimates and professional advice.
         </p>
       </LegalCallout>
 
-      <LegalH2 id="steps">Steps on this site</LegalH2>
+      <LegalH2 id="steps">Steps with SelfSubmit</LegalH2>
       <LegalOl>
         <li>
-          <strong className="text-brand-black">Choose your trade</strong> on the home page or open the{" "}
+          <strong className="text-brand-black">Create an account</strong> and choose a subscription plan that matches
+          how many businesses you run.
+        </li>
+        <li>
+          <strong className="text-brand-black">Add your business</strong> and choose your trade so income and expense
+          categories match how you work.
+        </li>
+        <li>
+          <strong className="text-brand-black">Save monthly records</strong> — open the{" "}
           <Link href="/submit" className="text-brand-green underline underline-offset-2">
             monthly income &amp; expenses
           </Link>{" "}
-          form with a profession pre-selected.
+          form, set the return period, and save each income and expense line.
         </li>
         <li>
-          <strong className="text-brand-black">Set the return period</strong> (from / up to dates) so every amount is
-          tied to the correct window.
+          <strong className="text-brand-black">Upload receipts</strong> where you need evidence for expenses. Files
+          are stored securely in your account.
         </li>
         <li>
-          <strong className="text-brand-black">Vehicle costs (if applicable):</strong> pick full (actual) costs or
-          HMRC simplified mileage where allowed. Do not mix both for the same vehicle in the same period.
+          <strong className="text-brand-black">Connect HMRC</strong> from your dashboard, add your UTR and NI number,
+          and link each business to the matching HMRC income source.
         </li>
         <li>
-          <strong className="text-brand-black">Save each income line</strong>, then each expense line. Simplified
-          mileage appears after income is complete.
-        </li>
-        <li>
-          <strong className="text-brand-black">Review totals</strong> and submit when you are satisfied (demo only
-          today).
+          <strong className="text-brand-black">Submit quarterly updates</strong> when your obligations are due —
+          preview cumulative totals from your monthly records, then submit from your dashboard.
         </li>
       </LegalOl>
+
+      <LegalH2 id="vehicle">Vehicle costs</LegalH2>
+      <LegalP>
+        Where your trade uses a vehicle, pick full (actual) costs or HMRC simplified mileage where allowed. Do not mix
+        both methods for the same vehicle in the same period.
+      </LegalP>
 
       <LegalH2 id="calculator">Tax calculator</LegalH2>
       <LegalP>
@@ -84,22 +93,19 @@ export default function HowItWorksPage() {
 
       <LegalH2 id="pricing">Pricing</LegalH2>
       <LegalP>
-        The home page shows <strong className="text-brand-black">subscription tiers by income streams</strong> (Starter
-        Solo £20 for one business, Business Plus £36 for two, Professional £52 for three, Portfolio £70 for four — aligned
-        with tracking multiple sources of income
-        under MTD. Figures are illustrative until billing goes live; features and caps may change.
+        Plans are priced by how many businesses you manage: Solo (£20/month for one), Business Plus (£36 for two),
+        Professional (£52 for three), and Unlimited (£70 for four). Every plan includes the same core features. See{" "}
+        <Link href="/pricing" className="text-brand-green underline underline-offset-2">
+          pricing
+        </Link>{" "}
+        for full details.
       </LegalP>
 
       <LegalUl>
         <li>
           <Link href="/" className="text-brand-green underline underline-offset-2">
             Home
-          </Link>{" "}
-          — choose a profession; the short three-step strip is still on the home page under{" "}
-          <Link href="/#how-it-works" className="text-brand-green underline underline-offset-2">
-            #how-it-works
           </Link>
-          .
         </li>
         <li>
           <Link href="/submit" className="text-brand-green underline underline-offset-2">
@@ -109,6 +115,11 @@ export default function HowItWorksPage() {
         <li>
           <Link href="/tax-calculator" className="text-brand-green underline underline-offset-2">
             Tax calculator
+          </Link>
+        </li>
+        <li>
+          <Link href="/sign-up" className="text-brand-green underline underline-offset-2">
+            Create account
           </Link>
         </li>
       </LegalUl>

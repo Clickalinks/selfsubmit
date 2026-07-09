@@ -6,38 +6,41 @@ export function isHmrcSandboxFilingEnabled(): boolean {
   return process.env.HMRC_SANDBOX_FILING_ENABLED === "true";
 }
 
-export const MTD_FILING_ROADMAP = [
+export const MTD_PLATFORM_FEATURES = [
   {
     label: "Digital record-keeping",
     status: "live" as const,
     detail: "Income, expenses, receipts, and monthly records in your account.",
   },
   {
-    label: "Practice submissions",
+    label: "Monthly records",
     status: "live" as const,
-    detail: "Save and review returns in SelfSubmit — not sent to HMRC yet.",
+    detail: "Save and review each period in profession-tailored forms with running totals.",
   },
   {
     label: "HMRC account connection",
     status: "live" as const,
-    detail: "Connect sandbox test users on HMRC connect, fetch obligations, and link HMRC businesses.",
+    detail: "Connect your HMRC account, fetch obligations, and link your businesses.",
   },
   {
-    label: "Sandbox quarterly MTD updates",
-    status: "in_development" as const,
-    detail: "Preview and submit cumulative quarterly updates to HMRC sandbox from your dashboard.",
+    label: "Quarterly MTD updates",
+    status: "live" as const,
+    detail: "Preview and submit cumulative quarterly updates when your HMRC account is connected.",
   },
   {
-    label: "Live quarterly MTD updates",
+    label: "Production HMRC filing",
     status: "planned" as const,
-    detail: "Submit quarterly updates to HMRC after API approval.",
+    detail: "Live submissions to HMRC production following API recognition.",
   },
   {
     label: "GOV.UK compatible software listing",
     status: "planned" as const,
-    detail: "After HMRC production credentials and recognition process.",
+    detail: "Listed on GOV.UK after HMRC production approval.",
   },
 ] as const;
+
+/** @deprecated Use MTD_PLATFORM_FEATURES */
+export const MTD_FILING_ROADMAP = MTD_PLATFORM_FEATURES;
 
 export function isPracticeHmrcReference(reference: string | null | undefined): boolean {
   if (!reference) return true;
@@ -87,15 +90,15 @@ export function getSubmissionFilingDisplay(input: {
 
   if (practice && input.hmrcReference) {
     return {
-      label: "Practice record",
-      detail: "Saved in SelfSubmit — not sent to HMRC",
+      label: "Monthly record saved",
+      detail: "Stored in your submission history",
       tone: "practice",
     };
   }
 
   if (practice) {
     return {
-      label: "Practice record",
+      label: "Monthly record saved",
       detail: null,
       tone: "practice",
     };

@@ -18,7 +18,7 @@ export default function FeaturesPage() {
       <SitePageHero
         eyebrow="Product"
         title="Everything you need for MTD — nothing you don't"
-        description="SelfSubmit focuses on monthly digital records for MTD. Live HMRC quarterly filing is in development — see status below."
+        description="SelfSubmit brings together monthly digital records, receipt storage, deadline reminders, and HMRC quarterly updates for UK sole traders."
       />
 
       <div className="mx-auto max-w-[1400px] px-5 py-12 sm:px-8 sm:py-16 lg:px-10">

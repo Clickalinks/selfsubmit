@@ -64,9 +64,9 @@ export default function BlogPage() {
         </div>
 
         <aside className="mt-12 rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-6 py-8 text-center sm:px-10">
-          <h2 className="text-lg font-bold text-brand-black">More articles coming soon</h2>
+          <h2 className="text-lg font-bold text-brand-black">More guides &amp; updates</h2>
           <p className="mx-auto mt-2 max-w-xl text-sm leading-relaxed text-brand-muted sm:text-base">
-            We are preparing posts on expenses, CIS, landlord income, and product release notes. Browse our{" "}
+            Browse our MTD information blocks and{" "}
             <Link href="/business-types" className="font-semibold text-brand-green underline underline-offset-2">
               supported business types
             </Link>{" "}

@@ -27,8 +27,8 @@ export function HeroSection() {
           </h1>
 
           <p className="mt-4 max-w-md text-pretty text-base font-medium leading-relaxed text-slate-600 sm:mt-5 sm:text-[1.05rem] lg:mt-6 lg:text-lg">
-            Keep digital MTD records in minutes — profession-tailored forms, auto-calculation, and secure storage.
-            Live HMRC filing is in development.
+            Keep digital MTD records in minutes — profession-tailored forms, automatic totals, receipt storage, and
+            HMRC quarterly updates from your dashboard.
           </p>
 
           <div className="mt-7 flex w-full max-w-sm flex-col items-stretch gap-4 sm:mt-9 sm:gap-5 lg:mt-11 lg:max-w-none lg:items-start">
@@ -40,7 +40,7 @@ export function HeroSection() {
               className="inline-flex items-center justify-center gap-2.5 self-center text-base font-semibold text-[#1D2B45] underline decoration-slate-400/70 underline-offset-[6px] transition hover:decoration-[#1D2B45] lg:self-start"
             >
               <CirclePlay className="h-5 w-5 shrink-0 text-blue-500" strokeWidth={1.75} />
-              Watch Demo
+              See how it works
             </Link>
           </div>
         </div>

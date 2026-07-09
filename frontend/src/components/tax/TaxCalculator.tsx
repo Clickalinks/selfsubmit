@@ -118,7 +118,7 @@ type RateSet = {
 
   class4AdditionalRatePercent: number;
 
-  /** Plan 2 (post-2012) repayment band — illustrative; thresholds change by year. */
+/** Plan 2 (post-2012) repayment band — estimate; thresholds change by year. */
 
   studentLoanPlan2Threshold: number;
 
@@ -213,9 +213,9 @@ const RATES_BY_YEAR: Record<TaxYearId, RateSet> = {
   },
 };
 
-/** Illustrative only — not HMRC */
+/** Simplified NIC estimate rates — not an HMRC calculation */
 
-const ILLUSTRATIVE = {
+const NIC_ESTIMATE_RATES = {
   class2Percent: 13,
 
   class4Percent: 12,
@@ -388,10 +388,10 @@ function buildTaxCalculation(
     const above = Math.max(0, netProfit - rates.class4LowerProfitsLimit);
 
     class2Nic =
-      Math.round(above * (ILLUSTRATIVE.class2Percent / 100) * 100) / 100;
+      Math.round(above * (NIC_ESTIMATE_RATES.class2Percent / 100) * 100) / 100;
 
     class4Nic =
-      Math.round(above * (ILLUSTRATIVE.class4Percent / 100) * 100) / 100;
+      Math.round(above * (NIC_ESTIMATE_RATES.class4Percent / 100) * 100) / 100;
   }
 
   const studentLoanAmount = calculateStudentLoan(studentLoan, netProfit, rates);
@@ -1070,7 +1070,7 @@ export function TaxCalculator({
                 <option value="none">No student loan</option>
 
                 <option value="plan2">
-                  Plan 2 — 9% above threshold (illustrative)
+                  Plan 2 — 9% above threshold (estimate)
                 </option>
               </select>
 
@@ -1111,7 +1111,7 @@ export function TaxCalculator({
           onClick={() => setShowAdvancedNic((v) => !v)}
           className="text-xs font-medium text-brand-muted underline-offset-2 hover:text-brand-black hover:underline"
         >
-          {showAdvancedNic ? "Hide" : "Show"} illustrative % NIC (not HMRC)
+          {showAdvancedNic ? "Hide" : "Show"} estimated % NIC (not HMRC)
         </button>
 
         {showAdvancedNic ? (
@@ -1131,7 +1131,7 @@ export function TaxCalculator({
               className={`rounded px-2 py-0.5 ${taxMethod === "percentage_nic" ? "bg-white font-semibold shadow-sm" : ""}`}
               onClick={() => setTaxMethod("percentage_nic")}
             >
-              {ILLUSTRATIVE.class2Percent}% + {ILLUSTRATIVE.class4Percent}%
+              {NIC_ESTIMATE_RATES.class2Percent}% + {NIC_ESTIMATE_RATES.class4Percent}%
               slice
             </button>
           </div>
@@ -1240,7 +1240,7 @@ export function TaxCalculator({
                 <div className="flex justify-between">
                   <span className="text-brand-muted">
                     Class 2 NIC (mandatory)
-                    {taxMethod === "uk_standard" ? "" : " (illustrative %)"}
+                    {taxMethod === "uk_standard" ? "" : " (estimated %)"}
                   </span>
 
                   <span className="tabular-nums text-amber-800">
@@ -1267,7 +1267,7 @@ export function TaxCalculator({
                     Class 4 NIC{" "}
                     {taxMethod === "uk_standard"
                       ? "(6% / 2%)"
-                      : "(illustrative %)"}
+                      : "(estimated %)"}
                   </span>
 
                   <span className="tabular-nums text-amber-800">
@@ -1399,7 +1399,7 @@ export function TaxCalculator({
           Estimate only: simplified self-employment model, no PA taper above
           £100k, no Marriage Allowance. CIS offset for construction trades is
           capped at headline tax + NIC + loan in this model. Student loan and pension
-          are illustrative. Rates change — confirm on{" "}
+          are estimates. Rates change — confirm on{" "}
           <a
             href="https://www.gov.uk/income-tax-rates"
             className="font-medium text-brand-green underline-offset-2 hover:underline"

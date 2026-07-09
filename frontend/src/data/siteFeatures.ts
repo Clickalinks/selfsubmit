@@ -61,19 +61,19 @@ export const SITE_FEATURE_GROUPS: { title: string; features: SiteFeature[] }[] =
         id: "quarterly",
         title: "MTD submission preparation",
         description:
-          "Roll monthly records into figures ready for quarterly updates. Live HMRC API filing is in development.",
+          "Roll monthly records into figures ready for quarterly updates. Submit to HMRC when your account is connected.",
         icon: Upload,
       },
       {
         id: "final-declaration",
         title: "Final declaration support",
-        description: "Roadmap: end-of-year confirmation after live HMRC integration is complete.",
+        description: "End-of-year confirmation support as HMRC final declaration flows are completed.",
         icon: ShieldCheck,
       },
       {
         id: "history",
         title: "Submission history",
-        description: "Review saved practice records and exports — useful for you and your accountant.",
+        description: "Review saved records and exports — useful for you and your accountant.",
         icon: History,
       },
       {

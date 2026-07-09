@@ -13,7 +13,7 @@ const FEATURES = [
   },
   {
     title: "Built for MTD",
-    body: "Digital record-keeping aligned with HMRC rules. Live API filing coming soon.",
+    body: "Digital record-keeping aligned with HMRC rules, with quarterly updates when your HMRC account is connected.",
     icon: UploadCloud,
   },
 ] as const;
