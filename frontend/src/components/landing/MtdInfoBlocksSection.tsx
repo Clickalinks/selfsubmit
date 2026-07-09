@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
-import { MTD_INFO_BLOCKS } from "@/data/mtdInfoBlocks";
+import { HOMEPAGE_MTD_INFO_BLOCKS } from "@/data/mtdInfoBlocks";
 
 export function MtdInfoBlocksSection() {
   return (
@@ -31,19 +31,18 @@ export function MtdInfoBlocksSection() {
             MTD information &amp; Guide
           </h1>
           <p className="mx-auto mt-3 max-w-2xl text-sm text-white/85 sm:text-base">
-            Guides aligned with GOV.UK — income tax, VAT, deadlines, record-keeping, and more. Each block links to a
-            full article with HMRC sources.
+            Ten topic blocks covering income tax, VAT, deadlines, record-keeping, and more — each links to two full
+            HMRC-aligned guides.
           </p>
         </div>
 
-        <div className="mx-auto mt-6 grid w-full max-w-[1600px] flex-1 auto-rows-fr grid-cols-1 gap-3 min-[420px]:grid-cols-2 sm:mt-10 sm:gap-4 md:grid-cols-4 lg:grid-cols-5 lg:gap-5">
-          {MTD_INFO_BLOCKS.map((block) => {
+        <div className="mx-auto mt-6 grid w-full max-w-[1600px] flex-1 auto-rows-fr grid-cols-1 gap-3 min-[420px]:grid-cols-2 sm:mt-10 sm:gap-4 md:grid-cols-3 lg:grid-cols-5 lg:gap-5">
+          {HOMEPAGE_MTD_INFO_BLOCKS.map((block) => {
             const Icon = block.icon;
             return (
-              <Link
+              <article
                 key={block.id}
-                href={block.href}
-                className="group flex min-h-[6.5rem] flex-col rounded-xl border border-white/15 bg-white/95 p-3.5 shadow-lg shadow-black/10 transition active:scale-[0.99] hover:-translate-y-0.5 hover:border-white/40 hover:bg-white hover:shadow-xl sm:min-h-[8.5rem] sm:p-5 lg:min-h-[9.5rem]"
+                className="group flex min-h-[8rem] flex-col rounded-xl border border-white/15 bg-white/95 p-3.5 shadow-lg shadow-black/10 transition hover:-translate-y-0.5 hover:border-white/40 hover:bg-white hover:shadow-xl sm:min-h-[10rem] sm:p-5 lg:min-h-[11rem]"
               >
                 <Icon
                   className="h-8 w-8 shrink-0 text-brand-green transition group-hover:scale-105 sm:h-9 sm:w-9"
@@ -53,14 +52,22 @@ export function MtdInfoBlocksSection() {
                 <p className="mt-3 text-left text-xs font-bold leading-snug text-brand-black sm:text-sm">
                   {block.title}
                 </p>
-                <p className="mt-1.5 flex-1 text-left text-xs leading-relaxed text-brand-muted line-clamp-2 sm:line-clamp-none lg:line-clamp-2">
+                <p className="mt-1.5 flex-1 text-left text-xs leading-relaxed text-brand-muted line-clamp-4 sm:line-clamp-5">
                   {block.summary}
                 </p>
-                <span className="mt-auto inline-flex items-center gap-1 pt-2 text-xs font-semibold text-brand-green sm:pt-3">
-                  Open guide
-                  <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-0.5" />
-                </span>
-              </Link>
+                <div className="mt-auto flex flex-col gap-1.5 pt-2 sm:pt-3">
+                  {block.guides.map((guide) => (
+                    <Link
+                      key={guide.href}
+                      href={guide.href}
+                      className="inline-flex items-center gap-1 text-xs font-semibold text-brand-green hover:underline"
+                    >
+                      {guide.title}
+                      <ArrowRight className="h-3.5 w-3.5 shrink-0 transition group-hover:translate-x-0.5" />
+                    </Link>
+                  ))}
+                </div>
+              </article>
             );
           })}
         </div>
