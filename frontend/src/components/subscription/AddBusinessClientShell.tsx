@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
@@ -57,9 +58,9 @@ export function AddBusinessCheckoutConfirm() {
     return (
       <p className="mb-8 rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-800">
         {error} You can retry from the{" "}
-        <a href="/pricing" className="font-semibold underline">
+        <Link href="/pricing" className="font-semibold underline">
           pricing page
-        </a>
+        </Link>
         .
       </p>
     );

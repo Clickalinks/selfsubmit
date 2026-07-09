@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { CreditCard, ExternalLink, Loader2 } from "lucide-react";
 
@@ -34,9 +35,9 @@ export function ManageBillingSection() {
     >
       <p className="text-sm text-slate-600">
         To change plan or update card details, open the secure billing portal. New subscriptions are chosen on the{" "}
-        <a href="/pricing" className="font-semibold text-brand-green hover:underline">
+        <Link href="/pricing" className="font-semibold text-brand-green hover:underline">
           pricing page
-        </a>
+        </Link>
         .
       </p>
       {error ? (
