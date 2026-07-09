@@ -18,7 +18,7 @@ export const TIERS: readonly PricingTier[] = [
     businessesLabel: "1 business",
     businessesDetail: "Ideal if you run one self-employed trade or rental property.",
     price: 20,
-    highlights: [`${PLAN_INCLUDED_FEATURES.length} features included`, "One business profile", "Quarterly MTD updates"],
+    highlights: ["All core features included", "One business profile", "Quarterly MTD updates"],
     popular: false,
   },
   {
@@ -28,7 +28,7 @@ export const TIERS: readonly PricingTier[] = [
     businessesDetail: "For two separate trades or income streams you report to HMRC.",
     price: 36,
     popular: true,
-    highlights: [`${PLAN_INCLUDED_FEATURES.length} features included`, "Up to two businesses", "Separate records per trade"],
+    highlights: ["All core features included", "Up to two businesses", "Separate records per trade"],
   },
   {
     id: "professional",
@@ -37,7 +37,7 @@ export const TIERS: readonly PricingTier[] = [
     businessesDetail: "Manage three businesses without switching between spreadsheets.",
     price: 52,
     popular: false,
-    highlights: [`${PLAN_INCLUDED_FEATURES.length} features included`, "Up to three businesses", "Priority email support"],
+    highlights: ["All core features included", "Up to three businesses", "Priority email support"],
   },
   {
     id: "unlimited",
@@ -46,6 +46,12 @@ export const TIERS: readonly PricingTier[] = [
     businessesDetail: "Our maximum plan — up to four separate trades or rental streams.",
     price: 70,
     popular: false,
-    highlights: [`${PLAN_INCLUDED_FEATURES.length} features included`, "Up to four businesses", "Built for heavier MTD use"],
+    highlights: ["All core features included", "Up to four businesses", "Built for heavier MTD use"],
   },
 ];
+
+export function getTierByPlanId(planId: PlanId): PricingTier | undefined {
+  return TIERS.find((tier) => tier.id === planId);
+}
+
+export const PLAN_CORE_FEATURE_COUNT = PLAN_INCLUDED_FEATURES.length;

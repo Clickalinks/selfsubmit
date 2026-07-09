@@ -14,6 +14,7 @@ const PAGE_TITLES: Record<string, string> = {
   "/dashboard/submissions": "Submissions",
   "/dashboard/hmrc-connect": "HMRC connect",
   "/dashboard/settings": "Settings",
+  "/pricing": "Pricing",
   "/dashboard/settings/profile": "Edit profile",
 };
 

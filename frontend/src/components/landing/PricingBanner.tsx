@@ -3,11 +3,11 @@ import Link from "next/link";
 import { Check, ChevronRight } from "lucide-react";
 
 import { PricingPlansGrid } from "@/components/subscription/PricingPlansGrid";
-import { TIERS } from "@/data/pricingTiers";
-import { PLAN_INCLUDED_FEATURES } from "@/lib/plan-config";
+import { PlanFeaturesList } from "@/components/subscription/PlanFeaturesList";
+import { PLAN_CORE_FEATURE_COUNT, TIERS } from "@/data/pricingTiers";
 
 type PricingBannerProps = {
-  /** When true, tier cards are clickable plan selectors (for /pricing). */
+  /** When true, tier cards link to plan detail pages (for /pricing). */
   interactive?: boolean;
   /** When set, replaces the default “Get started” row on the marketing homepage. */
   footer?: ReactNode;
@@ -17,12 +17,13 @@ function StaticPricingCards() {
   return (
     <div className="mx-auto mt-8 grid max-w-6xl grid-cols-1 gap-4 sm:mt-10 sm:gap-5 md:grid-cols-2 lg:mt-12 lg:grid-cols-4 lg:gap-5">
       {TIERS.map((tier) => (
-        <div
+        <Link
           key={tier.id}
-          className={`relative flex flex-col rounded-2xl border px-5 py-6 text-left sm:px-6 sm:py-7 ${
+          href={`/pricing/${tier.id}`}
+          className={`relative flex flex-col rounded-2xl border px-5 py-6 text-left transition hover:-translate-y-0.5 sm:px-6 sm:py-7 ${
             tier.popular
               ? "border-brand-green/50 bg-gradient-to-b from-white/[0.12] to-white/[0.05] shadow-lg shadow-brand-green/10 ring-1 ring-brand-green/30"
-              : "border-white/15 bg-white/[0.06]"
+              : "border-white/15 bg-white/[0.06] hover:bg-white/[0.1]"
           }`}
         >
           {tier.popular ? (
@@ -45,7 +46,10 @@ function StaticPricingCards() {
               </li>
             ))}
           </ul>
-        </div>
+          <span className="mt-6 inline-flex items-center justify-center rounded-full bg-white/10 px-4 py-2.5 text-sm font-bold text-white ring-1 ring-white/20">
+            View plan details
+          </span>
+        </Link>
       ))}
     </div>
   );
@@ -61,25 +65,27 @@ export function PricingBanner({ interactive = false, footer }: PricingBannerProp
             Simple plans for self-employed MTD
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-white/78 lg:text-base">
-            Every plan includes income and expense tracking, receipt uploads, MTD-ready record keeping, deadline
-            reminders, and secure document storage — with no payroll, invoicing, or complex bookkeeping.
+            Every plan includes the same {PLAN_CORE_FEATURE_COUNT} core features — income and expense tracking, receipt
+            uploads, MTD-ready record keeping, deadline reminders, and secure storage. You only pay more for additional
+            businesses.
           </p>
         </div>
 
-        <ul className="mx-auto mt-6 flex max-w-4xl flex-wrap justify-center gap-x-4 gap-y-2 text-xs text-white/70 sm:text-sm">
-          {PLAN_INCLUDED_FEATURES.slice(0, 6).map((feature) => (
-            <li key={feature} className="flex items-center gap-1.5">
-              <Check className="h-3.5 w-3.5 text-brand-green" strokeWidth={2.5} aria-hidden />
-              {feature}
-            </li>
-          ))}
-        </ul>
-
         {interactive ? <PricingPlansGrid /> : <StaticPricingCards />}
 
+        <div className="mx-auto mt-10 max-w-4xl rounded-2xl border border-white/10 bg-white/[0.04] p-5 sm:p-6">
+          <h3 className="text-center text-sm font-bold text-white sm:text-base">
+            All {PLAN_CORE_FEATURE_COUNT} features on every plan
+          </h3>
+          <p className="mx-auto mt-2 max-w-2xl text-center text-xs text-white/65 sm:text-sm">
+            Open any plan above for a full breakdown. The only difference between tiers is how many businesses you can
+            manage.
+          </p>
+          <PlanFeaturesList className="mt-5" variant="light" columns={2} />
+        </div>
+
         <p className="mx-auto mt-8 max-w-xl text-center text-xs leading-relaxed text-white/55 sm:text-sm">
-          Illustrative tiers for the product roadmap. Final features, limits, and billing terms will be confirmed before
-          checkout. Cancel anytime when subscriptions go live.
+          Secure checkout via Stripe. Cancel anytime from Settings → Manage billing.
         </p>
 
         {!interactive ? (
