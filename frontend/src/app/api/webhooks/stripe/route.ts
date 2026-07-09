@@ -5,7 +5,7 @@ import { clearStripeSubscription, upsertStripeSubscription } from "@/lib/billing
 import { isPlanId, normalizePlanId, type PlanId } from "@/lib/plan-config";
 import { prisma } from "@/lib/db";
 import { getStripe, isStripeConfigured } from "@/lib/stripe-server";
-import { subscriptionPeriodEnd } from "@/lib/stripe-subscription";
+import { subscriptionSyncPayload } from "@/lib/stripe-subscription";
 
 export async function POST(req: Request) {
   if (!isStripeConfigured()) {
@@ -68,9 +68,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     plan: planRaw as PlanId,
     stripeCustomerId: customerId,
     stripeSubscriptionId: subscription.id,
-    stripeSubscriptionStatus: subscription.status,
-    stripeCurrentPeriodEnd: subscriptionPeriodEnd(subscription),
-    stripeCancelAtPeriodEnd: subscription.cancel_at_period_end,
+    ...subscriptionSyncPayload(subscription),
   });
 }
 
@@ -113,9 +111,7 @@ async function handleSubscriptionChange(subscription: Stripe.Subscription) {
     plan,
     stripeCustomerId: customerId,
     stripeSubscriptionId: subscription.id,
-    stripeSubscriptionStatus: subscription.status,
-    stripeCurrentPeriodEnd: subscriptionPeriodEnd(subscription),
-    stripeCancelAtPeriodEnd: subscription.cancel_at_period_end,
+    ...subscriptionSyncPayload(subscription),
   });
 }
 

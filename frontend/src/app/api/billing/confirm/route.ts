@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 import { upsertStripeSubscription } from "@/lib/billing-server";
 import { isPlanId, type PlanId } from "@/lib/plan-config";
 import { getStripe, isStripeConfigured } from "@/lib/stripe-server";
-import { subscriptionPeriodEnd } from "@/lib/stripe-subscription";
+import { subscriptionSyncPayload } from "@/lib/stripe-subscription";
 
 /** Confirm a Stripe Checkout session after redirect (handles webhook delay). */
 export async function POST(req: Request) {
@@ -62,9 +62,7 @@ export async function POST(req: Request) {
     plan: planRaw as PlanId,
     stripeCustomerId: customerId,
     stripeSubscriptionId: subscription.id,
-    stripeSubscriptionStatus: subscription.status,
-    stripeCurrentPeriodEnd: subscriptionPeriodEnd(subscription),
-    stripeCancelAtPeriodEnd: subscription.cancel_at_period_end,
+    ...subscriptionSyncPayload(subscription),
   });
 
   return NextResponse.json({ ok: true, plan: planRaw, status: subscription.status });

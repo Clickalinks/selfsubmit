@@ -9,10 +9,11 @@ export function formatSubscriptionEndDate(date: Date): string {
 }
 
 export function subscriptionIsEnding(state: SubscriptionState): boolean {
-  return Boolean(
-    state.stripeCancelAtPeriodEnd &&
-      state.active &&
-      state.stripeCurrentPeriodEnd &&
-      state.stripeCurrentPeriodEnd.getTime() > Date.now(),
-  );
+  const periodEnd = state.stripeCurrentPeriodEnd;
+  if (!periodEnd || periodEnd.getTime() <= Date.now()) return false;
+
+  if (state.stripeCancelAtPeriodEnd) return true;
+  if (state.stripeSubscriptionStatus === "canceled") return true;
+
+  return false;
 }

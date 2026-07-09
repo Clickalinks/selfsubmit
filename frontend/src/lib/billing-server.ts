@@ -4,7 +4,7 @@ import StripeSdk from "stripe";
 import { prisma } from "@/lib/db";
 import { normalizePlanId, type PlanId } from "@/lib/plan-config";
 import { ACTIVE_STRIPE_STATUSES, getStripe, isStripeConfigured } from "@/lib/stripe-server";
-import { subscriptionPeriodEnd } from "@/lib/stripe-subscription";
+import { subscriptionSyncPayload } from "@/lib/stripe-subscription";
 
 function isStripeMissingResource(err: unknown): boolean {
   return err instanceof StripeSdk.errors.StripeInvalidRequestError && err.code === "resource_missing";
@@ -72,10 +72,20 @@ function rowToSubscriptionState(row: {
   const plan = normalizePlanId(row.plan);
   const status = row.stripeSubscriptionStatus;
   const stripeActive = status ? ACTIVE_STRIPE_STATUSES.has(status) : false;
-  const active = isStripeConfigured() ? stripeActive && Boolean(plan) : Boolean(plan);
+  const inPaidCancelPeriod = Boolean(
+    row.stripeCurrentPeriodEnd &&
+      row.stripeCurrentPeriodEnd.getTime() > Date.now() &&
+      (row.stripeCancelAtPeriodEnd || status === "canceled"),
+  );
+
+  const active = isStripeConfigured()
+    ? (stripeActive && Boolean(plan)) || (Boolean(plan) && inPaidCancelPeriod)
+    : Boolean(plan);
+
+  const visiblePlan = active ? plan : isStripeConfigured() ? (inPaidCancelPeriod ? plan : null) : plan;
 
   return {
-    plan: active ? plan : isStripeConfigured() ? null : plan,
+    plan: visiblePlan,
     active,
     stripeCustomerId: row.stripeCustomerId,
     stripeSubscriptionId: row.stripeSubscriptionId,
@@ -85,17 +95,53 @@ function rowToSubscriptionState(row: {
   };
 }
 
+async function fetchStripeSubscriptionForUser(row: {
+  stripeSubscriptionId: string | null;
+  stripeCustomerId: string | null;
+}): Promise<Stripe.Subscription | null> {
+  const stripe = getStripe();
+
+  if (row.stripeSubscriptionId) {
+    try {
+      return await stripe.subscriptions.retrieve(row.stripeSubscriptionId);
+    } catch (err) {
+      if (!isStripeMissingResource(err)) throw err;
+    }
+  }
+
+  if (!row.stripeCustomerId) return null;
+
+  const list = await stripe.subscriptions.list({
+    customer: row.stripeCustomerId,
+    status: "all",
+    limit: 10,
+  });
+
+  const nowSec = Math.floor(Date.now() / 1000);
+  const preferred =
+    list.data.find(
+      (sub) =>
+        sub.status === "active" ||
+        sub.status === "trialing" ||
+        (typeof sub.cancel_at === "number" && sub.cancel_at > nowSec),
+    ) ?? list.data[0];
+
+  return preferred ?? null;
+}
+
 async function syncStripeSubscriptionFromApi(userId: string): Promise<void> {
   if (!isStripeConfigured()) return;
 
   const row = await prisma.user.findUnique({
     where: { id: userId },
-    select: { stripeSubscriptionId: true, plan: true },
+    select: { stripeSubscriptionId: true, stripeCustomerId: true, plan: true },
   });
-  if (!row?.stripeSubscriptionId) return;
+  if (!row?.stripeSubscriptionId && !row?.stripeCustomerId) return;
 
   try {
-    const subscription = await getStripe().subscriptions.retrieve(row.stripeSubscriptionId);
+    const subscription = await fetchStripeSubscriptionForUser(row);
+    if (!subscription) return;
+
     const planRaw = subscription.metadata?.plan;
     const plan = planRaw && normalizePlanId(planRaw) ? (planRaw as PlanId) : normalizePlanId(row.plan);
     if (!plan) return;
@@ -103,13 +149,13 @@ async function syncStripeSubscriptionFromApi(userId: string): Promise<void> {
     const customerId =
       typeof subscription.customer === "string" ? subscription.customer : subscription.customer.id;
 
+    const sync = subscriptionSyncPayload(subscription);
+
     await upsertStripeSubscription(userId, {
       plan,
       stripeCustomerId: customerId,
       stripeSubscriptionId: subscription.id,
-      stripeSubscriptionStatus: subscription.status,
-      stripeCurrentPeriodEnd: subscriptionPeriodEnd(subscription),
-      stripeCancelAtPeriodEnd: subscription.cancel_at_period_end,
+      ...sync,
     });
   } catch (err) {
     if (!isStripeMissingResource(err)) {
