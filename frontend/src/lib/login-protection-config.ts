@@ -15,6 +15,9 @@ export const RATE_LIMIT_MAX_REQUESTS_PER_IP = 60;
 
 export const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
 
+/** Login failure reports must follow a recent pre-check for the same email + IP. */
+export const LOGIN_PRECHECK_MAX_AGE_MS = 10 * 60 * 1000;
+
 /** Failures in this window trigger a suspicious-activity flag. */
 export const SUSPICIOUS_FAILURE_THRESHOLD = 3;
 

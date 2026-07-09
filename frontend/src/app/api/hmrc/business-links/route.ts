@@ -3,12 +3,16 @@ import { NextResponse } from "next/server";
 
 import { linkBusinessToHmrc, listLocalBusinessHmrcLinks } from "@/lib/hmrc-business-server";
 import { isValidHmrcBusinessId } from "@/lib/hmrc-business-details";
+import { hmrcRateLimitOrNull } from "@/lib/hmrc-api-rate-limit";
 
 export async function GET() {
   const { userId } = await auth();
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
+  const rateLimited = await hmrcRateLimitOrNull(userId);
+  if (rateLimited) return rateLimited;
 
   const businesses = await listLocalBusinessHmrcLinks(userId);
   return NextResponse.json({ businesses });
@@ -19,6 +23,9 @@ export async function PATCH(request: Request) {
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
+  const rateLimited = await hmrcRateLimitOrNull(userId);
+  if (rateLimited) return rateLimited;
 
   let body: unknown;
   try {

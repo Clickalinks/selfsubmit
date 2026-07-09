@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
 import { readFraudContextCookie } from "@/lib/hmrc-fraud-context";
+import { hmrcRateLimitOrNull } from "@/lib/hmrc-api-rate-limit";
 import { submitSandboxQuarterlyUpdate } from "@/lib/hmrc-quarterly-server";
 
 export async function POST(request: Request) {
@@ -10,6 +11,9 @@ export async function POST(request: Request) {
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
+  const rateLimited = await hmrcRateLimitOrNull(userId);
+  if (rateLimited) return rateLimited;
 
   let body: unknown;
   try {

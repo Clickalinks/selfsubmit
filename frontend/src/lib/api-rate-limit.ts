@@ -1,3 +1,5 @@
+import { NextResponse } from "next/server";
+
 import { prisma } from "@/lib/db";
 
 type RateLimitConfig = {
@@ -45,8 +47,37 @@ export const API_RATE_LIMITS = {
   export: { max: 3, windowMs: 60 * 60 * 1000 },
   /** Public contact form */
   contact: { max: 5, windowMs: 60 * 60 * 1000 },
+  /** Cookie / consent logging */
+  consent: { max: 30, windowMs: 15 * 60 * 1000 },
+  /** Sign-in pre-check and failure reporting */
+  loginProtection: { max: 30, windowMs: 15 * 60 * 1000 },
+  /** HMRC API calls per user */
+  hmrc: { max: 40, windowMs: 15 * 60 * 1000 },
+  /** Receipt uploads */
+  receiptsUpload: { max: 40, windowMs: 15 * 60 * 1000 },
+  /** Monthly record saves */
+  submissions: { max: 60, windowMs: 15 * 60 * 1000 },
 } as const;
 
 export function rateLimitKey(prefix: string, identifier: string): string {
   return `api:${prefix}:${identifier}`;
+}
+
+/** Returns a 429 response when limited, otherwise null. */
+export async function rateLimitOrNull(
+  prefix: string,
+  identifier: string,
+  config: { max: number; windowMs: number },
+): Promise<NextResponse | null> {
+  const limited = await checkApiRateLimit({
+    key: rateLimitKey(prefix, identifier),
+    ...config,
+  });
+  if (!limited.allowed) {
+    return NextResponse.json(
+      { error: "Too many requests. Please wait and try again." },
+      { status: 429, headers: { "Retry-After": String(limited.retryAfterSec) } },
+    );
+  }
+  return null;
 }

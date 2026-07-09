@@ -2,6 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
 import { isHmrcOAuthConfigured } from "@/lib/hmrc-config";
+import { hmrcRateLimitOrNull } from "@/lib/hmrc-api-rate-limit";
 import { createFraudContextCookie, type HmrcFraudClientContext } from "@/lib/hmrc-fraud-context";
 
 export async function POST(request: Request) {
@@ -9,6 +10,9 @@ export async function POST(request: Request) {
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
+  const rateLimited = await hmrcRateLimitOrNull(userId);
+  if (rateLimited) return rateLimited;
 
   if (!isHmrcOAuthConfigured()) {
     return NextResponse.json({ error: "HMRC OAuth is not configured on this server." }, { status: 503 });

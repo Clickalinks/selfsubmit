@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { isEncryptionConfigured } from "@/lib/field-encryption";
 import { isHmrcOAuthConfigured } from "@/lib/hmrc-config";
+import { hmrcRateLimitOrNull } from "@/lib/hmrc-api-rate-limit";
 import { buildHmrcAuthorizeUrl } from "@/lib/hmrc-oauth";
 import { createOAuthStateCookie } from "@/lib/hmrc-oauth-state";
 
@@ -15,6 +16,11 @@ export async function GET(request: Request) {
   const { userId } = await auth();
   if (!userId) {
     return NextResponse.redirect(new URL("/sign-in?redirect_url=/dashboard", appOrigin()));
+  }
+
+  const rateLimited = await hmrcRateLimitOrNull(userId);
+  if (rateLimited) {
+    return NextResponse.redirect(new URL("/dashboard?setup=hmrc-error&reason=rate-limit", appOrigin()));
   }
 
   if (!isHmrcOAuthConfigured() || !isEncryptionConfigured()) {

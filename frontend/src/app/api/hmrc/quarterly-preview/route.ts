@@ -2,12 +2,16 @@ import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
 import { getSandboxQuarterlyPreview } from "@/lib/hmrc-quarterly-server";
+import { hmrcRateLimitOrNull } from "@/lib/hmrc-api-rate-limit";
 
 export async function GET(request: Request) {
   const { userId } = await auth();
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
+  const rateLimited = await hmrcRateLimitOrNull(userId);
+  if (rateLimited) return rateLimited;
 
   const url = new URL(request.url);
   const businessId = url.searchParams.get("businessId")?.trim();

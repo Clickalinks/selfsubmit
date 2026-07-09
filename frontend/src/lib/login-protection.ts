@@ -2,6 +2,7 @@ import { prisma } from "@/lib/db";
 import {
   FAILED_ATTEMPT_WINDOW_MS,
   LOCKOUT_DURATION_MS,
+  LOGIN_PRECHECK_MAX_AGE_MS,
   MAX_FAILED_ATTEMPTS_PER_ACCOUNT,
   MAX_FAILED_ATTEMPTS_PER_IP,
   RATE_LIMIT_MAX_REQUESTS_PER_IP,
@@ -61,6 +62,26 @@ async function upsertLockout(params: {
 
 function isActiveLock(lockedUntil: Date | null | undefined): boolean {
   return Boolean(lockedUntil && lockedUntil.getTime() > Date.now());
+}
+
+function preCheckKey(identifier: string, ip: string): string {
+  return `precheck:${normalizeIdentifier(identifier)}:${ip}`;
+}
+
+/** Records that this email was checked on sign-in from this IP (required before failure logging). */
+export async function recordLoginPreCheck(identifier: string, ip: string): Promise<void> {
+  await upsertLockout({
+    key: preCheckKey(identifier, ip),
+    lockType: "ratelimit",
+    failedCount: 1,
+    lockedUntil: null,
+  });
+}
+
+export async function hasRecentLoginPreCheck(identifier: string, ip: string): Promise<boolean> {
+  const row = await getLockout(preCheckKey(identifier, ip));
+  if (!row) return false;
+  return row.updatedAt.getTime() > Date.now() - LOGIN_PRECHECK_MAX_AGE_MS;
 }
 
 export async function checkLoginAllowed(identifier: string | null, ip: string): Promise<LoginCheckResult> {

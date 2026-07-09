@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { randomUUID } from "crypto";
 
 import { apiAuthErrorResponse, clientMetaFromRequest, requireApiUser } from "@/lib/api-auth";
+import { API_RATE_LIMITS, rateLimitOrNull } from "@/lib/api-rate-limit";
 import { writeAuditLog } from "@/lib/audit-log";
 import { prisma } from "@/lib/db";
 import { UPLOAD_MAX_BYTES, validateUploadFile } from "@/lib/file-validation";
@@ -47,6 +48,9 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   try {
     const { userId, role } = await requireApiUser();
+    const rateLimited = await rateLimitOrNull("receipts-upload", userId, API_RATE_LIMITS.receiptsUpload);
+    if (rateLimited) return rateLimited;
+
     const meta = clientMetaFromRequest(req as import("next/server").NextRequest);
 
     let formData: FormData;

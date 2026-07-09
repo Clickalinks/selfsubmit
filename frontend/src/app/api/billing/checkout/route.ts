@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server";
+import Stripe from "stripe";
 
 import { apiAuthErrorResponse, clientMetaFromRequest, requireApiUser } from "@/lib/api-auth";
 import { checkoutBodySchema, parseJsonBody } from "@/lib/api-schemas";
 import { writeAuditLog } from "@/lib/audit-log";
 import { API_RATE_LIMITS, checkApiRateLimit, rateLimitKey } from "@/lib/api-rate-limit";
+import { ensureStripeCustomer } from "@/lib/billing-server";
 import type { PlanId } from "@/lib/plan-config";
 import { prisma } from "@/lib/db";
 import { appBaseUrl, getStripe, getStripePriceId, isStripeConfigured } from "@/lib/stripe-server";
@@ -73,32 +75,37 @@ export async function POST(req: Request) {
       include: { profile: true },
     });
 
-    let customerId = userRow?.stripeCustomerId ?? null;
-    if (!customerId) {
-      const customer = await stripe.customers.create({
-        email: userRow?.profile?.email ?? undefined,
-        metadata: { clerkUserId: userId },
-      });
-      customerId = customer.id;
-      await prisma.user.upsert({
-        where: { id: userId },
-        create: { id: userId, stripeCustomerId: customerId },
-        update: { stripeCustomerId: customerId },
-      });
-    }
+    const customerId = await ensureStripeCustomer(
+      stripe,
+      userId,
+      userRow?.stripeCustomerId ?? null,
+      userRow?.profile?.email,
+    );
 
-    const session = await stripe.checkout.sessions.create({
-      mode: "subscription",
-      customer: customerId,
-      line_items: [{ price: priceId, quantity: 1 }],
-      success_url: `${base}/add-business?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${base}/pricing?checkout=canceled`,
-      client_reference_id: userId,
-      metadata: { clerkUserId: userId, plan },
-      subscription_data: {
+    let session;
+    try {
+      session = await stripe.checkout.sessions.create({
+        mode: "subscription",
+        customer: customerId,
+        line_items: [{ price: priceId, quantity: 1 }],
+        success_url: `${base}/add-business?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${base}/pricing?checkout=canceled`,
+        client_reference_id: userId,
         metadata: { clerkUserId: userId, plan },
-      },
-    });
+        subscription_data: {
+          metadata: { clerkUserId: userId, plan },
+        },
+      });
+    } catch (err) {
+      if (err instanceof Stripe.errors.StripeError) {
+        console.error("[billing/checkout] stripe", err.message, { userId, priceId });
+        return NextResponse.json(
+          { error: "Could not start checkout. Check Stripe price configuration or try again." },
+          { status: 502 },
+        );
+      }
+      throw err;
+    }
 
     if (!session.url) {
       return NextResponse.json({ error: "Could not start checkout." }, { status: 500 });

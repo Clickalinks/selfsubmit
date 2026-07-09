@@ -5,12 +5,16 @@ import { NextResponse } from "next/server";
 import { apiAuthErrorResponse, requireApiUser } from "@/lib/api-auth";
 import { autoLinkHmrcBusinessForUser } from "@/lib/hmrc-auto-link";
 import { getHmrcConnectionStatus } from "@/lib/hmrc-connection-server";
+import { hmrcRateLimitOrNull } from "@/lib/hmrc-api-rate-limit";
 import { readFraudContextCookie } from "@/lib/hmrc-fraud-context";
 import { prisma } from "@/lib/db";
 
 export async function POST(request: Request) {
   try {
     const { userId } = await requireApiUser();
+
+    const rateLimited = await hmrcRateLimitOrNull(userId);
+    if (rateLimited) return rateLimited;
 
     const connection = await getHmrcConnectionStatus(userId);
     if (!connection.connected) {

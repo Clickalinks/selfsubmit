@@ -1,6 +1,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
+import { API_RATE_LIMITS, rateLimitOrNull } from "@/lib/api-rate-limit";
 import { prisma } from "@/lib/db";
 import {
   createMonthlySubmission,
@@ -30,6 +31,9 @@ export async function POST(req: Request) {
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
+  const rateLimited = await rateLimitOrNull("submissions", userId, API_RATE_LIMITS.submissions);
+  if (rateLimited) return rateLimited;
 
   let body: unknown;
   try {

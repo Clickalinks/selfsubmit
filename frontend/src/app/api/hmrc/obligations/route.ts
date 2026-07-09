@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
 import { readFraudContextCookie } from "@/lib/hmrc-fraud-context";
+import { hmrcRateLimitOrNull } from "@/lib/hmrc-api-rate-limit";
 import { fetchIncomeAndExpenditureObligations } from "@/lib/hmrc-obligations";
 import { getHmrcConnectionStatus } from "@/lib/hmrc-connection-server";
 import { getDecryptedTaxIds } from "@/lib/tax-ids-server";
@@ -12,6 +13,9 @@ export async function GET(request: Request) {
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
+  const rateLimited = await hmrcRateLimitOrNull(userId);
+  if (rateLimited) return rateLimited;
 
   const connection = await getHmrcConnectionStatus(userId);
   if (!connection.connected) {

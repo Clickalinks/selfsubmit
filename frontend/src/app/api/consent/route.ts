@@ -1,6 +1,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
+import { API_RATE_LIMITS, rateLimitKey, checkApiRateLimit } from "@/lib/api-rate-limit";
 import { CONSENT_POLICY_VERSION, CONSENT_TYPES, type ConsentType } from "@/lib/consent-config";
 import { recordConsent } from "@/lib/consent-server";
 import { getRequestIp, getRequestUserAgent } from "@/lib/request-ip";
@@ -8,6 +9,17 @@ import { getRequestIp, getRequestUserAgent } from "@/lib/request-ip";
 const ALLOWED_TYPES = new Set<string>(Object.values(CONSENT_TYPES));
 
 export async function POST(request: Request) {
+  const ip = getRequestIp(request) ?? "unknown";
+  const limited = await checkApiRateLimit({
+    key: rateLimitKey("consent", ip),
+    ...API_RATE_LIMITS.consent,
+  });
+  if (!limited.allowed) {
+    return NextResponse.json(
+      { error: "Too many requests. Please wait and try again." },
+      { status: 429, headers: { "Retry-After": String(limited.retryAfterSec) } },
+    );
+  }
   let body: { consentType?: string; granted?: boolean; policyVersion?: string };
   try {
     body = (await request.json()) as typeof body;

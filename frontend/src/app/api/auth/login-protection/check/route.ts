@@ -1,10 +1,22 @@
 import { NextResponse } from "next/server";
 
-import { checkLoginAllowed, recordRateLimitHit } from "@/lib/login-protection";
+import { API_RATE_LIMITS, rateLimitKey, checkApiRateLimit } from "@/lib/api-rate-limit";
+import { checkLoginAllowed, recordLoginPreCheck, recordRateLimitHit } from "@/lib/login-protection";
 import { getRequestIp } from "@/lib/request-ip";
 
 export async function POST(request: Request) {
-  const ip = getRequestIp(request);
+  const ip = getRequestIp(request) ?? "unknown";
+
+  const limited = await checkApiRateLimit({
+    key: rateLimitKey("login-protection", ip),
+    ...API_RATE_LIMITS.loginProtection,
+  });
+  if (!limited.allowed) {
+    return NextResponse.json(
+      { error: "Too many requests. Please wait and try again." },
+      { status: 429, headers: { "Retry-After": String(limited.retryAfterSec) } },
+    );
+  }
 
   let body: { email?: string } = {};
   try {
@@ -32,6 +44,8 @@ export async function POST(request: Request) {
         { status: 429 },
       );
     }
+
+    await recordLoginPreCheck(email, ip);
 
     return NextResponse.json({ allowed: true, lockedUntil: null, message: null, reason: null });
   } catch (err) {
