@@ -3,7 +3,8 @@ import StripeSdk from "stripe";
 
 import { prisma } from "@/lib/db";
 import { normalizePlanId, type PlanId } from "@/lib/plan-config";
-import { ACTIVE_STRIPE_STATUSES, isStripeConfigured } from "@/lib/stripe-server";
+import { ACTIVE_STRIPE_STATUSES, getStripe, isStripeConfigured } from "@/lib/stripe-server";
+import { subscriptionPeriodEnd } from "@/lib/stripe-subscription";
 
 function isStripeMissingResource(err: unknown): boolean {
   return err instanceof StripeSdk.errors.StripeInvalidRequestError && err.code === "resource_missing";
@@ -57,9 +58,69 @@ export type SubscriptionState = {
   stripeSubscriptionId: string | null;
   stripeSubscriptionStatus: string | null;
   stripeCurrentPeriodEnd: Date | null;
+  stripeCancelAtPeriodEnd: boolean;
 };
 
+function rowToSubscriptionState(row: {
+  plan: string | null;
+  stripeCustomerId: string | null;
+  stripeSubscriptionId: string | null;
+  stripeSubscriptionStatus: string | null;
+  stripeCurrentPeriodEnd: Date | null;
+  stripeCancelAtPeriodEnd: boolean;
+}): SubscriptionState {
+  const plan = normalizePlanId(row.plan);
+  const status = row.stripeSubscriptionStatus;
+  const stripeActive = status ? ACTIVE_STRIPE_STATUSES.has(status) : false;
+  const active = isStripeConfigured() ? stripeActive && Boolean(plan) : Boolean(plan);
+
+  return {
+    plan: active ? plan : isStripeConfigured() ? null : plan,
+    active,
+    stripeCustomerId: row.stripeCustomerId,
+    stripeSubscriptionId: row.stripeSubscriptionId,
+    stripeSubscriptionStatus: row.stripeSubscriptionStatus,
+    stripeCurrentPeriodEnd: row.stripeCurrentPeriodEnd,
+    stripeCancelAtPeriodEnd: row.stripeCancelAtPeriodEnd,
+  };
+}
+
+async function syncStripeSubscriptionFromApi(userId: string): Promise<void> {
+  if (!isStripeConfigured()) return;
+
+  const row = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { stripeSubscriptionId: true, plan: true },
+  });
+  if (!row?.stripeSubscriptionId) return;
+
+  try {
+    const subscription = await getStripe().subscriptions.retrieve(row.stripeSubscriptionId);
+    const planRaw = subscription.metadata?.plan;
+    const plan = planRaw && normalizePlanId(planRaw) ? (planRaw as PlanId) : normalizePlanId(row.plan);
+    if (!plan) return;
+
+    const customerId =
+      typeof subscription.customer === "string" ? subscription.customer : subscription.customer.id;
+
+    await upsertStripeSubscription(userId, {
+      plan,
+      stripeCustomerId: customerId,
+      stripeSubscriptionId: subscription.id,
+      stripeSubscriptionStatus: subscription.status,
+      stripeCurrentPeriodEnd: subscriptionPeriodEnd(subscription),
+      stripeCancelAtPeriodEnd: subscription.cancel_at_period_end,
+    });
+  } catch (err) {
+    if (!isStripeMissingResource(err)) {
+      console.error("[billing-server] Stripe subscription sync failed", userId, err);
+    }
+  }
+}
+
 export async function getSubscriptionState(userId: string): Promise<SubscriptionState> {
+  await syncStripeSubscriptionFromApi(userId);
+
   const row = await prisma.user.findUnique({
     where: { id: userId },
     select: {
@@ -68,6 +129,7 @@ export async function getSubscriptionState(userId: string): Promise<Subscription
       stripeSubscriptionId: true,
       stripeSubscriptionStatus: true,
       stripeCurrentPeriodEnd: true,
+      stripeCancelAtPeriodEnd: true,
     },
   });
 
@@ -79,24 +141,11 @@ export async function getSubscriptionState(userId: string): Promise<Subscription
       stripeSubscriptionId: null,
       stripeSubscriptionStatus: null,
       stripeCurrentPeriodEnd: null,
+      stripeCancelAtPeriodEnd: false,
     };
   }
 
-  const plan = normalizePlanId(row.plan);
-  const status = row.stripeSubscriptionStatus;
-  const stripeActive = status ? ACTIVE_STRIPE_STATUSES.has(status) : false;
-
-  // Dev / manual mode when Stripe is not configured — honour stored plan.
-  const active = isStripeConfigured() ? stripeActive && Boolean(plan) : Boolean(plan);
-
-  return {
-    plan: active ? plan : isStripeConfigured() ? null : plan,
-    active,
-    stripeCustomerId: row.stripeCustomerId,
-    stripeSubscriptionId: row.stripeSubscriptionId,
-    stripeSubscriptionStatus: row.stripeSubscriptionStatus,
-    stripeCurrentPeriodEnd: row.stripeCurrentPeriodEnd,
-  };
+  return rowToSubscriptionState(row);
 }
 
 export async function userHasActiveSubscription(userId: string): Promise<boolean> {
@@ -112,6 +161,7 @@ export async function upsertStripeSubscription(
     stripeSubscriptionId: string;
     stripeSubscriptionStatus: string;
     stripeCurrentPeriodEnd: Date | null;
+    stripeCancelAtPeriodEnd?: boolean;
   },
 ): Promise<void> {
   await prisma.user.upsert({
@@ -123,6 +173,7 @@ export async function upsertStripeSubscription(
       stripeSubscriptionId: data.stripeSubscriptionId,
       stripeSubscriptionStatus: data.stripeSubscriptionStatus,
       stripeCurrentPeriodEnd: data.stripeCurrentPeriodEnd,
+      stripeCancelAtPeriodEnd: data.stripeCancelAtPeriodEnd ?? false,
     },
     update: {
       plan: data.plan,
@@ -130,6 +181,7 @@ export async function upsertStripeSubscription(
       stripeSubscriptionId: data.stripeSubscriptionId,
       stripeSubscriptionStatus: data.stripeSubscriptionStatus,
       stripeCurrentPeriodEnd: data.stripeCurrentPeriodEnd,
+      stripeCancelAtPeriodEnd: data.stripeCancelAtPeriodEnd ?? false,
     },
   });
 }
@@ -141,6 +193,7 @@ export async function clearStripeSubscription(userId: string): Promise<void> {
       stripeSubscriptionStatus: "canceled",
       stripeSubscriptionId: null,
       stripeCurrentPeriodEnd: null,
+      stripeCancelAtPeriodEnd: false,
     },
   });
 }

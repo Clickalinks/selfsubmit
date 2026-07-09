@@ -18,8 +18,10 @@ import { isHmrcOAuthConfigured } from "@/lib/hmrc-config";
 import { isHmrcSandboxFilingEnabled } from "@/lib/hmrc-filing-status";
 import { emptyMtdDashboardSnapshot, formatGbp, getMtdDashboardSnapshot } from "@/lib/mtd-dashboard";
 import { getClientProfile } from "@/lib/profile-server";
-import { getUserPlan } from "@/lib/subscription-server";
-import { PLAN_DISPLAY_NAMES } from "@/lib/plan-config";
+import { SubscriptionEndingBanner } from "@/components/dashboard/SubscriptionEndingBanner";
+import { getSubscriptionState } from "@/lib/billing-server";
+import { formatSubscriptionEndDate, subscriptionIsEnding } from "@/lib/subscription-ending";
+import { PLAN_DISPLAY_NAMES, type PlanId } from "@/lib/plan-config";
 import { isSetupComplete } from "@/lib/setup-progress";
 
 export const metadata: Metadata = {
@@ -42,13 +44,21 @@ export default async function DashboardPage({
   if (!profile) return null;
 
   let snapshot = emptyMtdDashboardSnapshot();
-  let plan: Awaited<ReturnType<typeof getUserPlan>> = null;
+  let plan: PlanId | null = null;
+  let subscriptionEndDate: string | null = null;
+  let subscriptionEnding = false;
 
   try {
-    [snapshot, plan] = await Promise.all([
+    const [snapshotResult, subscription] = await Promise.all([
       getMtdDashboardSnapshot(userId, businessId),
-      getUserPlan(userId),
+      getSubscriptionState(userId),
     ]);
+    snapshot = snapshotResult;
+    plan = subscription.plan;
+    subscriptionEnding = subscriptionIsEnding(subscription);
+    subscriptionEndDate = subscription.stripeCurrentPeriodEnd
+      ? formatSubscriptionEndDate(subscription.stripeCurrentPeriodEnd)
+      : null;
   } catch (err) {
     console.error("[dashboard/page] snapshot load failed", err);
   }
@@ -67,6 +77,9 @@ export default async function DashboardPage({
 
   return (
     <div className="space-y-6 lg:space-y-8">
+      {subscriptionEnding && subscriptionEndDate ? (
+        <SubscriptionEndingBanner endDate={subscriptionEndDate} />
+      ) : null}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-sm font-medium text-slate-500">Hello {profile.firstName}</p>
@@ -85,19 +98,24 @@ export default async function DashboardPage({
           </div>
         </div>
         {plan ? (
-          <p className="text-sm text-slate-500">
-            Plan:{" "}
-            <span className="font-semibold text-brand-green">{PLAN_DISPLAY_NAMES[plan]}</span>
-            {!snapshot.hasBusiness ? (
-              <>
-                {" "}
-                ·{" "}
-                <Link href="/dashboard#setup-wizard" className="font-semibold text-brand-green hover:underline">
-                  Add business
-                </Link>
-              </>
+          <div className="text-sm text-slate-500">
+            <p>
+              Plan:{" "}
+              <span className="font-semibold text-brand-green">{PLAN_DISPLAY_NAMES[plan]}</span>
+              {!snapshot.hasBusiness ? (
+                <>
+                  {" "}
+                  ·{" "}
+                  <Link href="/dashboard#setup-wizard" className="font-semibold text-brand-green hover:underline">
+                    Add business
+                  </Link>
+                </>
+              ) : null}
+            </p>
+            {subscriptionEnding && subscriptionEndDate ? (
+              <p className="mt-1 font-bold text-red-600">Access ends {subscriptionEndDate}</p>
             ) : null}
-          </p>
+          </div>
         ) : !setupComplete ? (
           <Link
             href="/pricing"

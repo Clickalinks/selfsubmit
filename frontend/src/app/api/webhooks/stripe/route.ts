@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import type Stripe from "stripe";
 
 import { clearStripeSubscription, upsertStripeSubscription } from "@/lib/billing-server";
-import { isPlanId, type PlanId } from "@/lib/plan-config";
+import { isPlanId, normalizePlanId, type PlanId } from "@/lib/plan-config";
+import { prisma } from "@/lib/db";
 import { getStripe, isStripeConfigured } from "@/lib/stripe-server";
 import { subscriptionPeriodEnd } from "@/lib/stripe-subscription";
 
@@ -69,28 +70,57 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     stripeSubscriptionId: subscription.id,
     stripeSubscriptionStatus: subscription.status,
     stripeCurrentPeriodEnd: subscriptionPeriodEnd(subscription),
+    stripeCancelAtPeriodEnd: subscription.cancel_at_period_end,
   });
 }
 
+async function resolveUserIdFromSubscription(subscription: Stripe.Subscription): Promise<string | null> {
+  const fromMeta = subscription.metadata?.clerkUserId?.trim();
+  if (fromMeta) return fromMeta;
+
+  const row = await prisma.user.findFirst({
+    where: { stripeSubscriptionId: subscription.id },
+    select: { id: true },
+  });
+  return row?.id ?? null;
+}
+
+async function resolvePlanFromSubscription(
+  subscription: Stripe.Subscription,
+  userId: string,
+): Promise<PlanId | null> {
+  const fromMeta = subscription.metadata?.plan;
+  if (fromMeta && isPlanId(fromMeta)) return fromMeta;
+
+  const row = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { plan: true },
+  });
+  return normalizePlanId(row?.plan);
+}
+
 async function handleSubscriptionChange(subscription: Stripe.Subscription) {
-  const userId = subscription.metadata?.clerkUserId;
-  const planRaw = subscription.metadata?.plan;
-  if (!userId || !planRaw || !isPlanId(planRaw)) return;
+  const userId = await resolveUserIdFromSubscription(subscription);
+  if (!userId) return;
+
+  const plan = await resolvePlanFromSubscription(subscription, userId);
+  if (!plan) return;
 
   const customerId =
     typeof subscription.customer === "string" ? subscription.customer : subscription.customer.id;
 
   await upsertStripeSubscription(userId, {
-    plan: planRaw as PlanId,
+    plan,
     stripeCustomerId: customerId,
     stripeSubscriptionId: subscription.id,
     stripeSubscriptionStatus: subscription.status,
     stripeCurrentPeriodEnd: subscriptionPeriodEnd(subscription),
+    stripeCancelAtPeriodEnd: subscription.cancel_at_period_end,
   });
 }
 
 async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
-  const userId = subscription.metadata?.clerkUserId;
+  const userId = await resolveUserIdFromSubscription(subscription);
   if (!userId) return;
   await clearStripeSubscription(userId);
 }

@@ -64,6 +64,7 @@ export async function POST(req: Request) {
     stripeSubscriptionId: subscription.id,
     stripeSubscriptionStatus: subscription.status,
     stripeCurrentPeriodEnd: subscriptionPeriodEnd(subscription),
+    stripeCancelAtPeriodEnd: subscription.cancel_at_period_end,
   });
 
   return NextResponse.json({ ok: true, plan: planRaw, status: subscription.status });

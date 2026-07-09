@@ -8,7 +8,7 @@ import { DashboardCard } from "@/components/dashboard/DashboardCard";
 import { LoginSecuritySection } from "@/components/dashboard/LoginSecuritySection";
 import { MfaRequiredNotice } from "@/components/dashboard/MfaRequiredNotice";
 import { MfaSettingsSection } from "@/components/dashboard/MfaSettingsSection";
-import { ManageBillingSection } from "@/components/dashboard/ManageBillingSection";
+import { ManageBillingPanel } from "@/components/dashboard/ManageBillingPanel";
 
 export const metadata: Metadata = {
   title: "Settings — SelfSubmit",
@@ -59,7 +59,7 @@ export default function SettingsPage() {
         </ul>
       </DashboardCard>
 
-      <ManageBillingSection />
+      <ManageBillingPanel />
 
       <AccountCredentialsSection />
 
