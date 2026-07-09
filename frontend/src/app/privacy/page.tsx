@@ -5,6 +5,7 @@ import Link from "next/link";
 
 
 import { DataControllerCallout, PolicyContactEmail, PolicyRelatedLinks } from "@/components/legal/PolicyHelpers";
+import { IcoRegistrationSection } from "@/components/legal/CompanyDetails";
 
 import { ProcessorList } from "@/components/legal/ProcessorList";
 
@@ -50,7 +51,7 @@ export default function PrivacyPage() {
 
       description="This policy describes how we process personal data when you use selfsubmit.co.uk and the SelfSubmit application."
 
-      lastUpdated="6 July 2026"
+      lastUpdated="9 July 2026"
 
     >
 
@@ -65,7 +66,9 @@ export default function PrivacyPage() {
         </p>
       </DataControllerCallout>
 
-
+      <LegalCallout title="ICO registration">
+        <IcoRegistrationSection />
+      </LegalCallout>
 
       <LegalH2 id="scope">1. Scope</LegalH2>
 

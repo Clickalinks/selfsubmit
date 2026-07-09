@@ -1,6 +1,12 @@
 import Link from "next/link";
 
-import { COMPANY, companyRegistrationLine, copyrightNotice, registeredOfficeSingleLine } from "@/lib/company-details";
+import {
+  COMPANY,
+  companyRegistrationLine,
+  copyrightNotice,
+  formatIcoRegistrationDate,
+  registeredOfficeSingleLine,
+} from "@/lib/company-details";
 
 const ICO_REGISTER_URL = "https://ico.org.uk/ESDWebPages/Search";
 
@@ -67,6 +73,11 @@ export function CompanyDetails({ variant = "full", className = "" }: Props) {
           )}
         </p>
       ) : null}
+      {!isCompact && COMPANY.icoRegistrationNumber ? (
+        <p>
+          <span className="font-medium text-brand-black">ICO registration:</span> {COMPANY.icoRegistrationNumber}
+        </p>
+      ) : null}
       {!isCompact ? (
         <p className="pt-1 text-xs text-brand-muted">
           <Link href="/contact" className="text-brand-green underline-offset-2 hover:underline">
@@ -114,6 +125,12 @@ export function IcoRegistrationSection({ className = "" }: IcoProps) {
           <p className="mt-2">
             <span className="font-medium text-brand-black">ICO registration number:</span> {registrationNumber}
           </p>
+          {COMPANY.icoRegistrationRegistered && COMPANY.icoRegistrationExpires ? (
+            <p className="mt-2 text-xs">
+              Registered {formatIcoRegistrationDate(COMPANY.icoRegistrationRegistered)} · Renews{" "}
+              {formatIcoRegistrationDate(COMPANY.icoRegistrationExpires)}
+            </p>
+          ) : null}
           <p className="mt-2 text-xs">
             You can verify our entry on the{" "}
             <a
@@ -137,9 +154,12 @@ export function IcoRegistrationSection({ className = "" }: IcoProps) {
 }
 
 export function FooterCopyright() {
+  const ico = COMPANY.icoRegistrationNumber?.trim();
+
   return (
     <p className="text-center text-xs leading-relaxed text-gray-500 sm:text-sm">
-      {copyrightNotice()}{" "}
+      {copyrightNotice()}
+      {ico ? <> · ICO registration {ico}</> : null}{" "}
       <Link href="/about#company-information" className="text-brand-green underline-offset-2 hover:underline">
         Company information
       </Link>

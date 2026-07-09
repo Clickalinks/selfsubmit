@@ -21,8 +21,11 @@ export const COMPANY = {
   phone: null as string | null,
   /** Set when VAT registered, e.g. "GB123456789" */
   vatNumber: null as string | null,
-  /** ICO data protection fee registration — set when confirmed, e.g. "Z1234567" */
-  icoRegistrationNumber: null as string | null,
+  /** ICO data protection fee registration (Information Commissioner's Office). */
+  icoRegistrationNumber: "ZC192061",
+  /** ISO dates from ICO registration certificate. */
+  icoRegistrationRegistered: "2026-07-07",
+  icoRegistrationExpires: "2027-07-06",
   websiteUrl: "https://www.selfsubmit.co.uk",
   copyrightStartYear: 2026,
 } as const;
@@ -40,4 +43,16 @@ export function copyrightNotice(year = new Date().getFullYear()): string {
   const start = COMPANY.copyrightStartYear;
   const range = year > start ? `${start}–${year}` : String(start);
   return `© ${range} ${COMPANY.tradingName}. All rights reserved.`;
+}
+
+export function formatIcoRegistrationDate(iso: string): string {
+  try {
+    return new Date(`${iso}T12:00:00`).toLocaleDateString("en-GB", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+  } catch {
+    return iso;
+  }
 }
