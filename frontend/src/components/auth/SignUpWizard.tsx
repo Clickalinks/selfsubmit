@@ -60,8 +60,8 @@ function needsEmailVerification(signUp: { status: string | null; unverifiedField
   );
 }
 
-function finishSignUpNavigation() {
-  window.location.assign("/dashboard");
+function finishSignUpNavigation(destination = "/dashboard") {
+  window.location.assign(destination);
 }
 
 function clerkErrorMeta(err: unknown): { code?: string; message?: string } | null {
@@ -104,7 +104,7 @@ async function clearAuthForFreshSignUp(clerk: ReturnType<typeof useClerk>) {
   }
 }
 
-export function SignUpWizard() {
+export function SignUpWizard({ redirectUrl = null }: { redirectUrl?: string | null }) {
   const { isLoaded, isSignedIn } = useAuth();
   const { user } = useUser();
   const clerk = useClerk();
@@ -136,6 +136,11 @@ export function SignUpWizard() {
 
   const fieldsDisabled = pendingVerification || resolvingSession;
 
+  const postSignUpDestination = redirectUrl ?? "/dashboard";
+  const hasClerkIdentity = Boolean(
+    needsProfileOnly && user?.firstName && user?.lastName && user?.primaryEmailAddress?.emailAddress,
+  );
+
   useEffect(() => {
     if (!isLoaded || !clerk.loaded) return;
 
@@ -159,7 +164,7 @@ export function SignUpWizard() {
         const res = await fetch("/api/profile");
         if (cancelled) return;
         if (res.ok) {
-          finishSignUpNavigation();
+          finishSignUpNavigation(postSignUpDestination);
           return;
         }
 
@@ -174,6 +179,8 @@ export function SignUpWizard() {
         if (user?.lastName) setLastName(user.lastName);
         const primaryEmail = user?.primaryEmailAddress?.emailAddress;
         if (primaryEmail) setEmail(primaryEmail);
+        const primaryPhone = user?.primaryPhoneNumber?.phoneNumber;
+        if (primaryPhone) setPhone(primaryPhone);
       } catch {
         if (!cancelled) {
           setNeedsProfileOnly(true);
@@ -196,6 +203,8 @@ export function SignUpWizard() {
     user?.firstName,
     user?.lastName,
     user?.primaryEmailAddress?.emailAddress,
+    user?.primaryPhoneNumber?.phoneNumber,
+    postSignUpDestination,
   ]);
 
   const profileInput: ProfileInput = useMemo(
@@ -252,11 +261,6 @@ export function SignUpWizard() {
       try {
         await clerk.setActive({ session: sessionId });
 
-        if (!clerk.user?.id) {
-          window.location.assign("/dashboard/settings?mfa=required&signup=finish");
-          return;
-        }
-
         const res = await fetch("/api/profile", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -265,7 +269,7 @@ export function SignUpWizard() {
         const data = (await res.json().catch(() => ({}))) as { error?: string; fieldErrors?: FieldErrors };
 
         if (res.status === 409) {
-          finishSignUpNavigation();
+          finishSignUpNavigation(postSignUpDestination);
           return;
         }
 
@@ -276,12 +280,12 @@ export function SignUpWizard() {
         }
 
         setSuccess(true);
-        finishSignUpNavigation();
+        finishSignUpNavigation(postSignUpDestination);
       } finally {
         accountSetupInProgress.current = false;
       }
     },
-    [clerk, profileInput],
+    [clerk, profileInput, postSignUpDestination],
   );
 
   const saveProfileOnly = useCallback(async () => {
@@ -297,7 +301,7 @@ export function SignUpWizard() {
       const data = (await res.json().catch(() => ({}))) as { error?: string; fieldErrors?: FieldErrors };
 
       if (res.status === 409) {
-        finishSignUpNavigation();
+        finishSignUpNavigation(postSignUpDestination);
         return;
       }
 
@@ -308,12 +312,12 @@ export function SignUpWizard() {
       }
 
       setSuccess(true);
-      finishSignUpNavigation();
+      finishSignUpNavigation(postSignUpDestination);
     } finally {
       accountSetupInProgress.current = false;
       setLoading(false);
     }
-  }, [profileInput]);
+  }, [profileInput, postSignUpDestination]);
 
   const submit = async () => {
     if (!isLoaded || !clerk.loaded) return;
@@ -508,42 +512,70 @@ export function SignUpWizard() {
       <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-lg shadow-slate-200/40 sm:p-6 lg:p-8">
         {needsProfileOnly ? (
           <p className="mb-6 rounded-xl border border-brand-green/20 bg-brand-mint px-4 py-3 text-sm text-brand-forest">
-            You&apos;re signed in. Finish the details below once — then you&apos;ll go straight to your dashboard.
+            {hasClerkIdentity
+              ? "Your account is ready. Add your address and phone below to finish — we won't ask for your name or email again."
+              : "You're signed in. Finish the details below once — then you'll continue to your plan."}
           </p>
         ) : null}
         <div className="space-y-8">
           <section id="section-personal" className={sectionClass}>
             <h2 className={sectionTitleClass}>Personal details</h2>
-            <div className="grid gap-4 min-[520px]:grid-cols-2">
-              <div>
-                <label className={labelClass} htmlFor="firstName">
-                  First name
-                </label>
-                <input
-                  id="firstName"
-                  className={inputClass}
-                  value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
-                  autoComplete="given-name"
-                  disabled={fieldsDisabled}
-                />
-                <FieldError message={fieldErrors.firstName} />
+            {hasClerkIdentity ? (
+              <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
+                <p className="font-semibold text-slate-900">
+                  {firstName} {lastName}
+                </p>
+                <p className="mt-1">{email}</p>
               </div>
-              <div>
-                <label className={labelClass} htmlFor="lastName">
-                  Second name
-                </label>
-                <input
-                  id="lastName"
-                  className={inputClass}
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
-                  autoComplete="family-name"
-                  disabled={fieldsDisabled}
-                />
-                <FieldError message={fieldErrors.lastName} />
-              </div>
-            </div>
+            ) : (
+              <>
+                <div className="grid gap-4 min-[520px]:grid-cols-2">
+                  <div>
+                    <label className={labelClass} htmlFor="firstName">
+                      First name
+                    </label>
+                    <input
+                      id="firstName"
+                      className={inputClass}
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      autoComplete="given-name"
+                      disabled={fieldsDisabled}
+                    />
+                    <FieldError message={fieldErrors.firstName} />
+                  </div>
+                  <div>
+                    <label className={labelClass} htmlFor="lastName">
+                      Second name
+                    </label>
+                    <input
+                      id="lastName"
+                      className={inputClass}
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      autoComplete="family-name"
+                      disabled={fieldsDisabled}
+                    />
+                    <FieldError message={fieldErrors.lastName} />
+                  </div>
+                </div>
+                <div>
+                  <label className={labelClass} htmlFor="email">
+                    Email address
+                  </label>
+                  <input
+                    id="email"
+                    type="email"
+                    className={inputClass}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    autoComplete="email"
+                    disabled={fieldsDisabled}
+                  />
+                  <FieldError message={fieldErrors.email} />
+                </div>
+              </>
+            )}
             <UkAddressLookup
               idPrefix="home"
               label="Home address"
@@ -552,21 +584,6 @@ export function SignUpWizard() {
               error={fieldErrors.homeAddress}
               disabled={fieldsDisabled}
             />
-            <div>
-              <label className={labelClass} htmlFor="email">
-                Email address
-              </label>
-              <input
-                id="email"
-                type="email"
-                className={inputClass}
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                autoComplete="email"
-                disabled={fieldsDisabled}
-              />
-              <FieldError message={fieldErrors.email} />
-            </div>
             <div>
               <label className={labelClass} htmlFor="phone">
                 Phone number
@@ -775,7 +792,9 @@ export function SignUpWizard() {
               : pendingVerification
                 ? "Verify and finish"
                 : needsProfileOnly
-                  ? "Save and open dashboard"
+                  ? redirectUrl
+                    ? "Save and continue"
+                    : "Save and open dashboard"
                   : "Create account"}
           </button>
         </div>

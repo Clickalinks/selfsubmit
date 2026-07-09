@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { SignUpWizard } from "@/components/auth/SignUpWizard";
+import { safeAppRedirectPath } from "@/lib/auth-redirect";
 import { getClientProfile } from "@/lib/profile-server";
 import { getOptionalUserId } from "@/lib/safe-auth";
 import { NOINDEX_ROBOTS } from "@/lib/seo";
@@ -13,12 +14,19 @@ export const metadata: Metadata = {
   robots: NOINDEX_ROBOTS,
 };
 
-export default async function SignUpPage() {
+type Props = {
+  searchParams: Promise<{ redirect_url?: string }>;
+};
+
+export default async function SignUpPage({ searchParams }: Props) {
+  const { redirect_url } = await searchParams;
+  const redirectUrl = safeAppRedirectPath(redirect_url);
+
   const userId = await getOptionalUserId();
   if (userId) {
     const profile = await getClientProfile(userId);
     if (profile) {
-      redirect("/dashboard");
+      redirect(redirectUrl ?? "/dashboard");
     }
   }
 
@@ -42,7 +50,7 @@ export default async function SignUpPage() {
             sections on one page.
           </p>
         </div>
-        <SignUpWizard />
+        <SignUpWizard redirectUrl={redirectUrl} />
       </div>
     </div>
   );
