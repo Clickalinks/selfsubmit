@@ -4,10 +4,12 @@ import { SignIn } from "@clerk/nextjs";
 
 import { SignInLoginProtection } from "@/components/auth/SignInLoginProtection";
 import { SignInInactiveNotice } from "@/components/auth/SignInInactiveNotice";
+import { NOINDEX_ROBOTS } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "Sign in — SelfSubmit",
   description: "Sign in to SelfSubmit with Clerk (email, password, passkeys when enabled in Clerk).",
+  robots: NOINDEX_ROBOTS,
 };
 
 const clerkAppearance = {

@@ -4,12 +4,14 @@ import { Suspense } from "react";
 import { SiteFooter } from "@/components/landing/SiteFooter";
 import { SiteHeader } from "@/components/landing/SiteHeader";
 import { AddBusinessClientShell } from "@/components/subscription/AddBusinessClientShell";
+import { NOINDEX_ROBOTS } from "@/lib/seo";
 import { requireClerkUserId, requireUserPlan } from "@/server/subscription-guards";
 import { requireMfaEnabled } from "@/server/mfa-guards";
 
 export const metadata: Metadata = {
   title: "Add business — SelfSubmit",
   description: "Create a business profile before opening the monthly return form.",
+  robots: NOINDEX_ROBOTS,
 };
 
 export default async function AddBusinessPage() {

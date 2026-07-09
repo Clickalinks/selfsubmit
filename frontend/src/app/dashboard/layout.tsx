@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
@@ -6,6 +7,11 @@ import { DashboardDbUnavailable } from "@/components/dashboard/DashboardDbUnavai
 import { DashboardFrame } from "@/components/dashboard/DashboardFrame";
 import { toDashboardShellProfile } from "@/lib/dashboard-profile";
 import { getClientProfile } from "@/lib/profile-server";
+import { NOINDEX_ROBOTS } from "@/lib/seo";
+
+export const metadata: Metadata = {
+  robots: NOINDEX_ROBOTS,
+};
 
 export default async function DashboardLayout({ children }: { children: ReactNode }) {
   const { userId } = await auth();

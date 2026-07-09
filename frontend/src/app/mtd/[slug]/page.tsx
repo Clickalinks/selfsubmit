@@ -7,6 +7,7 @@ import { HmrcSourceNotice } from "@/components/mtd/HmrcSourceNotice";
 import { SiteFooter } from "@/components/landing/SiteFooter";
 import { SiteHeader } from "@/components/landing/SiteHeader";
 import { getAllInfoBlockSlugs, getInfoBlockBySlug } from "@/data/mtdInfoBlocks";
+import { pageCanonical, defaultOpenGraph, defaultTwitter } from "@/lib/seo";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -18,9 +19,21 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const block = getInfoBlockBySlug(slug);
   if (!block) return { title: "Guide not found" };
+  const path = `/mtd/${slug}`;
   return {
     title: `${block.title} — MTD information block | SelfSubmit`,
     description: block.cardIntro,
+    alternates: pageCanonical(path),
+    openGraph: defaultOpenGraph({
+      title: `${block.title} — SelfSubmit`,
+      description: block.cardIntro,
+      url: path,
+      type: "article",
+    }),
+    twitter: defaultTwitter({
+      title: `${block.title} — SelfSubmit`,
+      description: block.cardIntro,
+    }),
   };
 }
 

@@ -8,6 +8,8 @@ import { SessionInactivityGuard } from "@/components/auth/SessionInactivityGuard
 import { ComplianceDisclaimerBanner } from "@/components/ComplianceDisclaimerBanner";
 import { CookieConsentBanner } from "@/components/legal/CookieConsentBanner";
 import { clerkProviderProxyUrl, reconcileClerkProxyEnv } from "@/lib/clerk-env";
+import { defaultOpenGraph, defaultTwitter } from "@/lib/seo";
+import { getSiteUrl } from "@/lib/site-url";
 
 import "./globals.css";
 
@@ -31,10 +33,21 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "SelfSubmit — Simple tax returns for the self-employed",
+  metadataBase: new URL(getSiteUrl()),
+  title: {
+    default: "SelfSubmit — MTD record keeping for UK self-employed",
+    template: "%s",
+  },
   description:
-    "UK self-employed monthly submissions, PDFs, and your accountant — built for taxi drivers, barbers, driving instructors, and more.",
+    "SelfSubmit helps UK self-employed people and landlords keep digital records, track income and expenses, and prepare Making Tax Digital quarterly updates.",
   applicationName: "SelfSubmit",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true },
+  },
+  openGraph: defaultOpenGraph(),
+  twitter: defaultTwitter(),
   appleWebApp: {
     capable: true,
     title: "SelfSubmit",

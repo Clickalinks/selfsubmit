@@ -1,4 +1,21 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+
+import { pageCanonical, defaultOpenGraph, defaultTwitter } from "@/lib/seo";
+
+export const metadata: Metadata = {
+  title: "HMRC recognised agent — SelfSubmit",
+  description:
+    "Information about SelfSubmit and HMRC agent services for Making Tax Digital quarterly updates.",
+  alternates: pageCanonical("/hmrc-agent"),
+  openGraph: defaultOpenGraph({
+    title: "HMRC recognised agent — SelfSubmit",
+    url: "/hmrc-agent",
+  }),
+  twitter: defaultTwitter({
+    title: "HMRC recognised agent — SelfSubmit",
+  }),
+};
 
 export default function HmrcAgentPage() {
   return (

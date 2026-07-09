@@ -3,10 +3,12 @@ import { redirect } from "next/navigation";
 
 import { getOptionalUserId } from "@/lib/safe-auth";
 import { resolveAuthenticatedDestination } from "@/lib/auth-redirect";
+import { NOINDEX_ROBOTS } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "Complete your profile — SelfSubmit",
   description: "Finish setting up your SelfSubmit client account.",
+  robots: NOINDEX_ROBOTS,
 };
 
 /** Legacy route — registration is completed on /sign-up only. */

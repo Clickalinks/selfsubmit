@@ -9,6 +9,7 @@ import { PlanFeaturesList } from "@/components/subscription/PlanFeaturesList";
 import { PlanSubscribeButton } from "@/components/subscription/PlanSubscribeButton";
 import { getTierByPlanId, PLAN_CORE_FEATURE_COUNT } from "@/data/pricingTiers";
 import { PLAN_DISPLAY_NAMES, PLAN_IDS, type PlanId } from "@/lib/plan-config";
+import { pageCanonical, defaultOpenGraph, defaultTwitter } from "@/lib/seo";
 
 type Props = {
   params: Promise<{ planId: string }>;
@@ -24,9 +25,20 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!tier) {
     return { title: "Plan not found — SelfSubmit" };
   }
+  const path = `/pricing/${planId}`;
   return {
     title: `${tier.name} plan — SelfSubmit`,
     description: `${tier.businessesDetail} £${tier.price}/month. All core SelfSubmit features included.`,
+    alternates: pageCanonical(path),
+    openGraph: defaultOpenGraph({
+      title: `${tier.name} plan — SelfSubmit`,
+      description: `${tier.businessesDetail} £${tier.price}/month.`,
+      url: path,
+    }),
+    twitter: defaultTwitter({
+      title: `${tier.name} plan — SelfSubmit`,
+      description: `${tier.businessesDetail} £${tier.price}/month.`,
+    }),
   };
 }
 

@@ -3,17 +3,31 @@ import Link from "next/link";
 
 import { FaqList } from "@/components/marketing/FaqList";
 import { SitePageHero, SitePageShell } from "@/components/landing/SitePageShell";
+import { JsonLd } from "@/components/seo/JsonLd";
 import { FAQ_ITEMS } from "@/data/faqItems";
+import { buildFaqPageJsonLd } from "@/lib/faq-jsonld";
 import { COMPANY } from "@/lib/company-details";
+import { pageCanonical, defaultOpenGraph, defaultTwitter } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "FAQ — SelfSubmit",
   description: "Frequently asked questions about SelfSubmit, MTD quarterly updates, pricing, receipts, and support.",
+  alternates: pageCanonical("/faq"),
+  openGraph: defaultOpenGraph({
+    title: "FAQ — SelfSubmit",
+    description: "Frequently asked questions about SelfSubmit, MTD quarterly updates, pricing, receipts, and support.",
+    url: "/faq",
+  }),
+  twitter: defaultTwitter({
+    title: "FAQ — SelfSubmit",
+    description: "Frequently asked questions about SelfSubmit, MTD quarterly updates, pricing, receipts, and support.",
+  }),
 };
 
 export default function FaqPage() {
   return (
     <SitePageShell>
+      <JsonLd data={buildFaqPageJsonLd(FAQ_ITEMS)} />
       <SitePageHero
         eyebrow="Help"
         title="Frequently asked questions"

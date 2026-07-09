@@ -5,10 +5,12 @@ import { redirect } from "next/navigation";
 import { SignUpWizard } from "@/components/auth/SignUpWizard";
 import { getClientProfile } from "@/lib/profile-server";
 import { getOptionalUserId } from "@/lib/safe-auth";
+import { NOINDEX_ROBOTS } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "Create account — SelfSubmit",
   description: "Register for SelfSubmit with your personal and business details.",
+  robots: NOINDEX_ROBOTS,
 };
 
 export default async function SignUpPage() {

@@ -1,7 +1,16 @@
+import type { Metadata } from "next";
+
 import { MonthlyExpenseForm } from "@/components/forms/MonthlyExpenseForm";
 import { getActiveBusinessContext } from "@/lib/active-business";
+import { NOINDEX_ROBOTS } from "@/lib/seo";
 import { assertSubmitFormAccess, requireClerkUserId } from "@/server/subscription-guards";
 import { requireMfaEnabled } from "@/server/mfa-guards";
+
+export const metadata: Metadata = {
+  title: "Monthly record — SelfSubmit",
+  description: "Save your monthly income and expense records.",
+  robots: NOINDEX_ROBOTS,
+};
 
 type Props = {
   searchParams: Promise<{ trade?: string; businessId?: string }>;
