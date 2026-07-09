@@ -39,7 +39,6 @@ export async function POST(request: Request) {
       : CONSENT_POLICY_VERSION;
 
   const { userId } = await auth();
-  const ip = getRequestIp(request);
   const userAgent = getRequestUserAgent(request);
 
   try {
