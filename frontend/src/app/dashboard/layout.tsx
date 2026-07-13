@@ -7,6 +7,7 @@ import { DashboardDbUnavailable } from "@/components/dashboard/DashboardDbUnavai
 import { DashboardFrame } from "@/components/dashboard/DashboardFrame";
 import { toDashboardShellProfile } from "@/lib/dashboard-profile";
 import { getClientProfile } from "@/lib/profile-server";
+import { canCreateBusiness } from "@/lib/subscription-server";
 import { NOINDEX_ROBOTS } from "@/lib/seo";
 
 export const metadata: Metadata = {
@@ -20,8 +21,10 @@ export default async function DashboardLayout({ children }: { children: ReactNod
   }
 
   let profile;
+  let allowCreateBusiness = false;
   try {
     profile = await getClientProfile(userId);
+    allowCreateBusiness = await canCreateBusiness(userId);
   } catch (err) {
     console.error("[dashboard/layout] profile load failed", err);
     return <DashboardDbUnavailable />;
@@ -31,5 +34,9 @@ export default async function DashboardLayout({ children }: { children: ReactNod
     redirect("/sign-up?redirect_url=/dashboard");
   }
 
-  return <DashboardFrame profile={toDashboardShellProfile(profile)}>{children}</DashboardFrame>;
+  return (
+    <DashboardFrame profile={toDashboardShellProfile(profile)} canCreateBusiness={allowCreateBusiness}>
+      {children}
+    </DashboardFrame>
+  );
 }

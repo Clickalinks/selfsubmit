@@ -12,16 +12,18 @@ import type { DashboardShellProfile } from "@/lib/dashboard-profile";
 type Props = {
   profile: DashboardShellProfile;
   title: string;
+  canCreateBusiness?: boolean;
   children: ReactNode;
 };
 
-export function DashboardShell({ profile, title, children }: Props) {
+export function DashboardShell({ profile, title, canCreateBusiness = false, children }: Props) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
     <div className="flex min-h-screen bg-brand-mint/40">
       <DashboardSidebar
         profile={profile}
+        canCreateBusiness={canCreateBusiness}
         mobileOpen={mobileOpen}
         onCloseMobile={() => setMobileOpen(false)}
       />

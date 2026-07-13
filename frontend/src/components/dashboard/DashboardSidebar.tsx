@@ -27,6 +27,7 @@ const NAV: NavItem[] = [
 
 type Props = {
   profile: Pick<DashboardShellProfile, "firstName" | "lastName" | "businessName">;
+  canCreateBusiness?: boolean;
   mobileOpen: boolean;
   onCloseMobile: () => void;
 };
@@ -36,10 +37,18 @@ function isActive(pathname: string, href: string, exact?: boolean) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-export function DashboardSidebar({ profile, mobileOpen, onCloseMobile }: Props) {
+export function DashboardSidebar({
+  profile,
+  canCreateBusiness = false,
+  mobileOpen,
+  onCloseMobile,
+}: Props) {
   const pathname = usePathname();
   const displayName = `${profile.firstName} ${profile.lastName}`.trim();
   const subtitle = profile.businessName || "SelfSubmit client";
+  const navItems = canCreateBusiness
+    ? NAV
+    : NAV.filter((item) => item.href !== "/add-business");
 
   return (
     <>
@@ -75,7 +84,7 @@ export function DashboardSidebar({ profile, mobileOpen, onCloseMobile }: Props) 
         </div>
 
         <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4" aria-label="Dashboard">
-          {NAV.map(({ href, label, icon: Icon, exact }) => {
+          {navItems.map(({ href, label, icon: Icon, exact }) => {
             const active = isActive(pathname, href, exact);
             return (
               <Link
