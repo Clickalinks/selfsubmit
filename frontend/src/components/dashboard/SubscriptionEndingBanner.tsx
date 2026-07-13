@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { AlertTriangle } from "lucide-react";
 
 type Props = {
@@ -5,6 +6,7 @@ type Props = {
   className?: string;
 };
 
+/** @deprecated Prefer SubscriptionAccessBanner — kept for simple end-date callouts. */
 export function SubscriptionEndingBanner({ endDate, className = "" }: Props) {
   return (
     <div
@@ -17,9 +19,17 @@ export function SubscriptionEndingBanner({ endDate, className = "" }: Props) {
           <p className="text-sm font-bold text-red-800">Subscription ending</p>
           <p className="mt-1 text-sm leading-relaxed text-red-900">
             Your plan has been cancelled. You keep full access until{" "}
-            <span className="font-bold text-red-700">{endDate}</span>. After that date you will need to choose a new
-            plan to continue using SelfSubmit.
+            <span className="font-bold text-red-700">{endDate}</span>. After that you have 30 days to download your
+            submissions and receipts, delete your account, or resubscribe.
           </p>
+          <div className="mt-3 flex flex-wrap gap-3 text-sm font-semibold">
+            <Link href="/pricing" className="text-red-800 underline underline-offset-2">
+              Resubscribe or switch plan
+            </Link>
+            <Link href="/dashboard/settings" className="text-red-800 underline underline-offset-2">
+              Download data / delete account
+            </Link>
+          </div>
         </div>
       </div>
     </div>

@@ -23,7 +23,7 @@ export default function CancellationPage() {
     <LegalPageShell
       title="Cancellation policy"
       description="You can cancel your SelfSubmit subscription at any time. This page explains how cancellation works."
-      lastUpdated="6 July 2026"
+      lastUpdated="13 July 2026"
     >
       <LegalH2 id="anytime">1. Cancel anytime</LegalH2>
       <LegalP>
@@ -45,9 +45,14 @@ export default function CancellationPage() {
 
       <LegalH2 id="access">3. When access ends</LegalH2>
       <LegalP>
-        After cancellation, you keep access until the end of the current paid billing period. You will not be charged
-        again unless you re-subscribe. When the period ends, paid features (such as new submissions or uploads) may be
-        restricted until you choose a plan again.
+        After cancellation, you keep full access until the end of the current paid billing period. You will not be
+        charged again unless you re-subscribe.
+      </LegalP>
+      <LegalP>
+        When that paid period ends, paid features (such as new monthly records, receipt uploads, and adding businesses)
+        are paused. You then have a <strong>30-day grace period</strong> to download your submissions and receipts,
+        permanently delete your account, or resubscribe to continue. After the grace period, you can still sign in to
+        export or delete your account or choose a new plan, but new paid features stay locked until you resubscribe.
       </LegalP>
 
       <LegalH2 id="data">4. Your data after cancellation</LegalH2>

@@ -26,6 +26,8 @@ model User {
   stripeSubscriptionStatus String?
   stripeCurrentPeriodEnd   DateTime?
   stripeCancelAtPeriodEnd  Boolean                @default(false)
+  /// When paid access ended (period end / subscription deleted). Used for the 30-day export grace window.
+  subscriptionAccessEndedAt DateTime?
   createdAt                DateTime               @default(now())
   updatedAt                DateTime               @updatedAt
   businesses               Business[]

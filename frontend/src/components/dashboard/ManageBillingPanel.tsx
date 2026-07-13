@@ -1,24 +1,25 @@
 import { auth } from "@clerk/nextjs/server";
 
 import { ManageBillingSection } from "@/components/dashboard/ManageBillingSection";
-import { SubscriptionEndingBanner } from "@/components/dashboard/SubscriptionEndingBanner";
+import { SubscriptionAccessBanner } from "@/components/dashboard/SubscriptionAccessBanner";
 import { getSubscriptionState } from "@/lib/billing-server";
-import { formatSubscriptionEndDate, subscriptionIsEnding } from "@/lib/subscription-ending";
+import { getSubscriptionAccess } from "@/lib/subscription-access";
 
 export async function ManageBillingPanel() {
   const { userId } = await auth();
   if (!userId) return null;
 
   const subscription = await getSubscriptionState(userId);
-  const ending = subscriptionIsEnding(subscription);
-  const endDate = subscription.stripeCurrentPeriodEnd
-    ? formatSubscriptionEndDate(subscription.stripeCurrentPeriodEnd)
-    : null;
+  const access = getSubscriptionAccess(subscription);
+  const ending = access.phase === "ending";
 
   return (
     <div className="space-y-4">
-      {ending && endDate ? <SubscriptionEndingBanner endDate={endDate} /> : null}
-      <ManageBillingSection showUpgradeCta subscriptionEnding={ending} />
+      <SubscriptionAccessBanner access={access} />
+      <ManageBillingSection
+        showUpgradeCta
+        subscriptionEnding={ending || access.phase === "grace" || access.phase === "lapsed"}
+      />
     </div>
   );
 }

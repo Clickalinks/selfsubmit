@@ -7,6 +7,7 @@ import { writeAuditLog } from "@/lib/audit-log";
 import { prisma } from "@/lib/db";
 import { UPLOAD_MAX_BYTES, validateUploadFile } from "@/lib/file-validation";
 import { extensionForMime, ReceiptStorageError, saveReceiptFile } from "@/lib/receipt-storage";
+import { paidFeaturesBlockedResponse } from "@/server/subscription-guards";
 
 export async function GET(req: Request) {
   try {
@@ -48,6 +49,9 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   try {
     const { userId, role } = await requireApiUser();
+    const blocked = await paidFeaturesBlockedResponse(userId);
+    if (blocked) return blocked;
+
     const rateLimited = await rateLimitOrNull("receipts-upload", userId, API_RATE_LIMITS.receiptsUpload);
     if (rateLimited) return rateLimited;
 

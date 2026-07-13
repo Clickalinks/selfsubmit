@@ -21,7 +21,7 @@ export default function DataRetentionPage() {
     <LegalPageShell
       title="Data retention policy"
       description="This policy explains how long we keep different categories of data and when we delete or anonymise them."
-      lastUpdated="6 July 2026"
+      lastUpdated="13 July 2026"
     >
       <LegalH2 id="principle">1. Principle</LegalH2>
       <LegalP>
@@ -48,8 +48,10 @@ export default function DataRetentionPage() {
         subscription is active, we store submissions, figures, and uploaded receipts so you can meet those obligations.
       </LegalP>
       <LegalP>
-        If you cancel, we may retain your business records for a grace period so you can export them, then delete or
-        anonymise them unless we must keep them longer for legal, accounting, or dispute resolution reasons.
+        If you cancel, you keep access until the end of your paid period. After that we keep a{" "}
+        <strong>30-day grace period</strong> so you can export your submissions and receipts, delete your account, or
+        resubscribe. We may then delete or anonymise inactive account data unless we must keep it longer for legal,
+        accounting, or dispute resolution reasons.
       </LegalP>
 
       <LegalH2 id="account">3. Account and profile data</LegalH2>

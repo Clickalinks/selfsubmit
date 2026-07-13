@@ -5,7 +5,7 @@ import { SiteFooter } from "@/components/landing/SiteFooter";
 import { SiteHeader } from "@/components/landing/SiteHeader";
 import { AddBusinessClientShell } from "@/components/subscription/AddBusinessClientShell";
 import { NOINDEX_ROBOTS } from "@/lib/seo";
-import { requireClerkUserId, requireUserPlan } from "@/server/subscription-guards";
+import { requireClerkUserId, requirePaidAccess } from "@/server/subscription-guards";
 import { requireMfaEnabled } from "@/server/mfa-guards";
 
 export const metadata: Metadata = {
@@ -17,7 +17,7 @@ export const metadata: Metadata = {
 export default async function AddBusinessPage() {
   const userId = await requireClerkUserId("/add-business");
   await requireMfaEnabled(userId, "/add-business");
-  await requireUserPlan(userId);
+  await requirePaidAccess(userId, "/add-business");
 
   return (
     <div className="min-h-screen">

@@ -59,6 +59,7 @@ export type SubscriptionState = {
   stripeSubscriptionStatus: string | null;
   stripeCurrentPeriodEnd: Date | null;
   stripeCancelAtPeriodEnd: boolean;
+  subscriptionAccessEndedAt: Date | null;
 };
 
 function rowToSubscriptionState(row: {
@@ -68,6 +69,7 @@ function rowToSubscriptionState(row: {
   stripeSubscriptionStatus: string | null;
   stripeCurrentPeriodEnd: Date | null;
   stripeCancelAtPeriodEnd: boolean;
+  subscriptionAccessEndedAt: Date | null;
 }): SubscriptionState {
   const plan = normalizePlanId(row.plan);
   const status = row.stripeSubscriptionStatus;
@@ -92,6 +94,7 @@ function rowToSubscriptionState(row: {
     stripeSubscriptionStatus: row.stripeSubscriptionStatus,
     stripeCurrentPeriodEnd: row.stripeCurrentPeriodEnd,
     stripeCancelAtPeriodEnd: row.stripeCancelAtPeriodEnd,
+    subscriptionAccessEndedAt: row.subscriptionAccessEndedAt,
   };
 }
 
@@ -142,6 +145,17 @@ async function syncStripeSubscriptionFromApi(userId: string): Promise<void> {
     const subscription = await fetchStripeSubscriptionForUser(row);
     if (!subscription) return;
 
+    const periodEnd = subscriptionSyncPayload(subscription).stripeCurrentPeriodEnd;
+    const fullyEnded =
+      subscription.status === "canceled" ||
+      subscription.status === "unpaid" ||
+      subscription.status === "incomplete_expired";
+
+    if (fullyEnded && (!periodEnd || periodEnd.getTime() <= Date.now())) {
+      await clearStripeSubscription(userId);
+      return;
+    }
+
     const planRaw = subscription.metadata?.plan;
     const plan = planRaw && normalizePlanId(planRaw) ? (planRaw as PlanId) : normalizePlanId(row.plan);
     if (!plan) return;
@@ -176,6 +190,7 @@ export async function getSubscriptionState(userId: string): Promise<Subscription
       stripeSubscriptionStatus: true,
       stripeCurrentPeriodEnd: true,
       stripeCancelAtPeriodEnd: true,
+      subscriptionAccessEndedAt: true,
     },
   });
 
@@ -188,6 +203,7 @@ export async function getSubscriptionState(userId: string): Promise<Subscription
       stripeSubscriptionStatus: null,
       stripeCurrentPeriodEnd: null,
       stripeCancelAtPeriodEnd: false,
+      subscriptionAccessEndedAt: null,
     };
   }
 
@@ -210,6 +226,8 @@ export async function upsertStripeSubscription(
     stripeCancelAtPeriodEnd?: boolean;
   },
 ): Promise<void> {
+  const clearAccessEnded = ACTIVE_STRIPE_STATUSES.has(data.stripeSubscriptionStatus);
+
   await prisma.user.upsert({
     where: { id: userId },
     create: {
@@ -220,6 +238,7 @@ export async function upsertStripeSubscription(
       stripeSubscriptionStatus: data.stripeSubscriptionStatus,
       stripeCurrentPeriodEnd: data.stripeCurrentPeriodEnd,
       stripeCancelAtPeriodEnd: data.stripeCancelAtPeriodEnd ?? false,
+      subscriptionAccessEndedAt: clearAccessEnded ? null : data.stripeCurrentPeriodEnd,
     },
     update: {
       plan: data.plan,
@@ -228,18 +247,34 @@ export async function upsertStripeSubscription(
       stripeSubscriptionStatus: data.stripeSubscriptionStatus,
       stripeCurrentPeriodEnd: data.stripeCurrentPeriodEnd,
       stripeCancelAtPeriodEnd: data.stripeCancelAtPeriodEnd ?? false,
+      ...(clearAccessEnded
+        ? { subscriptionAccessEndedAt: null }
+        : {
+            subscriptionAccessEndedAt: data.stripeCurrentPeriodEnd ?? new Date(),
+          }),
     },
   });
 }
 
 export async function clearStripeSubscription(userId: string): Promise<void> {
+  const existing = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { stripeCurrentPeriodEnd: true, subscriptionAccessEndedAt: true },
+  });
+
+  const endedAt =
+    existing?.subscriptionAccessEndedAt ??
+    existing?.stripeCurrentPeriodEnd ??
+    new Date();
+
   await prisma.user.update({
     where: { id: userId },
     data: {
       stripeSubscriptionStatus: "canceled",
       stripeSubscriptionId: null,
-      stripeCurrentPeriodEnd: null,
       stripeCancelAtPeriodEnd: false,
+      stripeCurrentPeriodEnd: existing?.stripeCurrentPeriodEnd ?? endedAt,
+      subscriptionAccessEndedAt: endedAt,
     },
   });
 }

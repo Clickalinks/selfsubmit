@@ -8,6 +8,7 @@ import {
   listSubmissionsForUser,
   type CreateSubmissionInput,
 } from "@/lib/submissions-server";
+import { paidFeaturesBlockedResponse } from "@/server/subscription-guards";
 
 export async function GET() {
   const { userId } = await auth();
@@ -34,6 +35,9 @@ export async function POST(req: Request) {
 
   const rateLimited = await rateLimitOrNull("submissions", userId, API_RATE_LIMITS.submissions);
   if (rateLimited) return rateLimited;
+
+  const blocked = await paidFeaturesBlockedResponse(userId);
+  if (blocked) return blocked;
 
   let body: unknown;
   try {
