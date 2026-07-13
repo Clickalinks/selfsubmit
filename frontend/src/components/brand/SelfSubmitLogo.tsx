@@ -1,4 +1,4 @@
-import { Check } from "lucide-react";
+import Image from "next/image";
 
 type SelfSubmitLogoProps = {
   /** `light` = white wordmark on dark backgrounds; `dark` = dark text on white */
@@ -19,16 +19,20 @@ export function SelfSubmitLogo({
   const textClass = isLight ? "text-white" : "text-brand-black";
 
   const iconSize = compact ? "h-9 w-9" : "h-10 w-10 sm:h-11 sm:w-11";
-  const checkSize = compact ? "h-4 w-4" : "h-5 w-5 sm:h-6 sm:w-6";
+  const iconPx = compact ? 36 : 44;
   const wordSize = compact ? "text-lg sm:text-2xl" : "text-xl sm:text-2xl";
 
   return (
     <span className={`inline-flex min-w-0 items-center gap-2 sm:gap-2.5 ${className}`}>
-      <span
-        className={`flex shrink-0 items-center justify-center rounded-full bg-brand-green shadow-btn-green ${iconSize}`}
-        aria-hidden
-      >
-        <Check className={`text-white ${checkSize}`} strokeWidth={3} />
+      <span className={`relative shrink-0 overflow-hidden rounded-full ${iconSize}`} aria-hidden>
+        <Image
+          src="/brand/selfsubmit-logo.png"
+          alt=""
+          width={iconPx}
+          height={iconPx}
+          className="h-full w-full object-contain"
+          priority={variant === "dark"}
+        />
       </span>
       {showWordmark ? (
         <span className={`truncate font-bold tracking-tight ${wordSize} ${textClass}`}>
