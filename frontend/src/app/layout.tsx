@@ -84,7 +84,7 @@ export default function RootLayout({
           signUpFallbackRedirectUrl="/sign-up"
           afterSignOutUrl="/"
           taskUrls={{
-            "setup-mfa": "/dashboard/settings?mfa=required",
+            "setup-mfa": "/setup-mfa?mfa=required&return_url=/sign-up",
             "reset-password": "/dashboard/settings",
           }}
         >

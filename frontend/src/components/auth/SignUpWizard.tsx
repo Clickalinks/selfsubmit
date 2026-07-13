@@ -14,6 +14,12 @@ import {
   type FieldErrors,
   type ProfileInput,
 } from "@/lib/profile-validation";
+import {
+  clearSignupDraft,
+  draftToProfilePayload,
+  loadSignupDraft,
+  saveSignupDraft,
+} from "@/lib/signup-draft";
 
 const inputClass =
   "mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-brand-green focus:ring-2 focus:ring-brand-green/20";
@@ -58,6 +64,23 @@ function needsEmailVerification(signUp: { status: string | null; unverifiedField
     signUp.status === "missing_requirements" &&
     signUp.unverifiedFields.includes("email_address")
   );
+}
+
+async function postClientProfile(payload: Record<string, unknown>, retries = 3): Promise<Response> {
+  let last: Response | null = null;
+  for (let attempt = 0; attempt < retries; attempt++) {
+    if (attempt > 0) {
+      await new Promise((r) => setTimeout(r, 400 * attempt));
+    }
+    last = await fetch("/api/profile", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+      credentials: "same-origin",
+    });
+    if (last.ok || last.status === 409 || last.status === 400) return last;
+  }
+  return last!;
 }
 
 function finishSignUpNavigation(destination = "/dashboard") {
@@ -140,6 +163,7 @@ export function SignUpWizard({ redirectUrl = null }: { redirectUrl?: string | nu
   const hasClerkIdentity = Boolean(
     needsProfileOnly && user?.firstName && user?.lastName && user?.primaryEmailAddress?.emailAddress,
   );
+  const autoCompletingRef = useRef(false);
 
   useEffect(() => {
     if (!isLoaded || !clerk.loaded) return;
@@ -149,21 +173,34 @@ export function SignUpWizard({ redirectUrl = null }: { redirectUrl?: string | nu
         clearedStaleAuth.current = true;
         void clearAuthForFreshSignUp(clerk);
       }
+      const draft = loadSignupDraft();
+      if (draft) {
+        setFirstName(draft.firstName);
+        setLastName(draft.lastName);
+        setHomeAddress(draft.homeAddress);
+        setEmail(draft.email);
+        setPhone(draft.phone);
+        setBusinessAddress(draft.businessAddress);
+        setBusinessName(draft.businessName ?? "");
+        setBusinessSameAsHome(draft.businessSameAsHome);
+        setAcceptedTerms(true);
+      }
       setSessionChecked(true);
       setNeedsProfileOnly(false);
       return;
     }
 
-    if (accountSetupInProgress.current) return;
+    if (accountSetupInProgress.current || autoCompletingRef.current) return;
 
     let cancelled = false;
     setResolvingSession(true);
 
     void (async () => {
       try {
-        const res = await fetch("/api/profile");
+        const res = await fetch("/api/profile", { credentials: "same-origin" });
         if (cancelled) return;
         if (res.ok) {
+          clearSignupDraft();
           finishSignUpNavigation(postSignUpDestination);
           return;
         }
@@ -172,6 +209,30 @@ export function SignUpWizard({ redirectUrl = null }: { redirectUrl?: string | nu
           await clearAuthForFreshSignUp(clerk);
           setNeedsProfileOnly(false);
           return;
+        }
+
+        const draft = loadSignupDraft();
+        if (draft) {
+          autoCompletingRef.current = true;
+          const saveRes = await postClientProfile(draftToProfilePayload(draft));
+          if (cancelled) return;
+          if (saveRes.ok || saveRes.status === 409) {
+            clearSignupDraft();
+            const dest = draft.redirectUrl || postSignUpDestination;
+            finishSignUpNavigation(dest);
+            return;
+          }
+          autoCompletingRef.current = false;
+          setFirstName(draft.firstName);
+          setLastName(draft.lastName);
+          setHomeAddress(draft.homeAddress);
+          setEmail(draft.email);
+          setPhone(draft.phone);
+          setBusinessAddress(draft.businessAddress);
+          setBusinessName(draft.businessName ?? "");
+          setBusinessSameAsHome(draft.businessSameAsHome);
+          setAcceptedTerms(true);
+          setFormError("We couldn't finish saving your details automatically. Please confirm below.");
         }
 
         setNeedsProfileOnly(true);
@@ -258,17 +319,18 @@ export function SignUpWizard({ redirectUrl = null }: { redirectUrl?: string | nu
   const saveProfileAndFinish = useCallback(
     async (sessionId: string) => {
       accountSetupInProgress.current = true;
+      saveSignupDraft(profileInput, redirectUrl);
       try {
         await clerk.setActive({ session: sessionId });
 
-        const res = await fetch("/api/profile", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ...profileInput, termsAccepted: true }),
-        });
+        // Give Clerk a moment to attach the session cookie before POSTing.
+        await new Promise((r) => setTimeout(r, 250));
+
+        const res = await postClientProfile({ ...profileInput, termsAccepted: true });
         const data = (await res.json().catch(() => ({}))) as { error?: string; fieldErrors?: FieldErrors };
 
         if (res.status === 409) {
+          clearSignupDraft();
           finishSignUpNavigation(postSignUpDestination);
           return;
         }
@@ -279,28 +341,27 @@ export function SignUpWizard({ redirectUrl = null }: { redirectUrl?: string | nu
           return;
         }
 
+        clearSignupDraft();
         setSuccess(true);
         finishSignUpNavigation(postSignUpDestination);
       } finally {
         accountSetupInProgress.current = false;
       }
     },
-    [clerk, profileInput, postSignUpDestination],
+    [clerk, profileInput, postSignUpDestination, redirectUrl],
   );
 
   const saveProfileOnly = useCallback(async () => {
     accountSetupInProgress.current = true;
     setLoading(true);
     setFormError(null);
+    saveSignupDraft(profileInput, redirectUrl);
     try {
-      const res = await fetch("/api/profile", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...profileInput, termsAccepted: true }),
-      });
+      const res = await postClientProfile({ ...profileInput, termsAccepted: true });
       const data = (await res.json().catch(() => ({}))) as { error?: string; fieldErrors?: FieldErrors };
 
       if (res.status === 409) {
+        clearSignupDraft();
         finishSignUpNavigation(postSignUpDestination);
         return;
       }
@@ -311,13 +372,14 @@ export function SignUpWizard({ redirectUrl = null }: { redirectUrl?: string | nu
         return;
       }
 
+      clearSignupDraft();
       setSuccess(true);
       finishSignUpNavigation(postSignUpDestination);
     } finally {
       accountSetupInProgress.current = false;
       setLoading(false);
     }
-  }, [profileInput, postSignUpDestination]);
+  }, [profileInput, postSignUpDestination, redirectUrl]);
 
   const submit = async () => {
     if (!isLoaded || !clerk.loaded) return;
@@ -359,6 +421,7 @@ export function SignUpWizard({ redirectUrl = null }: { redirectUrl?: string | nu
         setFormError("Please accept the Terms of use and Privacy policy to continue.");
         return;
       }
+      saveSignupDraft(profileInput, redirectUrl);
     }
 
     setLoading(true);
@@ -485,7 +548,9 @@ export function SignUpWizard({ redirectUrl = null }: { redirectUrl?: string | nu
     return (
       <div className="rounded-2xl border border-slate-200 bg-white px-6 py-10 text-center shadow-sm">
         <Loader2 className="mx-auto h-10 w-10 animate-spin text-brand-green" />
-        <p className="mt-4 text-sm font-medium text-slate-600">Taking you to your account…</p>
+        <p className="mt-4 text-sm font-medium text-slate-600">
+          {isSignedIn ? "Finishing your account…" : "Taking you to your account…"}
+        </p>
       </div>
     );
   }

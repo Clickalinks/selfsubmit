@@ -12,6 +12,7 @@ const isProtectedPage = createRouteMatcher([
   "/add-business(.*)",
   "/dashboard(.*)",
   "/onboarding(.*)",
+  "/setup-mfa(.*)",
 ]);
 
 const isPublicApi = createRouteMatcher([

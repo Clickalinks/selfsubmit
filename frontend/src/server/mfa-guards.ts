@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { isMfaEnforcementEnabled, userHasMfaEnabled } from "@/lib/mfa-server";
 import { requireClerkUserId } from "@/server/subscription-guards";
 
-export const MFA_SETUP_PATH = "/dashboard/settings";
+export const MFA_SETUP_PATH = "/setup-mfa";
 
 /** Redirect to MFA setup unless enforcement is disabled or MFA is already enabled. */
 export async function requireMfaEnabled(userId: string, returnTo: string): Promise<void> {
