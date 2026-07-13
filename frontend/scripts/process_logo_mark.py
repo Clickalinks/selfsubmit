@@ -27,10 +27,10 @@ def main() -> None:
 
     cx = sum(p[0] for p in greens) / len(greens)
     cy = sum(p[1] for p in greens) / len(greens)
-    # Max distance of green pixels ≈ circle radius
     radius = max(((x - cx) ** 2 + (y - cy) ** 2) ** 0.5 for x, y in greens)
-    # Stay just inside the green rim so photo fringe does not become a white ring
-    keep_r = radius - 1.0
+    keep_r = radius - 0.5
+    # White fringe from the photo sits in this outer band (shows on dark footer)
+    rim_band = radius * 0.82
 
     out = Image.new("RGBA", (w, h))
     out_px = out.load()
@@ -41,18 +41,43 @@ def main() -> None:
             if dist > keep_r:
                 out_px[x, y] = (0, 0, 0, 0)
                 continue
-            # Clean near-white tick to pure white; drop pale fringe near the rim
-            if r > 200 and g > 200 and b > 200:
-                if dist > radius - 6:
+
+            is_white = r > 200 and g > 200 and b > 200
+            if is_white:
+                # Allow the check tail that breaks the left edge; drop rim glare elsewhere
+                left_tail = x < cx - radius * 0.55 and abs(y - cy) < radius * 0.4
+                if dist > rim_band and not left_tail:
                     out_px[x, y] = (0, 0, 0, 0)
                 else:
                     out_px[x, y] = (255, 255, 255, 255)
             else:
-                out_px[x, y] = (r, g, b, a)
+                out_px[x, y] = (r, g, b, 255)
 
     bbox = out.split()[-1].getbbox()
     if bbox:
         out = out.crop(bbox)
+
+    # Final pass on cropped image: erase any remaining outer white crescent
+    cw, ch = out.size
+    opx = out.load()
+    ocx, ocy = cw / 2, ch / 2
+    oradius = min(cw, ch) / 2
+    for y in range(ch):
+        for x in range(cw):
+            r, g, b, a = opx[x, y]
+            if a < 10:
+                continue
+            if not (r > 200 and g > 200 and b > 200):
+                continue
+            dist = ((x - ocx) ** 2 + (y - ocy) ** 2) ** 0.5
+            left_tail = x < ocx - oradius * 0.55 and abs(y - ocy) < oradius * 0.4
+            if dist > oradius * 0.82 and not left_tail:
+                opx[x, y] = (0, 0, 0, 0)
+
+    bbox2 = out.split()[-1].getbbox()
+    if bbox2:
+        out = out.crop(bbox2)
+
     out.save(dst)
     print(f"Wrote {dst} size={out.size} center=({cx:.1f},{cy:.1f}) r={radius:.1f}")
 
