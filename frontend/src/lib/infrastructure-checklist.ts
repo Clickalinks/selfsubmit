@@ -63,7 +63,7 @@ export const INFRASTRUCTURE_ITEMS: InfrastructureItem[] = [
     providerNote: "Vercel shows deployment errors, function failures, and cron run history.",
     yourActions: [
       "Vercel → Project → Logs & Observability — review after each deploy.",
-      "Optional: add Sentry (SENTRY_DSN in .env.example) for error alerts.",
+      "Sentry wired via @sentry/nextjs — set SENTRY_DSN and NEXT_PUBLIC_SENTRY_DSN on Vercel.",
       "Optional: UptimeRobot or similar (free) ping https://www.selfsubmit.co.uk and /api/cron/… health if you add one.",
       "Watch Stripe, Clerk, and Resend dashboards for webhook delivery failures.",
     ],

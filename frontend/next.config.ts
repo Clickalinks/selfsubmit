@@ -1,3 +1,4 @@
+import { withSentryConfig } from "@sentry/nextjs";
 import type { NextConfig } from "next";
 
 /** Production apex domains — Clerk custom hosts are clerk.{apex} and accounts.{apex}. */
@@ -108,4 +109,10 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withSentryConfig(nextConfig, {
+  // Source map upload needs SENTRY_AUTH_TOKEN (+ org/project). Safe to skip for soft launch.
+  silent: true,
+  widenClientFileUpload: true,
+  disableLogger: true,
+  automaticVercelMonitors: true,
+});
