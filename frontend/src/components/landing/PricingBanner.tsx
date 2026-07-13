@@ -65,7 +65,7 @@ export function PricingBanner({ interactive = false, footer }: PricingBannerProp
           <h2 className="mt-3 text-xl font-bold tracking-tight text-white sm:text-2xl lg:text-3xl">
             Simple plans for self-employed MTD
           </h2>
-          <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-white/78 lg:text-base">
+          <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-white selection:bg-brand-green selection:text-white lg:text-base">
             Every plan includes the same {PLAN_CORE_FEATURE_COUNT} core features — income and expense tracking, receipt
             uploads, MTD-ready record keeping, deadline reminders, and secure storage. You only pay more for additional
             businesses.
