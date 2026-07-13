@@ -67,7 +67,8 @@ export function PricingBanner({ interactive = false, footer }: PricingBannerProp
           <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-white/78 lg:text-base">
             Every plan includes the same {PLAN_CORE_FEATURE_COUNT} core features — income and expense tracking, receipt
             uploads, MTD-ready record keeping, deadline reminders, and secure storage. You only pay more for additional
-            businesses.
+            businesses. New subscribers get <strong className="font-semibold text-white">3 months free</strong>, then
+            monthly billing.
           </p>
         </div>
 
@@ -85,7 +86,8 @@ export function PricingBanner({ interactive = false, footer }: PricingBannerProp
         </div>
 
         <p className="mx-auto mt-8 max-w-xl text-center text-xs leading-relaxed text-white/55 sm:text-sm">
-          Secure checkout via Stripe. Cancel anytime from Settings → Manage billing.
+          New subscribers: 3 months free, then your plan price. Secure checkout via Stripe. Cancel anytime from Settings
+          → Manage billing.
         </p>
 
         {!interactive ? (

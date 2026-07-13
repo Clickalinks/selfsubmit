@@ -76,7 +76,8 @@ export function PlanPicker() {
     <div className="mx-auto max-w-3xl">
       <p className="text-center text-sm font-semibold text-white">Select your plan</p>
       <p className="mx-auto mt-2 max-w-xl text-center text-xs text-white/60">
-        Secure checkout via Stripe. Cancel anytime from Settings → Manage billing.
+        New accounts: 3 months free, then monthly billing. Card required at checkout. Cancel anytime from Settings →
+        Manage billing.
       </p>
       {error ? (
         <p className="mt-4 rounded-xl border border-red-400/40 bg-red-950/40 px-4 py-3 text-center text-sm text-red-100">

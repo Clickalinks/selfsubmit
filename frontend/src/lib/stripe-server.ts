@@ -54,3 +54,15 @@ export function appBaseUrl(): string {
 }
 
 export const ACTIVE_STRIPE_STATUSES = new Set(["active", "trialing"]);
+
+/**
+ * Free trial length for first-time Checkout subscriptions (calendar days).
+ * Set STRIPE_TRIAL_DAYS=90 for a 3-month launch trial. Set 0 or unset to disable.
+ */
+export function getStripeTrialPeriodDays(): number {
+  const raw = process.env.STRIPE_TRIAL_DAYS?.trim();
+  if (!raw) return 0;
+  const days = Number.parseInt(raw, 10);
+  if (!Number.isFinite(days) || days <= 0) return 0;
+  return Math.min(days, 730);
+}

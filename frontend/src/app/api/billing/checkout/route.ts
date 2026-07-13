@@ -8,7 +8,7 @@ import { API_RATE_LIMITS, checkApiRateLimit, rateLimitKey } from "@/lib/api-rate
 import { ensureStripeCustomer, upsertStripeSubscription } from "@/lib/billing-server";
 import type { PlanId } from "@/lib/plan-config";
 import { prisma } from "@/lib/db";
-import { ACTIVE_STRIPE_STATUSES, appBaseUrl, getStripe, getStripePriceId, isStripeConfigured } from "@/lib/stripe-server";
+import { ACTIVE_STRIPE_STATUSES, appBaseUrl, getStripe, getStripePriceId, getStripeTrialPeriodDays, isStripeConfigured } from "@/lib/stripe-server";
 import { subscriptionSyncPayload } from "@/lib/stripe-subscription";
 import { setUserPlan } from "@/lib/subscription-server";
 
@@ -142,6 +142,20 @@ export async function POST(req: Request) {
 
     let session;
     try {
+      const trialDays = getStripeTrialPeriodDays();
+      let trialPeriodDays: number | undefined;
+      if (trialDays > 0) {
+        // First-time customers only — avoid stacking another free period after cancel/resubscribe.
+        const prior = await stripe.subscriptions.list({
+          customer: customerId,
+          status: "all",
+          limit: 1,
+        });
+        if (prior.data.length === 0) {
+          trialPeriodDays = trialDays;
+        }
+      }
+
       session = await stripe.checkout.sessions.create({
         mode: "subscription",
         customer: customerId,
@@ -150,8 +164,11 @@ export async function POST(req: Request) {
         cancel_url: `${base}/pricing?checkout=canceled`,
         client_reference_id: userId,
         metadata: { clerkUserId: userId, plan },
+        // Collect a card during trial so billing starts automatically when the trial ends.
+        payment_method_collection: "always",
         subscription_data: {
           metadata: { clerkUserId: userId, plan },
+          ...(trialPeriodDays ? { trial_period_days: trialPeriodDays } : {}),
         },
       });
     } catch (err) {
