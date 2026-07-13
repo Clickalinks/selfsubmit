@@ -117,6 +117,22 @@ export default async function MyBusinessesPage() {
         >
           Add another business
         </Link>
+      ) : plan ? (
+        <div className="rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-950">
+          <p className="font-semibold">
+            You&apos;re using all {maxBusinesses} business{maxBusinesses === 1 ? "" : "es"} on{" "}
+            {PLAN_DISPLAY_NAMES[plan]}.
+          </p>
+          <p className="mt-1 text-amber-900">
+            Upgrade to add another business under the same UTR and National Insurance number.
+          </p>
+          <Link
+            href="/pricing"
+            className="mt-3 inline-flex rounded-xl bg-brand-green px-5 py-2.5 text-sm font-bold text-white hover:bg-brand-green-dark"
+          >
+            Upgrade or switch plan
+          </Link>
+        </div>
       ) : null}
     </div>
   );

@@ -34,6 +34,17 @@ export function getStripePriceId(plan: PlanId): string | null {
   return value || null;
 }
 
+/** Resolve SelfSubmit plan from a live/test Stripe Price ID. */
+export function planIdFromStripePriceId(priceId: string | null | undefined): PlanId | null {
+  if (!priceId?.trim()) return null;
+  const needle = priceId.trim();
+  for (const [plan, envKey] of Object.entries(PRICE_ENV_KEYS) as [PlanId, string][]) {
+    const configured = process.env[envKey]?.trim();
+    if (configured && configured === needle) return plan;
+  }
+  return null;
+}
+
 export function appBaseUrl(): string {
   const explicit = process.env.NEXT_PUBLIC_APP_URL?.trim();
   if (explicit) return explicit.replace(/\/$/, "");

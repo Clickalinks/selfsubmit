@@ -5,10 +5,11 @@ import { apiAuthErrorResponse, clientMetaFromRequest, requireApiUser } from "@/l
 import { checkoutBodySchema, parseJsonBody } from "@/lib/api-schemas";
 import { writeAuditLog } from "@/lib/audit-log";
 import { API_RATE_LIMITS, checkApiRateLimit, rateLimitKey } from "@/lib/api-rate-limit";
-import { ensureStripeCustomer } from "@/lib/billing-server";
+import { ensureStripeCustomer, upsertStripeSubscription } from "@/lib/billing-server";
 import type { PlanId } from "@/lib/plan-config";
 import { prisma } from "@/lib/db";
-import { appBaseUrl, getStripe, getStripePriceId, isStripeConfigured } from "@/lib/stripe-server";
+import { ACTIVE_STRIPE_STATUSES, appBaseUrl, getStripe, getStripePriceId, isStripeConfigured } from "@/lib/stripe-server";
+import { subscriptionSyncPayload } from "@/lib/stripe-subscription";
 import { setUserPlan } from "@/lib/subscription-server";
 
 export async function POST(req: Request) {
@@ -81,6 +82,63 @@ export async function POST(req: Request) {
       userRow?.stripeCustomerId ?? null,
       userRow?.profile?.email,
     );
+
+    // Upgrade / switch / renew an existing live subscription instead of creating a second one.
+    if (userRow?.stripeSubscriptionId) {
+      try {
+        const existing = await stripe.subscriptions.retrieve(userRow.stripeSubscriptionId);
+        const itemId = existing.items.data[0]?.id;
+        const canUpdate =
+          Boolean(itemId) &&
+          (ACTIVE_STRIPE_STATUSES.has(existing.status) || existing.status === "past_due");
+
+        if (canUpdate && itemId) {
+          const updated = await stripe.subscriptions.update(existing.id, {
+            cancel_at_period_end: false,
+            items: [{ id: itemId, price: priceId }],
+            proration_behavior: "create_prorations",
+            metadata: {
+              ...existing.metadata,
+              clerkUserId: userId,
+              plan,
+            },
+          });
+
+          await upsertStripeSubscription(userId, {
+            plan,
+            stripeCustomerId: customerId,
+            stripeSubscriptionId: updated.id,
+            ...subscriptionSyncPayload(updated),
+          });
+
+          await writeAuditLog({
+            userId,
+            actorRole: role,
+            action: "billing.checkout",
+            resource: "plan",
+            resourceId: plan,
+            ipAddress: meta.ipAddress,
+            userAgent: meta.userAgent,
+            metadata: { mode: "upgrade", subscriptionId: updated.id },
+          });
+
+          return NextResponse.json({
+            ok: true,
+            plan,
+            mode: "upgrade",
+            url: `${base}/add-business?upgrade=success`,
+          });
+        }
+      } catch (err) {
+        if (!(err instanceof Stripe.errors.StripeInvalidRequestError && err.code === "resource_missing")) {
+          console.error("[billing/checkout] upgrade failed", err);
+          return NextResponse.json(
+            { error: "Could not update your plan. Try again or contact support." },
+            { status: 502 },
+          );
+        }
+      }
+    }
 
     let session;
     try {

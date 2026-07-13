@@ -31,13 +31,13 @@ export function usePlanCheckout() {
         const data = (await res.json().catch(() => ({}))) as {
           error?: string;
           url?: string;
-          mode?: "stripe" | "manual";
+          mode?: "stripe" | "manual" | "upgrade";
         };
         if (!res.ok) {
           setError(data.error ?? "Could not start checkout.");
           return;
         }
-        if (data.mode === "stripe" && data.url) {
+        if ((data.mode === "stripe" || data.mode === "upgrade") && data.url) {
           window.location.assign(data.url);
           return;
         }

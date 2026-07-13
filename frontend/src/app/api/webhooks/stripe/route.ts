@@ -4,7 +4,7 @@ import type Stripe from "stripe";
 import { clearStripeSubscription, upsertStripeSubscription } from "@/lib/billing-server";
 import { isPlanId, normalizePlanId, type PlanId } from "@/lib/plan-config";
 import { prisma } from "@/lib/db";
-import { getStripe, isStripeConfigured } from "@/lib/stripe-server";
+import { getStripe, isStripeConfigured, planIdFromStripePriceId } from "@/lib/stripe-server";
 import { subscriptionSyncPayload } from "@/lib/stripe-subscription";
 
 export async function POST(req: Request) {
@@ -89,6 +89,10 @@ async function resolvePlanFromSubscription(
 ): Promise<PlanId | null> {
   const fromMeta = subscription.metadata?.plan;
   if (fromMeta && isPlanId(fromMeta)) return fromMeta;
+
+  const priceId = subscription.items.data[0]?.price?.id;
+  const fromPrice = planIdFromStripePriceId(priceId);
+  if (fromPrice) return fromPrice;
 
   const row = await prisma.user.findUnique({
     where: { id: userId },

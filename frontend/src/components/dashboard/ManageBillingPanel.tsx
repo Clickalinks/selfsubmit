@@ -18,7 +18,7 @@ export async function ManageBillingPanel() {
   return (
     <div className="space-y-4">
       {ending && endDate ? <SubscriptionEndingBanner endDate={endDate} /> : null}
-      <ManageBillingSection />
+      <ManageBillingSection showUpgradeCta subscriptionEnding={ending} />
     </div>
   );
 }
