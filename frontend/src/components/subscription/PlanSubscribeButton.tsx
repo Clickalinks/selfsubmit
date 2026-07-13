@@ -13,7 +13,11 @@ type Props = {
   label?: string;
 };
 
-export function PlanSubscribeButton({ planId, className = "", label = "Subscribe to this plan" }: Props) {
+export function PlanSubscribeButton({
+  planId,
+  className = "",
+  label = "Start 3-month free trial",
+}: Props) {
   const { isLoaded, userId, pending, error, selectPlan } = usePlanCheckout();
 
   if (!isLoaded) {
@@ -27,7 +31,7 @@ export function PlanSubscribeButton({ planId, className = "", label = "Subscribe
           href={`/sign-up?redirect_url=${encodeURIComponent(`/pricing/${planId}`)}`}
           className={`inline-flex items-center justify-center rounded-full bg-brand-green px-8 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-brand-green-dark ${className}`}
         >
-          Create account to subscribe
+          Start 3-month free trial
         </Link>
         <Link
           href={`/sign-in?redirect_url=${encodeURIComponent(`/pricing/${planId}`)}`}
@@ -59,7 +63,9 @@ export function PlanSubscribeButton({ planId, className = "", label = "Subscribe
           label
         )}
       </button>
-      <p className="mt-3 text-xs text-brand-muted">Secure payment via Stripe. Cancel anytime from Settings.</p>
+      <p className="mt-3 text-xs text-brand-muted">
+        Card required · no charge for 3 months · then your plan price. Cancel anytime from Settings.
+      </p>
     </div>
   );
 }

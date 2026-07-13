@@ -38,6 +38,7 @@ function StaticPricingCards() {
             <span className="text-3xl font-bold tabular-nums text-white lg:text-4xl">£{tier.price}</span>
             <span className="text-sm font-medium text-white/55">/ month</span>
           </div>
+          <p className="mt-2 text-xs font-semibold text-brand-green">Then £{tier.price}/mo after 3 months free</p>
           <ul className="mt-5 flex flex-1 flex-col gap-2.5 text-sm text-white/75">
             {tier.highlights.map((line) => (
               <li key={line} className="flex gap-2">
@@ -46,8 +47,8 @@ function StaticPricingCards() {
               </li>
             ))}
           </ul>
-          <span className="mt-6 inline-flex items-center justify-center rounded-full bg-white/10 px-4 py-2.5 text-sm font-bold text-white ring-1 ring-white/20">
-            View plan details
+          <span className="mt-6 inline-flex items-center justify-center rounded-full bg-gradient-to-b from-brand-green-bright to-brand-green-dark px-4 py-2.5 text-sm font-bold text-white shadow-btn-green">
+            Start free trial
           </span>
         </Link>
       ))}
@@ -67,9 +68,20 @@ export function PricingBanner({ interactive = false, footer }: PricingBannerProp
           <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-white/78 lg:text-base">
             Every plan includes the same {PLAN_CORE_FEATURE_COUNT} core features — income and expense tracking, receipt
             uploads, MTD-ready record keeping, deadline reminders, and secure storage. You only pay more for additional
-            businesses. New subscribers get <strong className="font-semibold text-white">3 months free</strong>, then
-            monthly billing.
+            businesses.
           </p>
+          <div className="mt-7 flex flex-col items-center gap-3">
+            <Link
+              href="/sign-up"
+              className="inline-flex w-full max-w-md items-center justify-center gap-2 rounded-full bg-gradient-to-b from-brand-green-bright to-brand-green-dark px-8 py-3.5 text-center text-sm font-bold text-white shadow-btn-green transition hover:brightness-105 active:scale-[0.99] sm:w-auto sm:px-10 sm:text-[15px]"
+            >
+              Start your 3-month free trial
+              <ChevronRight className="h-4 w-4" strokeWidth={2.5} aria-hidden />
+            </Link>
+            <p className="max-w-sm text-center text-xs leading-relaxed text-white/55">
+              Card required at checkout · no charge for 3 months · cancel anytime
+            </p>
+          </div>
         </div>
 
         {interactive ? <PricingPlansGrid /> : <StaticPricingCards />}
@@ -97,7 +109,7 @@ export function PricingBanner({ interactive = false, footer }: PricingBannerProp
                 href="/sign-up"
                 className="inline-flex w-full max-w-sm items-center justify-center gap-1 rounded-full bg-white px-8 py-3.5 text-sm font-bold text-brand-black no-underline shadow-md transition hover:bg-neutral-100 active:scale-[0.99] sm:w-auto sm:text-[15px]"
               >
-                Get started
+                Get started — 3 months free
                 <ChevronRight className="h-4 w-4" strokeWidth={2.5} />
               </Link>
             )}

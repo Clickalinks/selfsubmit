@@ -68,6 +68,7 @@ export default async function PlanDetailPage({ params }: Props) {
             <span className="text-4xl font-bold tabular-nums text-brand-black">£{tier.price}</span>
             <span className="text-sm font-medium text-brand-muted">/ month</span>
           </div>
+          <p className="mt-2 text-sm font-semibold text-brand-green">3 months free for new subscribers</p>
 
           <ul className="mt-6 space-y-2.5 text-sm text-brand-black/90">
             {tier.highlights.map((line) => (

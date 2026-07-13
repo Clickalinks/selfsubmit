@@ -9,15 +9,11 @@ export function PricingPlansGrid() {
   return (
     <div className="mx-auto max-w-6xl">
       <p className="mb-6 text-center text-sm text-white/75">
-        Choose a plan to see what&apos;s included, then subscribe when you&apos;re ready.{" "}
+        Pick a plan below to begin your free trial. Already have an account?{" "}
         <Link href="/sign-in" className="font-semibold text-brand-green underline-offset-2 hover:underline">
           Sign in
-        </Link>{" "}
-        or{" "}
-        <Link href="/sign-up" className="font-semibold text-brand-green underline-offset-2 hover:underline">
-          create an account
-        </Link>{" "}
-        first.
+        </Link>
+        .
       </p>
 
       <div className="grid grid-cols-1 gap-4 sm:gap-5 md:grid-cols-2 lg:grid-cols-4 lg:gap-5">
@@ -43,6 +39,7 @@ export function PricingPlansGrid() {
               <span className="text-3xl font-bold tabular-nums text-white lg:text-4xl">£{tier.price}</span>
               <span className="text-sm font-medium text-white/55">/ month</span>
             </div>
+            <p className="mt-2 text-xs font-semibold text-brand-green">Then £{tier.price}/mo after 3 months free</p>
             <ul className="mt-5 flex flex-1 flex-col gap-2.5 text-sm text-white/75">
               {tier.highlights.map((line) => (
                 <li key={line} className="flex gap-2">
@@ -51,8 +48,8 @@ export function PricingPlansGrid() {
                 </li>
               ))}
             </ul>
-            <span className="mt-6 inline-flex items-center justify-center rounded-full bg-white/10 px-4 py-2.5 text-sm font-bold text-white ring-1 ring-white/20">
-              View plan details
+            <span className="mt-6 inline-flex items-center justify-center rounded-full bg-gradient-to-b from-brand-green-bright to-brand-green-dark px-4 py-2.5 text-sm font-bold text-white shadow-btn-green">
+              Start free trial
             </span>
           </Link>
         ))}
