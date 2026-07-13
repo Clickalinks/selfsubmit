@@ -23,7 +23,7 @@ export default function TermsPage() {
     <LegalPageShell
       title="Terms of use"
       description="These terms apply when you browse or use selfsubmit.co.uk and the SelfSubmit application."
-      lastUpdated="6 July 2026"
+      lastUpdated="13 July 2026"
     >
       <LegalCallout title="Read together with">
         <PolicyRelatedLinks
@@ -106,8 +106,8 @@ export default function TermsPage() {
 
       <LegalH2 id="third">8. Third-party services</LegalH2>
       <LegalP>
-        We rely on hosting, authentication, payment, messaging, and email providers. Their terms may also apply where you
-        interact with them.
+        We rely on hosting, authentication, payment, messaging, email, and error-monitoring providers. Their terms may
+        also apply where you interact with them. See our Privacy policy for the current list.
       </LegalP>
 
       <LegalH2 id="warranty">9. Disclaimers</LegalH2>

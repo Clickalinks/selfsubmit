@@ -23,7 +23,7 @@ export default function DpaPage() {
     <LegalPageShell
       title="Data processing agreement (DPA)"
       description="This page summarises how we process personal data on behalf of customers and the subprocessors we use. It supplements our Privacy policy and GDPR overview."
-      lastUpdated="6 July 2026"
+      lastUpdated="13 July 2026"
     >
       <DataControllerCallout>
         <p>
@@ -79,6 +79,9 @@ export default function DpaPage() {
         </li>
         <li>
           <strong className="text-brand-black">SMS</strong> — Twilio (where you opt in to SMS reminders)
+        </li>
+        <li>
+          <strong className="text-brand-black">Error monitoring</strong> — Sentry
         </li>
       </LegalUl>
       <LegalP>

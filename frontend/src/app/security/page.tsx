@@ -166,6 +166,8 @@ export default function SecurityPage() {
 
             <li>Authentication via Clerk; email via Resend; optional SMS via Twilio</li>
 
+            <li>Error monitoring via Sentry</li>
+
           </ul>
 
         </section>

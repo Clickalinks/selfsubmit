@@ -113,6 +113,10 @@ export default withSentryConfig(nextConfig, {
   // Source map upload needs SENTRY_AUTH_TOKEN (+ org/project). Safe to skip for soft launch.
   silent: true,
   widenClientFileUpload: true,
-  disableLogger: true,
-  automaticVercelMonitors: true,
+  webpack: {
+    treeshake: {
+      removeDebugLogging: true,
+    },
+    automaticVercelMonitors: true,
+  },
 });

@@ -51,7 +51,7 @@ export default function PrivacyPage() {
 
       description="This policy describes how we process personal data when you use selfsubmit.co.uk and the SelfSubmit application."
 
-      lastUpdated="9 July 2026"
+      lastUpdated="13 July 2026"
 
     >
 

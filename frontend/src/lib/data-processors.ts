@@ -64,4 +64,12 @@ export const DATA_PROCESSORS: readonly DataProcessor[] = [
     location: "United Kingdom",
     website: "https://ideal-postcodes.co.uk",
   },
+  {
+    name: "Sentry",
+    purpose: "Application error monitoring and performance diagnostics",
+    dataProcessed:
+      "Error stack traces, request URLs, browser/device metadata (default PII collection disabled)",
+    location: "United States / EU (see Sentry DPA)",
+    website: "https://sentry.io",
+  },
 ] as const;
