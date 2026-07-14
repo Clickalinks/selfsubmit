@@ -23,7 +23,7 @@ export default function TermsPage() {
     <LegalPageShell
       title="Terms of use"
       description="These terms apply when you browse or use selfsubmit.co.uk and the SelfSubmit application."
-      lastUpdated="13 July 2026"
+      lastUpdated="14 July 2026"
     >
       <LegalCallout title="Read together with">
         <PolicyRelatedLinks
@@ -53,7 +53,9 @@ export default function TermsPage() {
       <LegalH2 id="service">3. The service</LegalH2>
       <LegalP>
         SelfSubmit provides record-keeping, HMRC connection, quarterly update tools, and guidance for UK self-employed
-        users and landlords preparing Making Tax Digital updates.
+        users and landlords preparing Making Tax Digital updates. Live HMRC production filing depends on your account
+        setup and HMRC programme status; the product will show clearly when a submission is a draft, sandbox test, or
+        live filing.
       </LegalP>
 
       <LegalH2 id="accounts">4. Accounts and eligibility</LegalH2>
@@ -76,10 +78,16 @@ export default function TermsPage() {
         .
       </LegalP>
 
-      <LegalH2 id="billing">6. Subscriptions, refunds &amp; cancellation</LegalH2>
+      <LegalH2 id="billing">6. Subscriptions, trials, refunds &amp; cancellation</LegalH2>
       <LegalP>
-        Paid plans renew monthly until cancelled. Prices are shown at checkout. Refunds and cancellation are described
-        in our{" "}
+        Prices are shown on our Pricing page and at checkout. New subscribers who have not previously held a SelfSubmit
+        subscription may receive a promotional free trial (currently up to 90 days) when shown at checkout. A payment
+        method is required to start the trial. You will not be charged for the trial period. When the trial ends, your
+        chosen plan renews monthly at the published price unless you cancel before the trial ends.
+      </LegalP>
+      <LegalP>
+        After the trial (or for customers not on a free trial), paid plans renew monthly until cancelled. Refunds and
+        cancellation are described in our{" "}
         <Link href="/refund" className="text-brand-green underline underline-offset-2">
           Refund policy
         </Link>{" "}

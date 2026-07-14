@@ -23,7 +23,7 @@ export default function DpaPage() {
     <LegalPageShell
       title="Data processing agreement (DPA)"
       description="This page summarises how we process personal data on behalf of customers and the subprocessors we use. It supplements our Privacy policy and GDPR overview."
-      lastUpdated="13 July 2026"
+      lastUpdated="14 July 2026"
     >
       <DataControllerCallout>
         <p>

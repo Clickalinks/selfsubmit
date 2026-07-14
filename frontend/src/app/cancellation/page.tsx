@@ -23,12 +23,13 @@ export default function CancellationPage() {
     <LegalPageShell
       title="Cancellation policy"
       description="You can cancel your SelfSubmit subscription at any time. This page explains how cancellation works."
-      lastUpdated="13 July 2026"
+      lastUpdated="14 July 2026"
     >
       <LegalH2 id="anytime">1. Cancel anytime</LegalH2>
       <LegalP>
-        Paid subscriptions renew monthly until cancelled. There is no minimum contract term beyond the current billing
-        period you have paid for.
+        Subscriptions renew monthly until cancelled (including after a free trial ends). There is no minimum contract
+        term beyond the current billing period you have paid for. If you are on a free trial, cancel before the trial
+        ends to avoid the first paid charge.
       </LegalP>
 
       <LegalH2 id="how">2. How to cancel</LegalH2>
@@ -36,7 +37,7 @@ export default function CancellationPage() {
         <li>Sign in to your SelfSubmit dashboard.</li>
         <li>Open billing or subscription settings.</li>
         <li>Select manage billing to open the secure Stripe customer portal.</li>
-        <li>Cancel your subscription before the next renewal date.</li>
+        <li>Cancel your subscription before the next renewal date (or before your trial ends).</li>
       </LegalOl>
       <LegalP>
         If you cannot access the portal, email <PolicyContactEmail subject="Cancellation request" /> from your account
@@ -45,12 +46,16 @@ export default function CancellationPage() {
 
       <LegalH2 id="access">3. When access ends</LegalH2>
       <LegalP>
-        After cancellation, you keep full access until the end of the current paid billing period. You will not be
-        charged again unless you re-subscribe.
+        After cancellation during a paid period, you keep full access until the end of that paid billing period. You
+        will not be charged again unless you re-subscribe.
       </LegalP>
       <LegalP>
-        When that paid period ends, paid features (such as new monthly records, receipt uploads, and adding businesses)
-        are paused. You then have a <strong>30-day grace period</strong> to download your submissions and receipts,
+        If you cancel during a free trial, access continues until the trial end date shown in billing. You will not be
+        charged if you cancel before that date.
+      </LegalP>
+      <LegalP>
+        When paid access ends, paid features (such as new monthly records, receipt uploads, and adding businesses) are
+        paused. You then have a <strong>30-day grace period</strong> to download your submissions and receipts,
         permanently delete your account, or resubscribe to continue. After the grace period, you can still sign in to
         export or delete your account or choose a new plan, but new paid features stay locked until you resubscribe.
       </LegalP>

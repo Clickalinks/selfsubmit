@@ -22,16 +22,21 @@ export default function RefundPage() {
     <LegalPageShell
       title="Refund policy"
       description="This policy explains when subscription payments may be refunded. It should be read with our Cancellation policy and Terms of use."
-      lastUpdated="6 July 2026"
+      lastUpdated="14 July 2026"
     >
       <LegalH2 id="billing">1. Billing model</LegalH2>
       <LegalP>
-        SelfSubmit is sold as a recurring monthly subscription billed in advance through Stripe. Your plan price is shown
-        on the{" "}
+        SelfSubmit is sold as a recurring monthly subscription billed through Stripe. Your plan price is shown on the{" "}
         <Link href="/pricing" className="text-brand-green underline underline-offset-2">
           Pricing
         </Link>{" "}
         page before checkout.
+      </LegalP>
+      <LegalP>
+        New first-time subscribers may receive a promotional free trial (currently up to 90 days) when offered at
+        checkout. A card is collected to start the trial, but you are not charged during the trial. The first paid charge
+        is due when the trial ends, unless you cancel beforehand. Returning customers who previously held a subscription
+        are not normally offered another free trial.
       </LegalP>
 
       <LegalH2 id="consumer">2. UK consumer rights</LegalH2>
@@ -65,8 +70,8 @@ export default function RefundPage() {
 
       <LegalH2 id="no-refund">4. When we typically do not refund</LegalH2>
       <LegalUl>
-        <li>Change of mind after you have used the service during the current billing period</li>
-        <li>Failure to cancel before renewal (see our Cancellation policy)</li>
+        <li>Change of mind after you have used the service during the current paid billing period</li>
+        <li>Failure to cancel before a free trial ends or before a paid renewal (see our Cancellation policy)</li>
         <li>Issues caused by inaccurate data you entered or third parties outside our control (for example HMRC downtime)</li>
         <li>Partial use of a month after the billing date — subscriptions are not normally refunded mid-cycle</li>
       </LegalUl>
