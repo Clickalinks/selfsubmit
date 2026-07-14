@@ -5,6 +5,8 @@ import { getRequestIp } from "@/lib/request-ip";
 
 const PRODUCT_NAME = "SelfSubmit";
 const VENDOR_VERSION = "selfsubmit=1.0.0";
+/** Stable SaaS licence identifier (hashed) for Gov-Vendor-License-IDs. */
+const VENDOR_LICENSE_HASH = createHash("sha256").update("selfsubmit-saas-license-v1").digest("hex").toUpperCase();
 
 function percentEncode(value: string): string {
   return encodeURIComponent(value);
@@ -34,8 +36,10 @@ export function buildHmrcFraudPreventionHeaders(input: {
     "Gov-Client-Connection-Method": "WEB_APP_VIA_SERVER",
     "Gov-Vendor-Product-Name": percentEncode(PRODUCT_NAME),
     "Gov-Vendor-Version": VENDOR_VERSION,
+    "Gov-Vendor-License-IDs": `selfsubmit=${VENDOR_LICENSE_HASH}`,
     "Gov-Client-Public-IP": publicIp,
     "Gov-Client-Public-IP-Timestamp": formatUtcTimestamp(now),
+    // Must be the client TCP port, not 80/443 (HMRC FPH validator rejects server ports).
     "Gov-Client-Public-Port": publicPort,
     "Gov-Vendor-Public-IP": publicIp,
     "Gov-Vendor-Forwarded": `by=${encodeURIComponent(publicIp)}&for=${encodeURIComponent(publicIp)}`,
