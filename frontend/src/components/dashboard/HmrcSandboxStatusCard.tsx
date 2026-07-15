@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AlertCircle, Check, Eye, Loader2, Send } from "lucide-react";
 
+import { ensureHmrcFraudContext, collectHmrcFraudContext } from "@/lib/hmrc-fraud-client";
+
 type ObligationRow = {
   periodStart: string;
   periodEnd: string;
@@ -78,6 +80,7 @@ export function HmrcSandboxStatusCard({
 
     void (async () => {
       try {
+        await ensureHmrcFraudContext();
         const params = new URLSearchParams({ businessId: activeBusinessHmrcId });
         const res = await fetch(`/api/hmrc/obligations?${params.toString()}`);
         const data = (await res.json().catch(() => ({}))) as {
@@ -131,25 +134,10 @@ export function HmrcSandboxStatusCard({
     setPreviewError(null);
     setSubmitMessage(null);
     try {
-      const deviceId = (() => {
-        const key = "hmrc_device_id";
-        let id = localStorage.getItem(key);
-        if (!id) {
-          id = crypto.randomUUID();
-          localStorage.setItem(key, id);
-        }
-        return id;
-      })();
-      const screen = window.screen;
       await fetch("/api/hmrc/fraud-context", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          deviceId,
-          browserJsUserAgent: navigator.userAgent,
-          screens: `width=${screen.width}&height=${screen.height}&scaling-factor=${window.devicePixelRatio || 1}&colour-depth=${screen.colorDepth}`,
-          windowSize: `width=${window.innerWidth}&height=${window.innerHeight}`,
-        }),
+        body: JSON.stringify(collectHmrcFraudContext()),
       });
 
       const res = await fetch("/api/hmrc/quarterly-submit", {

@@ -1,7 +1,8 @@
 import { createHmac, timingSafeEqual } from "crypto";
 
 const COOKIE_NAME = "hmrc_fp_ctx";
-const MAX_AGE_SEC = 30 * 60;
+/** Keep long enough for a normal dashboard session; clients also refresh before HMRC calls. */
+const MAX_AGE_SEC = 12 * 60 * 60;
 
 export type HmrcFraudClientContext = {
   deviceId: string;

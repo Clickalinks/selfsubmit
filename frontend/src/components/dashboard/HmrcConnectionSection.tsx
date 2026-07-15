@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { Check, ExternalLink, Link2, Loader2, Unlink } from "lucide-react";
 
 import { DashboardCard } from "@/components/dashboard/DashboardCard";
+import { collectHmrcFraudContext, ensureHmrcFraudContext } from "@/lib/hmrc-fraud-client";
 import { HMRC_LIVE_FILING_ENABLED } from "@/lib/hmrc-filing-status";
 
 type HmrcStatus = {
@@ -25,38 +26,6 @@ type HmrcObligationRow = {
   type: string;
   businessId?: string;
 };
-
-const DEVICE_ID_KEY = "hmrc_device_id";
-
-function getOrCreateDeviceId(): string {
-  if (typeof window === "undefined") return "";
-  let id = localStorage.getItem(DEVICE_ID_KEY);
-  if (!id) {
-    id = crypto.randomUUID();
-    localStorage.setItem(DEVICE_ID_KEY, id);
-  }
-  return id;
-}
-
-function formatHmrcTimezone(): string {
-  const offsetMin = -new Date().getTimezoneOffset();
-  const sign = offsetMin >= 0 ? "+" : "-";
-  const abs = Math.abs(offsetMin);
-  const hours = String(Math.floor(abs / 60)).padStart(2, "0");
-  const mins = String(abs % 60).padStart(2, "0");
-  return `UTC${sign}${hours}:${mins}`;
-}
-
-function collectFraudContext() {
-  const screen = window.screen;
-  return {
-    deviceId: getOrCreateDeviceId(),
-    browserJsUserAgent: navigator.userAgent,
-    screens: `width=${screen.width}&height=${screen.height}&scaling-factor=${window.devicePixelRatio || 1}&colour-depth=${screen.colorDepth}`,
-    windowSize: `width=${window.innerWidth}&height=${window.innerHeight}`,
-    timezone: formatHmrcTimezone(),
-  };
-}
 
 function formatDate(iso: string): string {
   try {
@@ -138,7 +107,7 @@ export function HmrcConnectionSection() {
       const res = await fetch("/api/hmrc/fraud-context", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(collectFraudContext()),
+        body: JSON.stringify(collectHmrcFraudContext()),
       });
       if (!res.ok) {
         const data = (await res.json().catch(() => ({}))) as { error?: string };
@@ -178,6 +147,11 @@ export function HmrcConnectionSection() {
     setBusy("obligations");
     setError(null);
     try {
+      const prepared = await ensureHmrcFraudContext();
+      if (!prepared) {
+        setError("Could not prepare fraud prevention headers. Try again.");
+        return;
+      }
       const res = await fetch("/api/hmrc/obligations");
       const data = (await res.json().catch(() => ({}))) as {
         obligations?: HmrcObligationRow[];

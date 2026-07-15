@@ -16,6 +16,12 @@ function hashUserId(userId: string): string {
   return createHash("sha256").update(userId).digest("hex");
 }
 
+/** Stable UUID-shaped fallback when the browser cookie is missing/expired. */
+function stableDeviceIdFromUserId(userId: string): string {
+  const hex = createHash("sha256").update(`selfsubmit-device:${userId}`).digest("hex");
+  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-4${hex.slice(13, 16)}-a${hex.slice(17, 20)}-${hex.slice(20, 32)}`;
+}
+
 function formatUtcTimestamp(date: Date): string {
   return date.toISOString().replace(/\.\d{3}Z$/, ".000Z");
 }
@@ -52,9 +58,8 @@ export function buildHmrcFraudPreventionHeaders(input: {
     if (ua) headers["Gov-Client-Browser-JS-User-Agent"] = ua;
   }
 
-  if (ctx?.deviceId) {
-    headers["Gov-Client-Device-ID"] = ctx.deviceId;
-  }
+  // Always send Device-ID — HMRC marks requests INVALID if this header is absent.
+  headers["Gov-Client-Device-ID"] = ctx?.deviceId?.trim() || stableDeviceIdFromUserId(input.userId);
 
   if (ctx?.screens) {
     headers["Gov-Client-Screens"] = ctx.screens;

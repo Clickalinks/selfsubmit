@@ -8,43 +8,12 @@ import { ArrowRight, Check, ExternalLink, Link2, Loader2 } from "lucide-react";
 import { BusinessSwitcher } from "@/components/dashboard/BusinessSwitcher";
 import { ProfessionSelect } from "@/components/forms/ProfessionSelect";
 import { ALL_PROFESSIONS } from "@/data/expenseCategories";
+import { collectHmrcFraudContext, ensureHmrcFraudContext } from "@/lib/hmrc-fraud-client";
 import { getActiveSetupStep } from "@/lib/setup-progress";
 import { validateNiNumber, validateUtr } from "@/lib/tax-id-validation";
 
 const inputClass =
   "mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-brand-green focus:ring-2 focus:ring-brand-green/20";
-
-const DEVICE_ID_KEY = "hmrc_device_id";
-
-function getOrCreateDeviceId(): string {
-  if (typeof window === "undefined") return "";
-  let id = localStorage.getItem(DEVICE_ID_KEY);
-  if (!id) {
-    id = crypto.randomUUID();
-    localStorage.setItem(DEVICE_ID_KEY, id);
-  }
-  return id;
-}
-
-function formatHmrcTimezone(): string {
-  const offsetMin = -new Date().getTimezoneOffset();
-  const sign = offsetMin >= 0 ? "+" : "-";
-  const abs = Math.abs(offsetMin);
-  const hours = String(Math.floor(abs / 60)).padStart(2, "0");
-  const mins = String(abs % 60).padStart(2, "0");
-  return `UTC${sign}${hours}:${mins}`;
-}
-
-function collectFraudContext() {
-  const screen = window.screen;
-  return {
-    deviceId: getOrCreateDeviceId(),
-    browserJsUserAgent: navigator.userAgent,
-    screens: `width=${screen.width}&height=${screen.height}&scaling-factor=${window.devicePixelRatio || 1}&colour-depth=${screen.colorDepth}`,
-    windowSize: `width=${window.innerWidth}&height=${window.innerHeight}`,
-    timezone: formatHmrcTimezone(),
-  };
-}
 
 type PrimaryBusiness = {
   id: string;
@@ -260,7 +229,7 @@ function DashboardSetupWizardInner({
       const res = await fetch("/api/hmrc/fraud-context", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(collectFraudContext()),
+        body: JSON.stringify(collectHmrcFraudContext()),
       });
       if (!res.ok) {
         const data = (await res.json().catch(() => ({}))) as { error?: string };
@@ -280,6 +249,11 @@ function DashboardSetupWizardInner({
     setLinkBusy(true);
     setBanner(null);
     try {
+      const prepared = await ensureHmrcFraudContext();
+      if (!prepared) {
+        setBanner({ tone: "error", text: "Could not prepare fraud prevention headers. Try again." });
+        return;
+      }
       const res = await fetch("/api/hmrc/auto-link", {
         method: "POST",
         headers: { "Content-Type": "application/json" },

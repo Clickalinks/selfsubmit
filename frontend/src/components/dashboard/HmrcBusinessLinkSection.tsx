@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Building2, Check, Link2, Loader2, Unlink } from "lucide-react";
 
 import { DashboardCard } from "@/components/dashboard/DashboardCard";
+import { ensureHmrcFraudContext } from "@/lib/hmrc-fraud-client";
 
 type LocalBusinessLink = {
   id: string;
@@ -78,6 +79,11 @@ export function HmrcBusinessLinkSection() {
     setError(null);
     setMessage(null);
     try {
+      const prepared = await ensureHmrcFraudContext();
+      if (!prepared) {
+        setError("Could not prepare fraud prevention headers. Try again.");
+        return;
+      }
       const res = await fetch("/api/hmrc/businesses");
       const data = (await res.json().catch(() => ({}))) as {
         businesses?: HmrcBusinessRow[];
