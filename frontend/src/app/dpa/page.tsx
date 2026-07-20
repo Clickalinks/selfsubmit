@@ -23,7 +23,7 @@ export default function DpaPage() {
     <LegalPageShell
       title="Data processing agreement (DPA)"
       description="This page summarises how we process personal data on behalf of customers and the subprocessors we use. It supplements our Privacy policy and GDPR overview."
-      lastUpdated="14 July 2026"
+      lastUpdated="20 July 2026"
     >
       <DataControllerCallout>
         <p>
@@ -60,8 +60,17 @@ export default function DpaPage() {
       </LegalUl>
 
       <LegalH2 id="subprocessors">3. Subprocessors</LegalH2>
-      <LegalP>We use trusted providers to run SelfSubmit, including:</LegalP>
+      <LegalP>
+        We use trusted providers under contract to run SelfSubmit. Categories of processing support include:
+      </LegalP>
       <LegalUl>
+        <li>
+          <strong className="text-brand-black">Cloud hosting &amp; file storage</strong> — application hosting, CDN,
+          serverless compute, and uploaded receipt/document storage
+        </li>
+        <li>
+          <strong className="text-brand-black">Managed database</strong> — account, business, and submission records
+        </li>
         <li>
           <strong className="text-brand-black">Authentication</strong> — Clerk
         </li>
@@ -69,24 +78,22 @@ export default function DpaPage() {
           <strong className="text-brand-black">Payments</strong> — Stripe
         </li>
         <li>
-          <strong className="text-brand-black">Hosting &amp; storage</strong> — Vercel (application and file storage)
-        </li>
-        <li>
-          <strong className="text-brand-black">Database</strong> — Neon (PostgreSQL)
-        </li>
-        <li>
           <strong className="text-brand-black">Email</strong> — Resend
         </li>
         <li>
-          <strong className="text-brand-black">SMS</strong> — Twilio (where you opt in to SMS reminders)
+          <strong className="text-brand-black">Optional SMS</strong> — where you enable SMS reminders
         </li>
         <li>
-          <strong className="text-brand-black">Error monitoring</strong> — Sentry
+          <strong className="text-brand-black">UK address lookup</strong> — Ideal Postcodes
+        </li>
+        <li>
+          <strong className="text-brand-black">Technical monitoring</strong> — error and reliability diagnostics
         </li>
       </LegalUl>
       <LegalP>
-        We require subprocessors to protect data under contract. We will notify controllers of material subprocessor
-        changes where our DPA requires it.
+        We require subprocessors to protect data under contract. Controllers who need a named subprocessor schedule for
+        due diligence may request it by email. We will notify controllers of material subprocessor changes where our DPA
+        requires it.
       </LegalP>
 
       <LegalH2 id="transfers">4. International transfers</LegalH2>

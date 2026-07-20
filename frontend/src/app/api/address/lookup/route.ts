@@ -53,7 +53,7 @@ export async function GET(req: Request) {
       addresses: [],
       provider: null,
       error: "Postcode verified. Add IDEAL_POSTCODES_API_KEY to enable address search.",
-      hint: "Local: frontend/.env.local — Production: Vercel → Settings → Environment Variables. Get a key at https://ideal-postcodes.co.uk",
+      hint: "Local: frontend/.env.local — Production: set IDEAL_POSTCODES_API_KEY in your host environment variables. Get a key at https://ideal-postcodes.co.uk",
       code: "not_configured",
     });
   }

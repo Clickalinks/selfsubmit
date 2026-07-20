@@ -51,7 +51,7 @@ export default function PrivacyPage() {
 
       description="This policy describes how we process personal data when you use selfsubmit.co.uk and the SelfSubmit application."
 
-      lastUpdated="14 July 2026"
+      lastUpdated="20 July 2026"
 
     >
 
@@ -212,9 +212,37 @@ export default function PrivacyPage() {
 
       <LegalP>
 
-        We use trusted providers under contract. We do not sell personal data. We may disclose data if required by law,
+        We use carefully selected service providers under contract to operate SelfSubmit. We do not sell personal data.
 
-        to protect rights and safety, or in connection with a business transfer.
+        We may disclose data if required by law, to protect rights and safety, or in connection with a business transfer.
+
+      </LegalP>
+
+      <LegalP>In broad terms, personal data may be processed by providers that help us with:</LegalP>
+
+      <LegalUl>
+
+        <li>Cloud application hosting, content delivery, and serverless compute</li>
+
+        <li>Managed database hosting for account and business records</li>
+
+        <li>Secure file storage for receipts and documents you upload</li>
+
+        <li>Optional SMS notifications (where you opt in)</li>
+
+        <li>Technical error monitoring and reliability diagnostics</li>
+
+        <li>Authentication, payments, transactional email, and UK address lookup (named below)</li>
+
+      </LegalUl>
+
+      <LegalP>
+
+        Those infrastructure and communications services are engaged under data-processing terms appropriate to UK GDPR.
+
+        We do not publish a full directory of every infrastructure vendor on this page. Named providers you are most
+
+        likely to interact with (or see branded flows for) are:
 
       </LegalP>
 

@@ -8,7 +8,7 @@ import { INFRA_STACK, INFRASTRUCTURE_ITEMS, type InfraResponsibility } from "@/l
 export const metadata: Metadata = {
   title: "Infrastructure — SelfSubmit",
   description:
-    "How SelfSubmit infrastructure works on Vercel and Neon: backups, monitoring, uptime, CDN, and what you need to configure.",
+    "How SelfSubmit infrastructure works on managed cloud services: backups, monitoring, uptime, CDN, and what you need to configure.",
 };
 
 const RESPONSIBILITY_LABEL: Record<InfraResponsibility, string> = {
@@ -40,8 +40,8 @@ export default function InfrastructurePage() {
         <div className="rounded-2xl border border-brand-green/25 bg-brand-mint/40 px-5 py-5 sm:px-6">
           <p className="text-sm leading-relaxed text-brand-black/90">
             <strong>{appliesCount} of 10</strong> items apply directly.{" "}
-            <strong>Firewall</strong> in the traditional sense does not — Vercel + Neon + HTTPS + auth replace it. You
-            do not need to buy servers or install iptables.
+            <strong>Firewall</strong> in the traditional sense does not — managed cloud hosting, a managed database,
+            HTTPS, and authentication replace it. You do not need to buy servers or install iptables.
           </p>
         </div>
 
@@ -116,12 +116,12 @@ export default function InfrastructurePage() {
         <section className="mt-10 rounded-2xl border border-slate-200/80 bg-slate-50 px-5 py-6 sm:px-8">
           <h2 className="text-base font-bold text-brand-black">Recommended next steps (priority order)</h2>
           <ol className="mt-3 list-decimal space-y-2 pl-5 text-sm leading-relaxed text-brand-muted">
-            <li>Confirm Neon backups / PITR on your plan.</li>
-            <li>Bookmark Vercel Logs and Neon Monitoring; check after each production deploy.</li>
+            <li>Confirm managed database backups / PITR on your plan.</li>
+            <li>Bookmark host logs and database monitoring; check after each production deploy.</li>
             <li>Verify Stripe + Clerk webhooks show successful deliveries in their dashboards.</li>
-            <li>Once before HMRC live filing: restore Neon to a test branch and spot-check data.</li>
+            <li>Once before HMRC live filing: restore the database to a test branch and spot-check data.</li>
             <li>Write a one-page DR note (email + status page + provider status URLs) — keep it in your records.</li>
-            <li>Optional: free uptime monitor on https://www.selfsubmit.co.uk and Sentry for error alerts.</li>
+            <li>Optional: free uptime monitor on https://www.selfsubmit.co.uk and error-monitoring alerts.</li>
           </ol>
         </section>
 

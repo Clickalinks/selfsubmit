@@ -49,7 +49,7 @@ export default function GdprPage() {
 
       description="UK organisations must comply with the UK GDPR (as tailored by the Data Protection Act 2018) and PECR where relevant. This page summarises how SelfSubmit approaches those duties in plain language — it is not legal advice."
 
-      lastUpdated="14 July 2026"
+      lastUpdated="20 July 2026"
 
     >
 
@@ -207,9 +207,13 @@ export default function GdprPage() {
 
       <LegalP>
 
-        We use subprocessors under UK GDPR Article 28 terms. The table below lists our main processors. Business
+        We use subprocessors under UK GDPR Article 28 terms. Infrastructure services (hosting, databases, file storage,
 
-        customers who need a signed agreement should see our{" "}
+        optional SMS, and technical monitoring) are described by category in our Privacy policy. The table below names
+
+        providers you are most likely to interact with directly. Business customers who need a signed agreement should
+
+        see our{" "}
 
         <Link href="/dpa" className="text-brand-green underline underline-offset-2">
 

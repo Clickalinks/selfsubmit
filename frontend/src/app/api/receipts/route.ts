@@ -144,7 +144,7 @@ export async function POST(req: Request) {
     if (err instanceof ReceiptStorageError) {
       console.error("[receipts/upload]", err.message);
       return NextResponse.json(
-        { error: "Could not save receipt file. Check Vercel Blob is connected to this project." },
+        { error: "Could not save receipt file. Check cloud file storage is connected to this project." },
         { status: 503 },
       );
     }

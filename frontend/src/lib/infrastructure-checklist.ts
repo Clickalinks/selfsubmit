@@ -11,7 +11,7 @@ export type InfrastructureItem = {
 };
 
 /**
- * Infrastructure checklist for SelfSubmit’s managed stack (Vercel + Neon + SaaS providers).
+ * Infrastructure checklist for SelfSubmit’s managed cloud stack.
  * You do not run your own servers, hardware firewall, or datacentre — most items are provider-managed
  * with a small set of owner actions.
  */
@@ -22,11 +22,12 @@ export const INFRASTRUCTURE_ITEMS: InfrastructureItem[] = [
     applies: true,
     responsibility: "shared",
     summary: "Database and file data must be recoverable if something goes wrong.",
-    providerNote: "Neon stores PostgreSQL data with automated backups on paid plans. Vercel Blob stores receipt files durably.",
+    providerNote:
+      "Our managed PostgreSQL host provides automated backups on paid plans. Receipt and document files are stored in durable cloud object storage.",
     yourActions: [
-      "Neon Dashboard → your project → confirm backup / point-in-time recovery (PITR) is enabled on your plan.",
-      "Keep DATABASE_URL and DIRECT_URL only in Vercel env vars — never in git.",
-      "Receipts live in Vercel Blob; submissions and records live in Neon — both are production-critical.",
+      "In your managed database console, confirm backup / point-in-time recovery (PITR) is enabled on your plan.",
+      "Keep DATABASE_URL and DIRECT_URL only in production environment variables — never in git.",
+      "Receipt files live in cloud object storage; submissions and records live in the managed database — both are production-critical.",
     ],
   },
   {
@@ -36,7 +37,7 @@ export const INFRASTRUCTURE_ITEMS: InfrastructureItem[] = [
     responsibility: "you",
     summary: "A backup you have never restored is only a hope. Test at least once before HMRC live filing.",
     yourActions: [
-      "Neon: create a branch from a restore point or export a snapshot to a dev database quarterly.",
+      "Create a restore branch or export a snapshot to a development database quarterly.",
       "Verify you can read submissions, businesses, and receipts metadata after restore.",
       "Log the test date (spreadsheet or internal note) — auditors and insurers like evidence.",
     ],
@@ -48,8 +49,8 @@ export const INFRASTRUCTURE_ITEMS: InfrastructureItem[] = [
     responsibility: "you",
     summary: "A short written plan is enough at your scale — you are not running a secondary datacentre.",
     yourActions: [
-      "Document: if Vercel is down → check status.vercel.com, post on /status, wait for provider.",
-      "If Neon is down → check neonstatus.com, restore from PITR or failover branch per Neon docs.",
+      "Document: if the cloud host is down → check the provider status page, post on /status, wait for the provider.",
+      "If the managed database is down → check that provider’s status page; restore from PITR or a failover branch per their docs.",
       "If Clerk is down → sign-in blocked; communicate via email/status page; no local workaround.",
       "Owner contact: support@selfsubmit.co.uk. Target: restore service within 24 hours for major outages.",
     ],
@@ -60,10 +61,10 @@ export const INFRASTRUCTURE_ITEMS: InfrastructureItem[] = [
     applies: true,
     responsibility: "shared",
     summary: "Know when the app or cron jobs fail before users tell you.",
-    providerNote: "Vercel shows deployment errors, function failures, and cron run history.",
+    providerNote: "The cloud host shows deployment errors, function failures, and cron run history.",
     yourActions: [
-      "Vercel → Project → Logs & Observability — review after each deploy.",
-      "Sentry wired via @sentry/nextjs — set SENTRY_DSN and NEXT_PUBLIC_SENTRY_DSN on Vercel.",
+      "Review host logs and observability after each production deploy.",
+      "Keep error-monitoring DSN environment variables set in production for stack-trace alerts.",
       "Optional: UptimeRobot or similar (free) ping https://www.selfsubmit.co.uk and /api/cron/… health if you add one.",
       "Watch Stripe, Clerk, and Resend dashboards for webhook delivery failures.",
     ],
@@ -74,12 +75,13 @@ export const INFRASTRUCTURE_ITEMS: InfrastructureItem[] = [
     applies: true,
     responsibility: "shared",
     summary: "Runtime and audit trails for debugging and security.",
-    providerNote: "Vercel retains function and edge logs. Clerk and Stripe log webhooks and auth events in their dashboards.",
+    providerNote:
+      "The cloud host retains function and edge logs. Clerk and Stripe log webhooks and auth events in their dashboards.",
     yourActions: [
-      "Use Vercel → Logs when investigating 500 errors or failed cron runs.",
-      "Login attempts and security notifications are stored in your Neon database (Settings → Login protection).",
+      "Use the host’s log viewer when investigating 500 errors or failed cron runs.",
+      "Login attempts and security notifications are stored in the managed database (Settings → Login protection).",
       "Do not log UTR, NI numbers, or passwords in application code.",
-      "Optional: Vercel Log Drain to a log service if you need long retention.",
+      "Optional: forward host logs to a log service if you need long retention.",
     ],
   },
   {
@@ -88,10 +90,10 @@ export const INFRASTRUCTURE_ITEMS: InfrastructureItem[] = [
     applies: true,
     responsibility: "shared",
     summary: "Availability expectations for customers and HMRC sandbox credibility.",
-    providerNote: "Vercel’s global edge network hosts the app; typical SLA depends on your Vercel plan.",
+    providerNote: "A global edge network hosts the app; typical SLA depends on your cloud hosting plan.",
     yourActions: [
       "Publish service health on /status (already on the site).",
-      "Subscribe to status.vercel.com and neonstatus.com for provider incidents.",
+      "Subscribe to your cloud host and database provider status pages for incidents.",
       "Optional: external uptime monitor emailing you when the homepage is unreachable.",
     ],
   },
@@ -101,11 +103,11 @@ export const INFRASTRUCTURE_ITEMS: InfrastructureItem[] = [
     applies: true,
     responsibility: "shared",
     summary: "Database health, connections, and storage.",
-    providerNote: "Neon Dashboard shows CPU, connections, storage, and query insights.",
+    providerNote: "The managed database console shows CPU, connections, storage, and query insights.",
     yourActions: [
-      "Neon → Monitoring — set email alerts for storage limits and connection spikes.",
+      "Set email alerts for storage limits and connection spikes in the database console.",
       "Use pooled DATABASE_URL in production (…-pooler… host) as already configured.",
-      "Run prisma migrate deploy in CI/build (already in vercel.json buildCommand).",
+      "Run prisma migrate deploy in CI/build (already in the production build command).",
     ],
   },
   {
@@ -114,7 +116,8 @@ export const INFRASTRUCTURE_ITEMS: InfrastructureItem[] = [
     applies: true,
     responsibility: "provider",
     summary: "Fast static delivery and edge caching worldwide.",
-    providerNote: "Vercel automatically serves your Next.js app and static assets from its CDN / edge network. No separate CDN to configure.",
+    providerNote:
+      "The cloud host automatically serves the Next.js app and static assets from its CDN / edge network. No separate CDN to configure.",
     yourActions: ["Ensure images and icons are served from the app domain (already the case)."],
   },
   {
@@ -123,11 +126,12 @@ export const INFRASTRUCTURE_ITEMS: InfrastructureItem[] = [
     applies: true,
     responsibility: "shared",
     summary: "Mitigate traffic floods and abusive sign-in patterns.",
-    providerNote: "Vercel includes platform-level DDoS mitigation. Clerk Attack protection (bot detection) adds sign-up/sign-in abuse filtering.",
+    providerNote:
+      "The cloud host includes platform-level DDoS mitigation. Clerk Attack protection (bot detection) adds sign-up/sign-in abuse filtering.",
     yourActions: [
       "Keep Clerk bot detection enabled (you already have this).",
       "SelfSubmit login-protection lockouts limit brute-force on your APIs.",
-      "Vercel Pro+ offers additional Firewall rules if you ever need IP blocking.",
+      "Higher hosting plans may offer additional WAF / IP rules if you ever need them.",
     ],
   },
   {
@@ -137,20 +141,28 @@ export const INFRASTRUCTURE_ITEMS: InfrastructureItem[] = [
     responsibility: "provider",
     summary: "Traditional perimeter firewalls apply to servers you own — not this architecture.",
     providerNote:
-      "You use serverless functions and a managed database. Security is enforced by HTTPS-only access, Clerk authentication, API route protection, Neon network isolation, and Vercel/platform networking — not a hardware firewall you configure.",
+      "You use serverless functions and a managed database. Security is enforced by HTTPS-only access, Clerk authentication, API route protection, database network isolation, and platform networking — not a hardware firewall you configure.",
     yourActions: [
       "No action required for a classic firewall.",
-      "Optional later: Cloudflare in front of the domain, or Vercel Firewall (paid) for WAF rules.",
+      "Optional later: a CDN/WAF in front of the domain, or host firewall rules on a higher plan.",
       "Keep middleware protecting /dashboard and API routes (already in place).",
     ],
   },
 ];
 
 export const INFRA_STACK = [
-  { layer: "Application & CDN", provider: "Vercel", role: "Hosting, HTTPS, edge CDN, cron, Blob storage" },
-  { layer: "Database", provider: "Neon", role: "PostgreSQL — users, submissions, receipts metadata, login logs" },
+  {
+    layer: "Application & CDN",
+    provider: "Managed cloud host",
+    role: "Hosting, HTTPS, edge CDN, cron, file storage",
+  },
+  {
+    layer: "Database",
+    provider: "Managed PostgreSQL",
+    role: "Users, submissions, receipts metadata, login logs",
+  },
   { layer: "Authentication", provider: "Clerk", role: "Sign-in, MFA, sessions, attack protection" },
   { layer: "Payments", provider: "Stripe", role: "Subscriptions and billing portal" },
   { layer: "Email", provider: "Resend", role: "Quarterly reminder emails" },
-  { layer: "SMS", provider: "Twilio", role: "Optional deadline SMS reminders" },
+  { layer: "SMS", provider: "SMS provider (optional)", role: "Optional deadline SMS reminders" },
 ] as const;

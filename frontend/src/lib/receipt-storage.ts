@@ -82,7 +82,7 @@ export async function saveReceiptFile(
 
   if (process.env.VERCEL === "1") {
     throw new ReceiptStorageError(
-      "Receipt storage is not configured. Connect a Vercel Blob store to this project.",
+      "Receipt storage is not configured. Connect cloud file storage to this project.",
     );
   }
 

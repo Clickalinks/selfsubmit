@@ -67,7 +67,7 @@ export default function CookiesPage() {
           business profile you are working on in the dashboard.
         </li>
         <li>
-          <strong className="text-brand-black">Hosting (Vercel/CDN):</strong> infrastructure cookies for load balancing and
+          <strong className="text-brand-black">Hosting / CDN:</strong> infrastructure cookies for load balancing and
           security.
         </li>
         <li>

@@ -23,7 +23,7 @@ export default function TermsPage() {
     <LegalPageShell
       title="Terms of use"
       description="These terms apply when you browse or use selfsubmit.co.uk and the SelfSubmit application."
-      lastUpdated="14 July 2026"
+      lastUpdated="20 July 2026"
     >
       <LegalCallout title="Read together with">
         <PolicyRelatedLinks
@@ -114,8 +114,14 @@ export default function TermsPage() {
 
       <LegalH2 id="third">8. Third-party services</LegalH2>
       <LegalP>
-        We rely on hosting, authentication, payment, messaging, email, and error-monitoring providers. Their terms may
-        also apply where you interact with them. See our Privacy policy for the current list.
+        We use third-party service providers to run SelfSubmit, including cloud hosting and infrastructure, managed
+        databases, file storage, authentication, payments, email, optional SMS messaging, address lookup, and technical
+        monitoring. Where you interact with a provider directly (for example at checkout or when signing in), that
+        provider&apos;s own terms may also apply. How we use personal data with service providers is described in our{" "}
+        <Link href="/privacy" className="text-brand-green underline underline-offset-2">
+          Privacy policy
+        </Link>
+        .
       </LegalP>
 
       <LegalH2 id="warranty">9. Disclaimers</LegalH2>

@@ -100,7 +100,7 @@ export function idealPostcodeErrorMessage(data: IdealPostcodeResponse, httpStatu
     return "Ideal Postcodes blocked this request (URL whitelist). In your Ideal Postcodes dashboard, disable Allowed URLs for server-side keys or add https://www.selfsubmit.co.uk.";
   }
   if (code === 4010) {
-    return "Invalid Ideal Postcodes API key. Check IDEAL_POSTCODES_API_KEY in .env.local (dev) or Vercel env vars (production), then redeploy.";
+    return "Invalid Ideal Postcodes API key. Check IDEAL_POSTCODES_API_KEY in .env.local (dev) or production environment variables, then redeploy.";
   }
   if (code === 4020 || httpStatus === 402) {
     return "Ideal Postcodes account has no credit left. Top up at ideal-postcodes.co.uk or enter your address manually.";

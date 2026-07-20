@@ -134,7 +134,7 @@ export async function runDeadlineReminders(now = new Date()): Promise<DeadlineRe
   const emailReady = isResendConfigured();
 
   if (!smsReady) {
-    summary.errors.push("Twilio is not configured — SMS reminders skipped.");
+    summary.errors.push("SMS messaging is not configured — SMS reminders skipped.");
   }
   if (!emailReady) {
     summary.errors.push("Resend is not configured — email reminders skipped.");

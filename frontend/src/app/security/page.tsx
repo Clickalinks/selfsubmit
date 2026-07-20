@@ -160,13 +160,13 @@ export default function SecurityPage() {
 
           <ul className="mt-4 list-disc space-y-2 pl-5 text-[15px] leading-relaxed text-brand-muted sm:text-base">
 
-            <li>Application hosting on Vercel</li>
+            <li>Cloud application hosting with CDN and serverless infrastructure</li>
 
-            <li>Database hosting on Neon (PostgreSQL)</li>
+            <li>Managed PostgreSQL database hosting</li>
 
-            <li>Authentication via Clerk; email via Resend; optional SMS via Twilio</li>
+            <li>Authentication via Clerk; email via Resend; optional SMS reminders</li>
 
-            <li>Error monitoring via Sentry</li>
+            <li>Technical error monitoring and reliability diagnostics</li>
 
           </ul>
 

@@ -20,7 +20,7 @@ export async function sendSms(toRaw: string, body: string): Promise<SendSmsResul
   const messagingServiceSid = process.env.TWILIO_MESSAGING_SERVICE_SID?.trim();
 
   if (!accountSid || !authToken || (!fromNumber && !messagingServiceSid)) {
-    return { ok: false, error: "Twilio is not configured." };
+    return { ok: false, error: "SMS messaging is not configured." };
   }
 
   const to = formatUkPhoneE164(toRaw);
@@ -47,7 +47,7 @@ export async function sendSms(toRaw: string, body: string): Promise<SendSmsResul
 
   const payload = (await response.json().catch(() => null)) as { sid?: string; message?: string } | null;
   if (!response.ok) {
-    return { ok: false, error: payload?.message ?? `Twilio error (${response.status})` };
+    return { ok: false, error: payload?.message ?? `SMS provider error (${response.status})` };
   }
 
   return { ok: true, sid: payload?.sid ?? "unknown", to };
