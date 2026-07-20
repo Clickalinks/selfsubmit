@@ -169,6 +169,7 @@ const html = `<!DOCTYPE html>
   h2 { font-size: 13pt; margin: 22px 0 8px; color: #0f3d2e; border-bottom: 2px solid #1a7a4c; padding-bottom: 3px; page-break-after: avoid; }
   h3 { font-size: 11pt; margin: 14px 0 6px; color: #145c3a; page-break-after: avoid; }
   p { margin: 0 0 7px; }
+  img { max-height: 52px; width: auto; display: block; margin: 4px 0 12px; }
   table { border-collapse: collapse; width: 100%; margin: 8px 0 12px; font-size: 8.5pt; page-break-inside: avoid; }
   th, td { border: 1px solid #ccc; padding: 4px 6px; text-align: left; vertical-align: top; }
   th { background: #e8f5ee; font-weight: 600; }
