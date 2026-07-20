@@ -17,7 +17,7 @@ export default function FeaturesPage() {
     <SitePageShell>
       <SitePageHero
         eyebrow="Product"
-        title="Everything you need for MTD — nothing you don't"
+        title="Core MTD record-keeping and submission features"
         description="SelfSubmit brings together monthly digital records, receipt storage, deadline reminders, and HMRC quarterly updates for UK sole traders."
       />
 

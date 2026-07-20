@@ -85,8 +85,8 @@ export default async function DashboardPage({
       <SubscriptionAccessBanner access={access} />
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-sm font-medium text-slate-500">Hello {profile.firstName}</p>
-          <h2 className="text-xl font-bold text-slate-900 sm:text-2xl">Your MTD dashboard</h2>
+          <p className="text-sm font-medium text-slate-500">Welcome, {profile.firstName}</p>
+          <h2 className="text-xl font-bold text-slate-900 sm:text-2xl">MTD dashboard</h2>
           {snapshot.activeBusinessName ? (
             <p className="mt-1 text-sm text-slate-600">
               Viewing{" "}
@@ -159,11 +159,11 @@ export default async function DashboardPage({
       />
 
       <section className="rounded-2xl border border-sky-200/80 bg-sky-50/80 p-5 sm:p-6">
-        <p className="text-xs font-bold uppercase tracking-[0.15em] text-sky-800/80">Help</p>
-        <h2 className="mt-2 text-lg font-bold text-sky-950 sm:text-xl">Where do I see how much tax to pay?</h2>
+        <p className="text-xs font-bold uppercase tracking-[0.15em] text-sky-800/80">Guidance</p>
+        <h2 className="mt-2 text-lg font-bold text-sky-950 sm:text-xl">Viewing tax due (HMRC)</h2>
         <p className="mt-2 max-w-2xl text-sm leading-relaxed text-sky-950/90 sm:text-base">
-          SelfSubmit helps with records and MTD updates. Your official tax calculation and amount to pay appear in your
-          HMRC Personal Tax Account online — not as a final bill inside this dashboard yet.
+          SelfSubmit supports records and MTD update submissions. HMRC’s official tax calculation and balance to pay are
+          shown in your HMRC Personal Tax Account. SelfSubmit does not currently display that calculation.
         </p>
         <Link
           href="/how-tax-due-works"

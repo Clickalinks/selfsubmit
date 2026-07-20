@@ -520,7 +520,7 @@ export const MTD_CATEGORY_CONTENT: MtdCategoryContent[] = [
     whatYouNeedToDo: [
       "Read the relevant GOV.UK collection for your situation.",
       "Attend HMRC webinars for MTD for Income Tax.",
-      "Contact HMRC if you cannot meet a deadline — do not ignore letters.",
+      "Contact HMRC if you cannot meet a deadline. Do not leave correspondence unaddressed.",
     ],
     keyPoints: [
       "SelfSubmit helps organise records and submissions — it does not replace HMRC guidance or professional advice.",

@@ -318,7 +318,7 @@ export function SubmissionDetail({ submissionId }: { submissionId: string }) {
       ) : null}
 
       <p className="submission-no-print text-xs text-slate-500">
-        Tip: choose <strong>Save as PDF</strong>, then pick &ldquo;Save as PDF&rdquo; in your browser&apos;s print dialog.
+        To export: choose <strong>Save as PDF</strong>, then select &ldquo;Save as PDF&rdquo; in your browser&apos;s print dialog.
       </p>
     </article>
   );

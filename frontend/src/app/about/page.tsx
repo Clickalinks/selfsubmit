@@ -8,7 +8,7 @@ import { COMPANY } from "@/lib/company-details";
 export const metadata: Metadata = {
   title: "About us — SelfSubmit",
   description:
-    "SelfSubmit was founded by a self-employed taxi driver in Exeter to make Making Tax Digital straightforward — simple monthly records for UK sole traders.",
+    "SelfSubmit provides Making Tax Digital record-keeping for UK sole traders — founded in Exeter with a focus on clear monthly income and expense workflows.",
 };
 
 const WHO_WE_HELP = [
@@ -19,20 +19,20 @@ const WHO_WE_HELP = [
   "Freelancers",
   "Consultants",
   "Small business owners",
-  "Anyone who wants a simpler way to manage business income and expenses",
+  "Self-employed professionals who need structured income and expense records",
 ] as const;
 
 const VALUES = [
-  { title: "Simplicity", text: "Easy-to-use software without unnecessary complexity." },
-  { title: "Clarity", text: "Straightforward language and intuitive design." },
-  { title: "Efficiency", text: "Helping you complete your records quickly and accurately." },
-  { title: "Confidence", text: "Giving you the tools to stay organised and prepared for Making Tax Digital." },
+  { title: "Focus", text: "Tools for sole-trader MTD records, without unused accounting suite features." },
+  { title: "Clarity", text: "Clear language and a structured interface for monthly reporting." },
+  { title: "Efficiency", text: "Workflows designed for accurate records with minimal administration time." },
+  { title: "Compliance readiness", text: "Organisation and evidence ready for Making Tax Digital obligations." },
 ] as const;
 
 const CURRENT_FEATURES = [
-  "Profession-led navigation and simple tools tailored to self-employed businesses.",
+  "Profession-specific navigation and forms for self-employed businesses.",
   "Monthly income and expense forms with built-in business expense categories.",
-  "A UK self-employed tax calculator for quick estimates.",
+  "A UK self-employed tax calculator for indicative estimates.",
   "HMRC connection, quarterly update preparation, and secure document storage.",
 ] as const;
 
@@ -41,53 +41,47 @@ export default function AboutPage() {
     <SitePageShell>
       <SitePageHero
         eyebrow="About us"
-        title="Making Tax Digital straightforward for the self-employed"
-        description="Last updated: 21 April 2026"
+        title="Making Tax Digital software for the self-employed"
+        description="Last updated: 20 July 2026"
       />
 
       <div className="mx-auto max-w-3xl px-5 py-12 sm:px-8 sm:py-16 lg:px-10">
         <section className="space-y-4 text-sm leading-relaxed text-brand-muted sm:text-base">
           <p>
-            At <strong className="text-brand-black">SelfSubmit</strong>, we believe managing your taxes should be simple,
-            not stressful.
+            <strong className="text-brand-black">SelfSubmit</strong> is UK SaaS for Making Tax Digital (MTD) income and
+            expense record-keeping, built for sole traders and similar self-employed businesses.
           </p>
           <p>
-            SelfSubmit was founded by someone who understands self-employment from first-hand experience. As a
-            self-employed taxi driver based in Exeter, Devon, I know how difficult it can be to balance serving
-            customers, running a business, keeping accurate records, and staying on top of tax obligations.
+            The company was founded in Exeter, Devon, by a self-employed taxi driver with experience in cybersecurity
+            and software development. SelfSubmit addresses a gap observed in practice: many existing MTD products
+            resemble full accounting suites, which is more capability than most sole traders need for digital income and
+            expense records.
           </p>
           <p>
-            Alongside my work as a taxi driver, I have developed knowledge and experience in cybersecurity and software
-            development. Those skills enabled me to build a solution to a problem I had experienced myself.
+            SelfSubmit was created as a focused alternative — structured monthly recording, profession-specific
+            categories, and a path to HMRC quarterly updates — without requiring users to adopt a full accounting
+            package.
           </p>
-          <p>
-            While researching existing Making Tax Digital (MTD) software, I found that many platforms were designed like
-            traditional accounting systems. Although they offer a wide range of features, they can often feel complex and
-            overwhelming for sole traders who simply want an easy way to record their income and expenses.
-          </p>
-          <p>I believed there had to be a better, simpler approach.</p>
-          <p className="font-semibold text-brand-black">That&apos;s why I created SelfSubmit.</p>
         </section>
 
         <section className="mt-12">
           <h2 className="text-xl font-bold text-brand-black sm:text-2xl">Why SelfSubmit?</h2>
           <div className="mt-4 space-y-4 text-sm leading-relaxed text-brand-muted sm:text-base">
             <p>
-              SelfSubmit has been designed specifically for busy self-employed people who want a straightforward way to
-              prepare their monthly income and expenses for Making Tax Digital.
+              SelfSubmit is designed for self-employed people who need a clear process to prepare monthly income and
+              expenses for Making Tax Digital.
             </p>
             <p>
-              Rather than asking you to learn complex accounting software, SelfSubmit guides you through clear,
-              profession-focused forms that are quick to complete and easy to understand.
+              Profession-focused forms guide income and expense entry so records can be maintained without learning a
+              full accounting product.
             </p>
             <p>
-              Every feature has been designed with one goal in mind: to reduce unnecessary complexity. The platform
-              focuses on the tools most self-employed people actually need, helping you keep accurate records without
-              feeling overwhelmed by features designed for larger businesses.
+              Features are prioritised around what most sole traders need for MTD readiness: accurate records, receipt
+              evidence, and quarterly update preparation — not unused modules aimed at larger organisations.
             </p>
             <p>
-              Whether you run one business or several, SelfSubmit helps you stay organised, save time, and prepare your
-              records with confidence.
+              Whether you operate one business or several, SelfSubmit supports organised records and efficient
+              preparation for reporting deadlines.
             </p>
           </div>
         </section>
@@ -110,15 +104,15 @@ export default function AboutPage() {
           </ul>
           <p className="mt-4">
             <Link href="/business-types" className="text-sm font-semibold text-brand-green underline-offset-2 hover:underline">
-              See all supported business types →
+              View supported business types →
             </Link>
           </p>
         </section>
 
         <section className="mt-12">
-          <h2 className="text-xl font-bold text-brand-black sm:text-2xl">Our values</h2>
+          <h2 className="text-xl font-bold text-brand-black sm:text-2xl">Product principles</h2>
           <p className="mt-3 text-sm leading-relaxed text-brand-muted sm:text-base">
-            Everything we build is guided by four simple principles:
+            Development is guided by four principles:
           </p>
           <div className="mt-5 grid gap-4 sm:grid-cols-2">
             {VALUES.map((value) => (
@@ -137,16 +131,16 @@ export default function AboutPage() {
           <h2 className="text-xl font-bold text-brand-black sm:text-2xl">Our mission</h2>
           <div className="mt-4 space-y-4 text-sm leading-relaxed text-brand-muted sm:text-base">
             <p>
-              Our mission is to make Making Tax Digital more accessible for every self-employed person in the UK.
+              Our mission is to make Making Tax Digital accessible and practical for self-employed people in the UK.
             </p>
             <p>
-              We believe managing your business records shouldn&apos;t require accounting expertise. By simplifying the
-              process, we help self-employed professionals spend less time on administration and more time focusing on
-              the work that matters most.
+              Compliant digital records should not require formal accounting qualifications. By structuring the
+              workflow, SelfSubmit helps professionals reduce administration time and focus on operating their
+              business.
             </p>
             <p>
-              SelfSubmit exists to remove unnecessary barriers and provide a practical, affordable solution that supports
-              self-employed businesses as tax reporting continues to evolve.
+              We provide a practical, affordable platform that supports self-employed businesses as tax reporting
+              requirements continue to evolve.
             </p>
           </div>
         </section>
@@ -168,7 +162,7 @@ export default function AboutPage() {
               record-keeping, and HMRC quarterly update support.
             </p>
             <p>
-              We continue to improve the platform as Making Tax Digital evolves — including production HMRC filing and
+              We continue to develop the platform as Making Tax Digital evolves — including production HMRC filing and
               GOV.UK software recognition when those approvals are complete.
             </p>
           </div>
@@ -190,9 +184,9 @@ export default function AboutPage() {
         </section>
 
         <section className="mt-12 rounded-2xl border border-brand-green/20 bg-brand-mint/50 p-6 text-center sm:p-8">
-          <h2 className="text-xl font-bold text-brand-black sm:text-2xl">Contact us</h2>
+          <h2 className="text-xl font-bold text-brand-black sm:text-2xl">Contact</h2>
           <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-brand-muted sm:text-base">
-            If you have any questions, feedback, or partnership enquiries, we&apos;d be delighted to hear from you.
+            For product questions, feedback, or partnership enquiries, contact us by email or via the contact page.
           </p>
           <p className="mt-4 text-sm text-brand-muted sm:text-base">
             Email{" "}
@@ -209,8 +203,8 @@ export default function AboutPage() {
             .
           </p>
           <p className="mx-auto mt-6 max-w-xl text-sm leading-relaxed text-brand-forest">
-            Thank you for choosing SelfSubmit. We&apos;re committed to making tax record-keeping simpler, so you can
-            spend more time doing what you do best — running your business.
+            Thank you for using SelfSubmit. We are committed to clear, reliable MTD record-keeping so you can focus on
+            operating your business.
           </p>
         </section>
       </div>

@@ -24,7 +24,7 @@ export const MTD_INFO_BLOCK_EXTRAS: Record<string, MtdInfoBlockExtras> = {
       "Using software that cannot connect to HMRC when you are in scope",
     ],
     selfSubmitTip:
-      "SelfSubmit is built for monthly income and expense capture so your quarterly figures are ready. Pick your trade at sign-up and the form loads the right line items for your work.",
+      "SelfSubmit supports monthly income and expense capture so quarterly figures are available when due. Select your trade when you add a business and the form loads the relevant line items.",
   },
   "mtd-for-vat": {
     cardIntro:
@@ -73,7 +73,7 @@ export const MTD_INFO_BLOCK_EXTRAS: Record<string, MtdInfoBlockExtras> = {
     additionalDetail:
       "Multiple trades or rental properties may mean separate records in your software. Employed income alone does not usually trigger MTD ITSA, but total qualifying income from self-employment and property determines if you must join.",
     commonMistakes: [
-      "Ignoring side-hustle income when checking the £50k threshold",
+      "Omitting secondary self-employment income when assessing the £50k threshold",
       "Assuming a limited company’s rules apply to sole trader MTD",
       "Not agreeing record-keeping duties in a partnership",
     ],
@@ -91,7 +91,7 @@ export const MTD_INFO_BLOCK_EXTRAS: Record<string, MtdInfoBlockExtras> = {
     additionalDetail:
       "Bank statements, invoices, receipts, mileage logs, and contract notes all support your return. Simplified expenses (e.g. flat-rate mileage) still need underlying journey records. HMRC can ask to see records during compliance checks.",
     commonMistakes: [
-      "Storing receipts in a shoebox and entering figures once a year",
+      "Leaving receipts unorganised and entering figures only at year end",
       "Claiming expenses without proof of business use",
       "Mixing personal and business transactions on one card with no notes",
     ],
@@ -165,14 +165,14 @@ export const MTD_INFO_BLOCK_EXTRAS: Record<string, MtdInfoBlockExtras> = {
     commonMistakes: [
       "Assuming exemption without applying or checking income",
       "Confusing VAT and income tax exemption rules",
-      "Stopping record-keeping because a friend said they are exempt",
+      "Assuming exemption based on informal advice rather than HMRC confirmation",
     ],
     selfSubmitTip:
-      "If you are unsure, use SelfSubmit to build good digital habits while you confirm your status on GOV.UK or with a qualified adviser.",
+      "If your status is unclear, maintain digital records in SelfSubmit while you confirm requirements on GOV.UK or with a qualified adviser.",
   },
   "penalties-and-fines": {
     cardIntro:
-      "HMRC penalties apply for late quarterly updates, late final declarations, and late payment. Interest accrues on unpaid tax. Planning ahead avoids costly surprises.",
+      "HMRC penalties apply for late quarterly updates, late final declarations, and late payment. Interest accrues on unpaid tax. Timely submissions and payments reduce penalty and interest risk.",
     highlights: [
       "Late submission penalties increase over time",
       "Late payment interest is charged separately",
@@ -181,12 +181,12 @@ export const MTD_INFO_BLOCK_EXTRAS: Record<string, MtdInfoBlockExtras> = {
     additionalDetail:
       "Nil updates may still be required in some periods — check HMRC guidance. Payment on account spreads next year’s bill. Budget for tax and National Insurance as profits grow, not only in January.",
     commonMistakes: [
-      "Ignoring HMRC letters hoping they go away",
+      "Leaving HMRC correspondence unaddressed",
       "Missing a quarter with zero income without filing where required",
       "Not setting aside cash monthly for January and July payments",
     ],
     selfSubmitTip:
-      "Regular monthly entries in SelfSubmit reduce end-of-quarter panic and help you spot figures that need correcting before HMRC deadlines.",
+      "Regular monthly entries in SelfSubmit reduce last-minute corrections before quarterly deadlines and help identify figures that need review.",
   },
   "quarterly-updates": {
     cardIntro:
@@ -258,7 +258,7 @@ export const MTD_INFO_BLOCK_EXTRAS: Record<string, MtdInfoBlockExtras> = {
       "Claiming personal groceries or meals without business travel rules",
     ],
     selfSubmitTip:
-      "SelfSubmit profession templates list common allowable lines for your trade — meter takings, tools, mileage, and more — so nothing obvious is missed.",
+      "SelfSubmit profession templates list common allowable lines for your trade — for example meter takings, tools, and mileage — covering frequent expense categories for that work.",
   },
   "digital-records": {
     cardIntro:
@@ -341,9 +341,9 @@ export const MTD_INFO_BLOCK_EXTRAS: Record<string, MtdInfoBlockExtras> = {
       "Review figures before each deadline",
     ],
     additionalDetail:
-      "Authorisation is per client relationship. Agents use an Agent Services Account. Clear communication on record deadlines helps them file on time — garbage in, garbage out.",
+      "Authorisation is per client relationship. Agents use an Agent Services Account. Clear communication on record deadlines supports timely filing — submission quality depends on the accuracy of the records supplied.",
     commonMistakes: [
-      "Handing over a shoebox of receipts the day before a deadline",
+      "Providing incomplete records immediately before a filing deadline",
       "Assuming the agent is liable if figures are wrong",
       "Not authorising the correct business in HMRC",
     ],
@@ -366,7 +366,7 @@ export const MTD_INFO_BLOCK_EXTRAS: Record<string, MtdInfoBlockExtras> = {
       "Waiting until investigation to find missing records",
     ],
     selfSubmitTip:
-      "Use SelfSubmit for organised monthly records and our information blocks for plain-English MTD context — always verify rule changes on GOV.UK before acting.",
+      "Use SelfSubmit for organised monthly records and our information blocks for concise MTD summaries — always verify rule changes on GOV.UK before acting.",
   },
 };
 

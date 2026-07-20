@@ -282,7 +282,7 @@ function DashboardSetupWizardInner({
     { id: 4, label: "Add UTR and NI number", done: hasTaxIds },
     { id: 5, label: "Connect to HMRC", done: hmrcConnected },
     { id: 6, label: "Link to HMRC", done: Boolean(activeBusinessHmrcId) },
-    { id: 7, label: "Start filling income and expenses", done: false },
+    { id: 7, label: "Record income and expenses", done: false },
   ] as const;
 
   return (
@@ -293,10 +293,10 @@ function DashboardSetupWizardInner({
     >
       <p className="text-xs font-bold uppercase tracking-[0.15em] text-brand-green">Get started</p>
       <h3 id="setup-wizard-heading" className="mt-1 text-lg font-bold text-slate-900">
-        Set up SelfSubmit in a few steps
+        Complete account setup
       </h3>
       <p className="mt-1 text-sm text-slate-500">
-        Complete everything here on one screen — then jump straight into your income and expense form.
+        Finish the steps below, then open the monthly income and expense form.
       </p>
 
       {banner ? (
@@ -359,7 +359,7 @@ function DashboardSetupWizardInner({
               {isExpanded && step.id === 2 ? (
                 <div className="mt-4 border-t border-brand-green/10 pt-4">
                   <p className="text-sm text-slate-600">
-                    Pick the plan that fits how many businesses you run. You can change it later.
+                    Select the plan that matches how many businesses you manage. You can change it later.
                   </p>
                   <Link
                     href="/pricing"
@@ -512,8 +512,8 @@ function DashboardSetupWizardInner({
                   ) : (
                     <>
                       <p className="text-sm text-slate-600">
-                        If HMRC returns exactly one self-employment business, we link it to your business automatically
-                        — no dropdowns.
+                        If HMRC returns exactly one self-employment business, SelfSubmit links it to your business
+                        automatically.
                       </p>
                       <button
                         type="button"
@@ -539,13 +539,13 @@ function DashboardSetupWizardInner({
               {isExpanded && step.id === 7 ? (
                 <div className="mt-4 border-t border-brand-green/10 pt-4">
                   <p className="text-sm text-slate-600">
-                    You are ready. Open your income and expense form and start recording this quarter.
+                    Setup is complete. Open the monthly form to record this quarter’s figures.
                   </p>
                   <Link
                     href={submitHref}
                     className="mt-3 inline-flex items-center gap-2 rounded-xl bg-brand-green px-5 py-3 text-sm font-bold text-white shadow-md shadow-brand-green/25 hover:bg-brand-green-dark"
                   >
-                    Start filling
+                    Open monthly form
                     <ArrowRight className="h-4 w-4" />
                   </Link>
                 </div>

@@ -40,7 +40,7 @@ export const MTD_INSIGHTS: MtdInsight[] = [
   },
   {
     id: "submit-checklist",
-    category: "Easy submission",
+    category: "Quarterly updates",
     title: "Your quarterly update checklist",
     excerpt:
       "Before each HMRC deadline: confirm your digital records are complete, summarise income and allowable expenses, and submit through MTD-compatible software. Quarterly updates are not your tax bill.",

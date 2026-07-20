@@ -47,7 +47,7 @@ export default function GdprPage() {
 
       title="GDPR &amp; UK data protection"
 
-      description="UK organisations must comply with the UK GDPR (as tailored by the Data Protection Act 2018) and PECR where relevant. This page summarises how SelfSubmit approaches those duties in plain language — it is not legal advice."
+      description="UK organisations must comply with the UK GDPR (as tailored by the Data Protection Act 2018) and PECR where relevant. This page summarises how SelfSubmit approaches those duties — it is not legal advice."
 
       lastUpdated="20 July 2026"
 

@@ -20,7 +20,7 @@ const SLIDES = [
   },
   {
     image: "/landing/hero-screenshot.png",
-    label: "EASY SUBMISSION",
+    label: "QUARTERLY UPDATES",
     title: "Submit with Confidence",
     href: "/submit",
   },

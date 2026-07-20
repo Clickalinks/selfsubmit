@@ -78,8 +78,8 @@ export default function HowItWorksPage() {
         <Link href="/tax-calculator" className="text-brand-green underline underline-offset-2">
           tax calculator
         </Link>{" "}
-        gives a rough estimate using simplified rules. It is not a substitute for Self Assessment software, HMRC’s own
-        tools, or professional advice.
+        provides an indicative estimate using simplified rules. It is not a substitute for Self Assessment software,
+        HMRC’s own tools, or professional advice.
       </LegalP>
 
       <LegalH2 id="official">Official guidance</LegalH2>

@@ -102,7 +102,7 @@ export const SITE_FEATURE_GROUPS: { title: string; features: SiteFeature[] }[] =
       {
         id: "reminders",
         title: "Deadline reminders",
-        description: "Email and optional SMS nudges before quarterly deadlines so nothing slips through.",
+        description: "Email and optional SMS reminders ahead of quarterly deadlines.",
         icon: Bell,
       },
       {

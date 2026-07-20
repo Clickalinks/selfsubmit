@@ -256,7 +256,7 @@ export async function getMtdDashboardSnapshot(
     todayMessage = "Upload expense records to keep your quarterly summary up to date.";
     todayTone = "info";
   } else if (!currentQuarterSubmitted && quarterIncomeGbp === 0 && quarterExpensesGbp === 0) {
-    todayMessage = "Add this quarter's income and expenses when you're ready.";
+    todayMessage = "Record this quarter’s income and expenses.";
     todayTone = "info";
   }
 

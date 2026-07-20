@@ -57,7 +57,7 @@ export function BusinessTypesSlider() {
               {total}+ business types — one simple monthly return
             </h2>
             <p className="mx-auto mt-3 max-w-2xl text-sm text-white/85 sm:text-base">
-              Pick your trade at sign-up. We load the right income and expense lines for HMRC-ready records.
+              Select your trade when you add a business. SelfSubmit loads income and expense categories for HMRC-ready records.
             </p>
           </div>
 

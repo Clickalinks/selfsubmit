@@ -31,14 +31,14 @@ export default function FaqPage() {
       <SitePageHero
         eyebrow="Help"
         title="Frequently asked questions"
-        description="Quick answers about SelfSubmit, Making Tax Digital, and your subscription. For anything else, email us."
+        description="Answers on SelfSubmit, Making Tax Digital, and subscriptions."
       />
 
       <div className="mx-auto max-w-3xl px-5 py-12 sm:px-8 sm:py-16 lg:px-10">
         <FaqList items={FAQ_ITEMS} />
 
         <div className="mt-10 rounded-2xl border border-slate-200/80 bg-slate-50 px-5 py-6 text-center sm:px-8">
-          <p className="text-sm text-brand-muted sm:text-base">Still have a question?</p>
+          <p className="text-sm text-brand-muted sm:text-base">Need further help?</p>
           <p className="mt-2 text-base font-semibold text-brand-black">
             Email{" "}
             <a

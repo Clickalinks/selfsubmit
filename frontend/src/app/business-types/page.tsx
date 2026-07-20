@@ -18,7 +18,7 @@ export default function BusinessTypesPage() {
       <SitePageHero
         eyebrow="Product"
         title={`${SELF_EMPLOYED_PROFESSION_COUNT} business types — ready-made forms`}
-        description="Pick your trade when you sign up or add a business. We load the right income and expense lines for your work — no generic spreadsheet."
+        description="Select your trade when you add a business. SelfSubmit loads income and expense categories for that profession."
       />
 
       <div className="mx-auto max-w-[1400px] px-5 py-12 sm:px-8 sm:py-16 lg:px-10">

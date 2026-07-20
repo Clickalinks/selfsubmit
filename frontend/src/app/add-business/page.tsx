@@ -25,7 +25,7 @@ export default async function AddBusinessPage() {
       <main className="mx-auto max-w-content px-5 py-10 min-[900px]:px-10 min-[900px]:py-14">
         <h1 className="text-2xl font-bold text-brand-black min-[900px]:text-3xl">Choose your profession</h1>
         <p className="mt-3 max-w-2xl text-sm leading-relaxed text-brand-muted min-[900px]:text-base">
-          Pick the business type that matches your work. On the Solo plan this locks your income and expense
+          Select the profession that matches your trade. On the Solo plan this locks your income and expense
           categories — you will only see forms for that profession.
         </p>
         <div className="mt-10">

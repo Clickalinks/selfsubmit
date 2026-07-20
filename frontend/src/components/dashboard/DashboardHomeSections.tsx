@@ -94,7 +94,7 @@ function todayCta({
   submitHref,
 }: TodayCardProps): { href: string; label: string } {
   if (hmrcSandboxReady) {
-    return { href: submitHref ?? "/submit", label: "Start filling" };
+    return { href: submitHref ?? "/submit", label: "Open monthly form" };
   }
   if (!hasPlan) return { href: "/pricing", label: "Choose subscription" };
   if (!hasBusiness) return { href: "/dashboard#setup-wizard", label: "Select business" };
@@ -130,7 +130,7 @@ export function WhatDoINeedTodayCard({
     >
       <p className="text-xs font-bold uppercase tracking-[0.15em] opacity-80">Today</p>
       <h2 id="today-heading" className="mt-2 text-xl font-bold sm:text-2xl">
-        What do I need to do today?
+        Recommended next step
       </h2>
       <p className="mt-3 max-w-2xl text-base leading-relaxed sm:text-lg">{message}</p>
       {(tone !== "calm" || !setupComplete) && (
