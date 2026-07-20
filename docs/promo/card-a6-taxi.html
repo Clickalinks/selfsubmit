@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8" />
+  <title>SelfSubmit — A6 taxi card</title>
+  <style>
+    @page { size: A6; margin: 0; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: "Segoe UI", Calibri, Arial, sans-serif; background: #ddd; }
+    .card {
+      width: 105mm;
+      height: 148mm;
+      margin: 0 auto;
+      background: linear-gradient(160deg, #0f3d2e, #1a1d1f 70%);
+      color: #fff;
+      padding: 10mm 9mm;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .logo-wrap {
+      display: inline-flex;
+      background: #fff;
+      border-radius: 2.5mm;
+      padding: 2mm 3.5mm;
+    }
+    .logo-wrap img {
+      height: 10mm;
+      width: auto;
+      display: block;
+    }
+    .tag {
+      font-size: 8pt;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #8fd9a8;
+      margin-top: 3mm;
+    }
+    h1 {
+      margin: 5mm 0 0;
+      font-size: 15pt;
+      line-height: 1.2;
+      font-weight: 800;
+    }
+    p {
+      margin: 4mm 0 0;
+      font-size: 9.5pt;
+      line-height: 1.4;
+      color: #d7e8dd;
+    }
+    .url {
+      font-size: 12pt;
+      font-weight: 800;
+      color: #3dcf7a;
+    }
+    .trial {
+      font-size: 9pt;
+      font-weight: 700;
+      color: #fff;
+      margin-top: 2mm;
+    }
+    @media print { body { background: #fff; } }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div>
+      <div class="logo-wrap">
+        <img src="selfsubmit-logo-confirmed.png" alt="SelfSubmit" />
+      </div>
+      <div class="tag">Taxi &amp; private hire</div>
+      <h1>Digital records for Making Tax Digital</h1>
+      <p>Income, expenses and receipts — monthly records ready for quarterly updates.</p>
+    </div>
+    <div>
+      <div class="url">www.selfsubmit.co.uk</div>
+      <div class="trial">3-month free trial · From £20/mo after</div>
+    </div>
+  </div>
+</body>
+</html>
