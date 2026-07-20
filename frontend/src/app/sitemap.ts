@@ -9,6 +9,7 @@ const PUBLIC_STATIC_PATHS = [
   "/pricing",
   "/features",
   "/how-it-works",
+  "/how-tax-due-works",
   "/business-types",
   "/tax-calculator",
   "/blog",

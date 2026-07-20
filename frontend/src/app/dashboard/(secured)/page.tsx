@@ -158,6 +158,21 @@ export default async function DashboardPage({
         submitHref={submitHref}
       />
 
+      <section className="rounded-2xl border border-sky-200/80 bg-sky-50/80 p-5 sm:p-6">
+        <p className="text-xs font-bold uppercase tracking-[0.15em] text-sky-800/80">Help</p>
+        <h2 className="mt-2 text-lg font-bold text-sky-950 sm:text-xl">Where do I see how much tax to pay?</h2>
+        <p className="mt-2 max-w-2xl text-sm leading-relaxed text-sky-950/90 sm:text-base">
+          SelfSubmit helps with records and MTD updates. Your official tax calculation and amount to pay appear in your
+          HMRC Personal Tax Account online — not as a final bill inside this dashboard yet.
+        </p>
+        <Link
+          href="/how-tax-due-works"
+          className="mt-4 inline-flex items-center gap-2 rounded-xl bg-brand-green px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-brand-green-dark"
+        >
+          How tax due works
+        </Link>
+      </section>
+
       {setupComplete && (snapshot.hmrcConnected || snapshot.anyBusinessHmrcLinked) ? (
         <HmrcSandboxStatusCard
           hmrcConnected={snapshot.hmrcConnected}

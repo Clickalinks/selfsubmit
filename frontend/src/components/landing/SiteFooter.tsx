@@ -64,6 +64,7 @@ export function SiteFooter() {
               links={[
                 { href: "/#mtd-info-blocks", label: "Information blocks" },
                 { href: "/blog", label: "Guides & blog" },
+                { href: "/how-tax-due-works", label: "How tax due works" },
                 { href: "/tax-calculator", label: "Tax calculator" },
                 { href: "/hmrc-agent", label: "HMRC agent" },
               ]}
@@ -89,10 +90,10 @@ export function SiteFooter() {
             <FooterColumn
               title="Support"
               links={[
+                { href: "/how-tax-due-works", label: "How tax due works" },
                 { href: "/status", label: "Status" },
-                { href: "/infrastructure", label: "Infrastructure" },
-                { href: "/security", label: "Security" },
                 { href: "/contact", label: "Contact" },
+                { href: "/security", label: "Security" },
               ]}
             />
           </div>

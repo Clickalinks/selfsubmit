@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Building2, Briefcase, ClipboardList, CreditCard, LayoutDashboard, Link2, Receipt, Send, Settings, X } from "lucide-react";
+import { Building2, Briefcase, CircleHelp, ClipboardList, CreditCard, LayoutDashboard, Link2, Receipt, Send, Settings, X } from "lucide-react";
 
 import type { DashboardShellProfile } from "@/lib/dashboard-profile";
 
@@ -22,6 +22,7 @@ const NAV: NavItem[] = [
   { href: "/submit", label: "Monthly records", icon: Send },
   { href: "/dashboard/receipts", label: "Receipts", icon: Receipt },
   { href: "/dashboard/submissions", label: "Submission history", icon: ClipboardList },
+  { href: "/how-tax-due-works", label: "How tax due works", icon: CircleHelp },
   { href: "/dashboard/settings", label: "Settings", icon: Settings },
 ];
 

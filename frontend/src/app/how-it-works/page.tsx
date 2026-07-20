@@ -113,6 +113,11 @@ export default function HowItWorksPage() {
           </Link>
         </li>
         <li>
+          <Link href="/how-tax-due-works" className="text-brand-green underline underline-offset-2">
+            How tax due works
+          </Link>
+        </li>
+        <li>
           <Link href="/tax-calculator" className="text-brand-green underline underline-offset-2">
             Tax calculator
           </Link>
