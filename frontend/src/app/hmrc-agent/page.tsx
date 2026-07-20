@@ -66,7 +66,7 @@ export default function HmrcAgentPage() {
             </Link>
             . For official MTD rules, see{" "}
             <a
-              href="https://www.gov.uk/guidance/making-tax-digital-for-income-tax"
+              href="https://www.gov.uk/government/collections/making-tax-digital-for-income-tax-for-businesses-step-by-step"
               className="font-semibold text-brand-green underline-offset-2 hover:underline"
               target="_blank"
               rel="noopener noreferrer"

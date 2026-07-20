@@ -138,7 +138,7 @@ export default async function MtdInfoBlockPage({ params }: Props) {
             ) : null}
 
             <section className="rounded-2xl border border-slate-200 bg-slate-50 p-5 sm:p-6">
-              <h2 className="text-lg font-bold text-brand-black">Official HMRC links</h2>
+              <h2 className="text-lg font-bold text-brand-black">Further reading</h2>
               <ul className="mt-4 space-y-3">
                 {block.hmrcLinks.map((link) => (
                   <li key={link.url}>

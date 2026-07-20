@@ -19,9 +19,9 @@ export type HomepageMtdInfoBlock = {
 function buildInfoBlock(block: MtdCategoryContent): MtdInfoBlock {
   const extras = getInfoBlockExtras(block.slug);
   const fallbackHighlights: [string, string, string] = [
-    block.keyPoints[0] ?? "Read the full guide for HMRC-aligned detail.",
-    block.keyPoints[1] ?? "Check GOV.UK for the latest rules and dates.",
-    block.keyPoints[2] ?? "SelfSubmit helps you keep digital records organised.",
+    block.keyPoints[0] ?? "Read the full guide for detailed requirements.",
+    block.keyPoints[1] ?? "Confirm current rules and dates before acting.",
+    block.keyPoints[2] ?? "SelfSubmit supports organised digital income and expense records.",
   ];
 
   return {

@@ -25,7 +25,7 @@ export function SiteFooter() {
               <SelfSubmitLogo variant="light" className="scale-100 sm:scale-105" />
             </Link>
             <p className="mt-5 max-w-sm text-sm leading-relaxed text-gray-400">
-              Simple tax returns and MTD guidance for self-employed people and landlords across the UK.
+              Making Tax Digital record-keeping software for UK sole traders and landlords.
             </p>
             <div className="mt-6 flex gap-3">
               {[
@@ -90,10 +90,10 @@ export function SiteFooter() {
             <FooterColumn
               title="Support"
               links={[
-                { href: "/how-tax-due-works", label: "How tax due works" },
+                { href: "/how-it-works", label: "How it works" },
                 { href: "/status", label: "Status" },
+                { href: "/faq", label: "FAQ" },
                 { href: "/contact", label: "Contact" },
-                { href: "/security", label: "Security" },
               ]}
             />
           </div>

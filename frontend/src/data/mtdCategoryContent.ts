@@ -58,8 +58,7 @@ export const MTD_CATEGORY_CONTENT: MtdCategoryContent[] = [
       "Separate rules apply if you also operate a VAT-registered business.",
     ],
     hmrcLinks: [
-      { label: "Overview — MTD for Income Tax", url: "https://www.gov.uk/guidance/making-tax-digital-for-income-tax" },
-      { label: "Who must follow the rules", url: "https://www.gov.uk/guidance/making-tax-digital-for-income-tax/if-you-need-to-follow-the-rules" },
+      { label: "GOV.UK — Making Tax Digital for Income Tax", url: "https://www.gov.uk/government/collections/making-tax-digital-for-income-tax-for-businesses-step-by-step" },
     ],
   },
   {
@@ -109,7 +108,7 @@ export const MTD_CATEGORY_CONTENT: MtdCategoryContent[] = [
     ],
     hmrcLinks: [
       { label: "Self Assessment tax return deadlines", url: "https://www.gov.uk/self-assessment-tax-returns/deadlines" },
-      { label: "MTD for Income Tax — send updates", url: "https://www.gov.uk/guidance/making-tax-digital-for-income-tax/send-updates-to-hmrc" },
+      { label: "GOV.UK — Making Tax Digital for Income Tax", url: "https://www.gov.uk/government/collections/making-tax-digital-for-income-tax-for-businesses-step-by-step" },
     ],
   },
   {
@@ -133,7 +132,7 @@ export const MTD_CATEGORY_CONTENT: MtdCategoryContent[] = [
       "Multiple trades or properties may mean multiple records in one account.",
     ],
     hmrcLinks: [
-      { label: "Check if you need to follow MTD rules", url: "https://www.gov.uk/guidance/making-tax-digital-for-income-tax/if-you-need-to-follow-the-rules" },
+      { label: "GOV.UK — Making Tax Digital for Income Tax", url: "https://www.gov.uk/government/collections/making-tax-digital-for-income-tax-for-businesses-step-by-step" },
     ],
   },
   {
@@ -158,7 +157,7 @@ export const MTD_CATEGORY_CONTENT: MtdCategoryContent[] = [
     ],
     hmrcLinks: [
       { label: "Keeping your pay and tax records", url: "https://www.gov.uk/self-employed-records" },
-      { label: "Digital records for MTD ITSA", url: "https://www.gov.uk/guidance/making-tax-digital-for-income-tax/keeping-your-records" },
+      { label: "GOV.UK — Making Tax Digital for Income Tax", url: "https://www.gov.uk/government/collections/making-tax-digital-for-income-tax-for-businesses-step-by-step" },
     ],
   },
   {
@@ -182,7 +181,7 @@ export const MTD_CATEGORY_CONTENT: MtdCategoryContent[] = [
       "National Insurance may still be due on profits through Self Assessment.",
     ],
     hmrcLinks: [
-      { label: "Self-employed — MTD for Income Tax", url: "https://www.gov.uk/guidance/making-tax-digital-for-income-tax/if-youre-self-employed" },
+      { label: "GOV.UK — Making Tax Digital for Income Tax", url: "https://www.gov.uk/government/collections/making-tax-digital-for-income-tax-for-businesses-step-by-step" },
       { label: "Register for Self Assessment", url: "https://www.gov.uk/register-for-self-assessment" },
     ],
   },
@@ -207,7 +206,7 @@ export const MTD_CATEGORY_CONTENT: MtdCategoryContent[] = [
       "Mortgage interest restrictions still apply — not always a straight deduction.",
     ],
     hmrcLinks: [
-      { label: "Landlords — MTD for Income Tax", url: "https://www.gov.uk/guidance/making-tax-digital-for-income-tax/if-youre-a-landlord" },
+      { label: "GOV.UK — Making Tax Digital for Income Tax", url: "https://www.gov.uk/government/collections/making-tax-digital-for-income-tax-for-businesses-step-by-step" },
       { label: "Renting out a property", url: "https://www.gov.uk/renting-out-a-property" },
     ],
   },
@@ -232,7 +231,7 @@ export const MTD_CATEGORY_CONTENT: MtdCategoryContent[] = [
       "Bridging software can submit figures from spreadsheets in limited cases.",
     ],
     hmrcLinks: [
-      { label: "Find MTD for Income Tax software", url: "https://www.gov.uk/guidance/find-software-thats-compatible-with-making-tax-digital-for-income-tax" },
+      { label: "Find MTD for Income Tax software", url: "https://www.gov.uk/guidance/choose-the-right-software-for-making-tax-digital-for-income-tax" },
       { label: "Find MTD for VAT software", url: "https://www.gov.uk/guidance/software-compatible-with-making-tax-digital-for-vat" },
     ],
   },
@@ -257,7 +256,7 @@ export const MTD_CATEGORY_CONTENT: MtdCategoryContent[] = [
       "VAT MTD has separate exemption rules from income tax MTD.",
     ],
     hmrcLinks: [
-      { label: "Exemptions from MTD for Income Tax", url: "https://www.gov.uk/guidance/making-tax-digital-for-income-tax/exemptions" },
+      { label: "GOV.UK — Making Tax Digital for Income Tax", url: "https://www.gov.uk/government/collections/making-tax-digital-for-income-tax-for-businesses-step-by-step" },
     ],
   },
   {
@@ -306,7 +305,7 @@ export const MTD_CATEGORY_CONTENT: MtdCategoryContent[] = [
       "You still file a final declaration after the tax year ends.",
     ],
     hmrcLinks: [
-      { label: "Send updates to HMRC", url: "https://www.gov.uk/guidance/making-tax-digital-for-income-tax/send-updates-to-hmrc" },
+      { label: "GOV.UK — Making Tax Digital for Income Tax", url: "https://www.gov.uk/government/collections/making-tax-digital-for-income-tax-for-businesses-step-by-step" },
     ],
   },
   {
@@ -330,7 +329,7 @@ export const MTD_CATEGORY_CONTENT: MtdCategoryContent[] = [
       "Marriage Allowance and other reliefs are claimed here where applicable.",
     ],
     hmrcLinks: [
-      { label: "Final declaration", url: "https://www.gov.uk/guidance/making-tax-digital-for-income-tax/send-a-final-declaration" },
+      { label: "GOV.UK — Making Tax Digital for Income Tax", url: "https://www.gov.uk/government/collections/making-tax-digital-for-income-tax-for-businesses-step-by-step" },
     ],
   },
   {
@@ -403,7 +402,7 @@ export const MTD_CATEGORY_CONTENT: MtdCategoryContent[] = [
       "Digital link rules prevent manual re-typing between systems for VAT.",
     ],
     hmrcLinks: [
-      { label: "Keeping digital records (MTD ITSA)", url: "https://www.gov.uk/guidance/making-tax-digital-for-income-tax/keeping-your-records" },
+      { label: "GOV.UK — Making Tax Digital for Income Tax", url: "https://www.gov.uk/government/collections/making-tax-digital-for-income-tax-for-businesses-step-by-step" },
     ],
   },
   {
@@ -427,7 +426,7 @@ export const MTD_CATEGORY_CONTENT: MtdCategoryContent[] = [
       "Keep your contact details updated in your HMRC account.",
     ],
     hmrcLinks: [
-      { label: "Sign up for MTD for Income Tax", url: "https://www.gov.uk/guidance/making-tax-digital-for-income-tax/sign-up-for-making-tax-digital-for-income-tax" },
+      { label: "GOV.UK — Making Tax Digital for Income Tax", url: "https://www.gov.uk/government/collections/making-tax-digital-for-income-tax-for-businesses-step-by-step" },
       { label: "Register for Self Assessment", url: "https://www.gov.uk/register-for-self-assessment" },
     ],
   },
@@ -502,7 +501,7 @@ export const MTD_CATEGORY_CONTENT: MtdCategoryContent[] = [
       "Check your agent is regulated (e.g. ICAEW, ACCA, AAT) where applicable.",
     ],
     hmrcLinks: [
-      { label: "Using an agent", url: "https://www.gov.uk/guidance/making-tax-digital-for-income-tax/using-an-agent" },
+      { label: "GOV.UK — Making Tax Digital for Income Tax", url: "https://www.gov.uk/government/collections/making-tax-digital-for-income-tax-for-businesses-step-by-step" },
       { label: "Find a tax adviser", url: "https://www.gov.uk/guidance/getting-an-agent" },
     ],
   },
@@ -529,7 +528,7 @@ export const MTD_CATEGORY_CONTENT: MtdCategoryContent[] = [
     hmrcLinks: [
       { label: "HMRC webinars", url: "https://www.gov.uk/guidance/hmrc-webinars-email-alerts-and-videos" },
       { label: "Self Assessment helpline", url: "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/self-assessment" },
-      { label: "MTD for Income Tax collection", url: "https://www.gov.uk/government/collections/making-tax-digital-for-income-tax" },
+      { label: "GOV.UK — Making Tax Digital for Income Tax", url: "https://www.gov.uk/government/collections/making-tax-digital-for-income-tax-for-businesses-step-by-step" },
     ],
   },
 ];

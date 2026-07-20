@@ -23,7 +23,7 @@ export const MTD_INSIGHTS: MtdInsight[] = [
     excerpt:
       "HMRC requires digital records, quarterly updates during the tax year, and a final declaration. From April 2026, many self-employed people and landlords with qualifying income over £50,000 must follow MTD ITSA.",
     href: "/mtd/mtd-for-income-tax",
-    hmrcUrl: "https://www.gov.uk/guidance/making-tax-digital-for-income-tax",
+    hmrcUrl: "https://www.gov.uk/government/collections/making-tax-digital-for-income-tax-for-businesses-step-by-step",
     icon: BookOpen,
     accent: "emerald",
   },
@@ -45,7 +45,7 @@ export const MTD_INSIGHTS: MtdInsight[] = [
     excerpt:
       "Before each HMRC deadline: confirm your digital records are complete, summarise income and allowable expenses, and submit through MTD-compatible software. Quarterly updates are not your tax bill.",
     href: "/mtd/quarterly-updates",
-    hmrcUrl: "https://www.gov.uk/guidance/making-tax-digital-for-income-tax/send-updates-to-hmrc",
+    hmrcUrl: "https://www.gov.uk/guidance/use-making-tax-digital-for-income-tax/before-you-use-this-guide",
     icon: ListChecks,
     accent: "violet",
   },
