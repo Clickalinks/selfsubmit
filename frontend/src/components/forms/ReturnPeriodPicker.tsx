@@ -1,6 +1,6 @@
 "use client";
 
-import { getAllowedMonthlyPeriods } from "@/lib/monthly-record-period";
+import { PeriodDateInputs, PeriodPresets } from "@/components/forms/PeriodPresets";
 
 type ReturnPeriodPickerProps = {
   periodFrom: string;
@@ -25,13 +25,6 @@ export function ReturnPeriodPicker({
   periodValid,
   periodSummaryUk,
 }: ReturnPeriodPickerProps) {
-  const presets = getAllowedMonthlyPeriods();
-
-  const applyPreset = (from: string, to: string) => {
-    onPeriodFromChange(from);
-    onPeriodToChange(to);
-  };
-
   return (
     <section
       className="mt-8 max-w-2xl rounded-2xl border border-black/10 bg-neutral-50/80 px-4 py-4 min-[900px]:px-6 min-[900px]:py-5"
@@ -41,42 +34,37 @@ export function ReturnPeriodPicker({
         Return period
       </h2>
       <p className="mt-1 text-xs text-brand-muted">
-        Save one month at a time. You can only add <strong>this month</strong> or <strong>last month</strong> — not
-        future months. Quarterly HMRC submit opens near the end of each tax quarter.
+        Use a quick preset or pick exact dates. You can catch up on <strong>last quarter</strong>, or record{" "}
+        <strong>this month</strong> / <strong>last month</strong>. Future dates are not allowed. Quarterly HMRC submit
+        opens near the end of each tax quarter.
       </p>
 
-      <div className="mt-4 flex flex-wrap gap-2" role="group" aria-label="Monthly period">
-        {presets.map((preset) => {
-          const active = periodFrom === preset.from && periodTo === preset.to;
-          return (
-            <button
-              key={preset.label}
-              type="button"
-              onClick={() => applyPreset(preset.from, preset.to)}
-              className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
-                active
-                  ? "border-brand-green bg-brand-mint text-brand-green-dark"
-                  : "border-slate-200 bg-white text-slate-700 hover:border-brand-green/40"
-              }`}
-            >
-              {preset.label}
-            </button>
-          );
-        })}
-      </div>
+      <PeriodPresets
+        periodFrom={periodFrom}
+        periodTo={periodTo}
+        onApply={(from, to) => {
+          onPeriodFromChange(from);
+          onPeriodToChange(to);
+        }}
+      />
+      <PeriodDateInputs
+        periodFrom={periodFrom}
+        periodTo={periodTo}
+        onPeriodFromChange={onPeriodFromChange}
+        onPeriodToChange={onPeriodToChange}
+      />
 
       {periodSummaryUk ? (
         <p className="mt-3 text-sm text-brand-black">
-          This monthly record covers{" "}
-          <strong className="tabular-nums">{isoDateToUkDisplay(periodFrom)}</strong> up to{" "}
+          This record covers <strong className="tabular-nums">{isoDateToUkDisplay(periodFrom)}</strong> up to{" "}
           <strong className="tabular-nums">{isoDateToUkDisplay(periodTo)}</strong>.
         </p>
       ) : (
-        <p className="mt-3 text-sm text-amber-800">Choose this month or last month for these figures.</p>
+        <p className="mt-3 text-sm text-amber-800">Choose both dates so we know which period these figures belong to.</p>
       )}
       {periodFrom && periodTo && !periodValid ? (
         <p className="mt-2 text-sm text-red-600" role="alert">
-          Choose this month or last month only (full calendar month).
+          Choose a period from the start of last quarter up to the end of this month (no future dates).
         </p>
       ) : null}
     </section>

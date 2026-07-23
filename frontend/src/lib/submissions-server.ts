@@ -47,7 +47,9 @@ export async function createMonthlySubmission(userId: string, input: CreateSubmi
     throw new Error("Period end must be on or after start");
   }
   if (!isAllowedMonthlyRecordPeriod(input.periodFrom, input.periodTo)) {
-    throw new Error("Monthly records can only cover this month or last month (full calendar month).");
+    throw new Error(
+      "Choose a period from the start of last quarter up to the end of this month (no future dates).",
+    );
   }
 
   const templateId = input.templateId ?? getTemplateIdForProfession(trade);

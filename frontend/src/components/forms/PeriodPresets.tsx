@@ -1,6 +1,6 @@
 "use client";
 
-import { getAllowedMonthlyPeriods } from "@/lib/monthly-record-period";
+import { getAllowedMonthlyPeriods, getRecordPeriodBounds } from "@/lib/monthly-record-period";
 
 type PeriodPresetsProps = {
   periodFrom: string;
@@ -11,7 +11,7 @@ type PeriodPresetsProps = {
 export function PeriodPresets({ periodFrom, periodTo, onApply }: PeriodPresetsProps) {
   const presets = getAllowedMonthlyPeriods();
   return (
-    <div className="mt-4 flex flex-wrap gap-2" role="group" aria-label="Monthly period">
+    <div className="mt-4 flex flex-wrap gap-2" role="group" aria-label="Period presets">
       {presets.map((preset) => {
         const active = periodFrom === preset.from && periodTo === preset.to;
         return (
@@ -29,6 +29,52 @@ export function PeriodPresets({ periodFrom, periodTo, onApply }: PeriodPresetsPr
           </button>
         );
       })}
+    </div>
+  );
+}
+
+export function PeriodDateInputs({
+  periodFrom,
+  periodTo,
+  onPeriodFromChange,
+  onPeriodToChange,
+}: {
+  periodFrom: string;
+  periodTo: string;
+  onPeriodFromChange: (iso: string) => void;
+  onPeriodToChange: (iso: string) => void;
+}) {
+  const bounds = getRecordPeriodBounds();
+  return (
+    <div className="mt-4 grid gap-4 min-[520px]:grid-cols-2">
+      <div>
+        <label htmlFor="period-from" className="block text-sm font-semibold text-brand-black">
+          From
+        </label>
+        <input
+          id="period-from"
+          type="date"
+          value={periodFrom}
+          min={bounds.minFrom}
+          max={bounds.maxTo}
+          onChange={(e) => onPeriodFromChange(e.target.value)}
+          className="mt-2 w-full rounded-xl border border-black/15 bg-white px-3 py-2.5 text-sm font-medium text-brand-black shadow-sm focus:border-brand-green focus:outline-none focus:ring-2 focus:ring-brand-green/25"
+        />
+      </div>
+      <div>
+        <label htmlFor="period-to" className="block text-sm font-semibold text-brand-black">
+          Up to
+        </label>
+        <input
+          id="period-to"
+          type="date"
+          value={periodTo}
+          min={bounds.minFrom}
+          max={bounds.maxTo}
+          onChange={(e) => onPeriodToChange(e.target.value)}
+          className="mt-2 w-full rounded-xl border border-black/15 bg-white px-3 py-2.5 text-sm font-medium text-brand-black shadow-sm focus:border-brand-green focus:outline-none focus:ring-2 focus:ring-brand-green/25"
+        />
+      </div>
     </div>
   );
 }

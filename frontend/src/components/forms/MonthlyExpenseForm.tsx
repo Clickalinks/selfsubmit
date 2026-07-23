@@ -32,7 +32,7 @@ import {
 import { HeaderAuth } from "@/components/auth/HeaderAuth";
 import { HmrcSimplifiedMileageNotice } from "@/components/forms/HmrcSimplifiedMileageNotice";
 import { CsvImportPanel } from "@/components/forms/CsvImportPanel";
-import { PeriodPresets } from "@/components/forms/PeriodPresets";
+import { PeriodDateInputs, PeriodPresets } from "@/components/forms/PeriodPresets";
 import { defaultAllowedMonthlyPeriod, isAllowedMonthlyRecordPeriod } from "@/lib/monthly-record-period";
 import type { ParsedCsvLine } from "@/lib/csv-import";
 import { uploadReceiptFile } from "@/lib/upload-receipt-client";
@@ -599,8 +599,8 @@ export function MonthlyExpenseForm({
             Return period
           </h2>
           <p className="mt-1 text-xs text-brand-muted">
-            Save one calendar month at a time. Only <strong>this month</strong> or <strong>last month</strong> can be
-            added — not future months. Quarterly HMRC submit opens near the end of each tax quarter.
+            Use a quick preset or pick exact dates. Catch up with <strong>last quarter</strong>, or record{" "}
+            <strong>this month</strong> / <strong>last month</strong>. Future dates are not allowed.
           </p>
           <PeriodPresets
             periodFrom={periodFrom}
@@ -610,18 +610,24 @@ export function MonthlyExpenseForm({
               setPeriodTo(to);
             }}
           />
+          <PeriodDateInputs
+            periodFrom={periodFrom}
+            periodTo={periodTo}
+            onPeriodFromChange={setPeriodFrom}
+            onPeriodToChange={setPeriodTo}
+          />
           {periodSummaryUk ? (
             <p className="mt-3 text-sm text-brand-black">
-              This monthly record covers{" "}
+              This record covers{" "}
               <strong className="tabular-nums">{isoDateToUkDisplay(periodFrom)}</strong> up to{" "}
               <strong className="tabular-nums">{isoDateToUkDisplay(periodTo)}</strong>.
             </p>
           ) : (
-            <p className="mt-3 text-sm text-amber-800">Choose this month or last month for these figures.</p>
+            <p className="mt-3 text-sm text-amber-800">Choose both dates so we know which period these figures belong to.</p>
           )}
           {periodFrom && periodTo && !periodValid ? (
             <p className="mt-2 text-sm text-red-600" role="alert">
-              Choose this month or last month only (full calendar month).
+              Choose a period from the start of last quarter up to the end of this month (no future dates).
             </p>
           ) : null}
         </section>
