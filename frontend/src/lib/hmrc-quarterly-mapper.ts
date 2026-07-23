@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/db";
 import { currentUkTaxYearLabel, taxYearStartIso } from "@/lib/hmrc-tax-year";
-import { getCurrentQuarter } from "@/lib/mtd-dashboard";
+import { getCurrentQuarter } from "@/lib/mtd-quarters";
 
 export type HmrcCumulativeUpdateBody = {
   periodDates: {

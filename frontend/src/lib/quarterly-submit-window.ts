@@ -1,4 +1,4 @@
-import { getUkTaxYearQuarters, type MtdQuarter } from "@/lib/mtd-dashboard";
+import { getUkTaxYearQuarters, type MtdQuarter } from "@/lib/mtd-quarters";
 
 /** Open HMRC quarterly submit from 14 days before quarter end through the HMRC deadline. */
 export const QUARTERLY_SUBMIT_APPROACH_DAYS = 14;

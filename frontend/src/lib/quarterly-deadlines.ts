@@ -1,4 +1,4 @@
-import { getUkTaxYearQuarters, type MtdQuarter } from "@/lib/mtd-dashboard";
+import { getUkTaxYearQuarters, type MtdQuarter } from "@/lib/mtd-quarters";
 
 export type SubmissionPeriod = {
   periodFrom: Date;
