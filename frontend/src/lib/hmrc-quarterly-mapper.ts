@@ -71,10 +71,12 @@ export async function buildQuarterlyPreview(input: {
     throw new Error("Business not found");
   }
 
+  // Only monthly records feed HMRC cumulative totals — never re-sum prior quarterly submits.
   const submissions = await prisma.submission.findMany({
     where: {
       userId: input.userId,
       OR: [{ businessId: business.id }, { businessId: null, trade: business.category }],
+      submissionType: "monthly_return",
       periodFrom: { gte: new Date(`${periodStartDate}T00:00:00.000Z`) },
       periodTo: { lte: new Date(`${periodEndDate}T23:59:59.999Z`) },
     },

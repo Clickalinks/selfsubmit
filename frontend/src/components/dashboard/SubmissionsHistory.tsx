@@ -12,6 +12,7 @@ type SubmissionRow = {
   periodFrom: string;
   periodTo: string;
   status: string;
+  submissionType?: string | null;
   totalIncomeGbp: number;
   totalExpensesGbp: number;
   netProfitGbp: number;
@@ -19,6 +20,13 @@ type SubmissionRow = {
   hmrcStatus: string | null;
   submittedAt: string;
 };
+
+function recordKindLabel(row: SubmissionRow): string {
+  if (row.submissionType === "quarterly_hmrc_sandbox" || row.status === "sandbox_submitted") {
+    return "HMRC quarterly";
+  }
+  return "Monthly record";
+}
 
 function formatUkDate(iso: string): string {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(iso)) return iso;
@@ -92,67 +100,75 @@ export function SubmissionsHistory({ highlightId }: SubmissionsHistoryProps) {
   }
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-slate-200">
-      <table className="min-w-full text-left text-sm">
-        <thead className="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
-          <tr>
-            <th className="px-4 py-3">Submitted</th>
-            <th className="px-4 py-3">Business type</th>
-            <th className="px-4 py-3">Period</th>
-            <th className="px-4 py-3">Net profit</th>
-            <th className="px-4 py-3">Filing</th>
-            <th className="px-4 py-3">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row) => (
-            <tr
-              key={row.id}
-              className={`border-t border-slate-100 ${highlightId === row.id ? "bg-brand-mint/50" : "bg-white"}`}
-            >
-              <td className="px-4 py-3 text-slate-700">
-                {new Date(row.submittedAt).toLocaleDateString("en-GB", {
-                  day: "numeric",
-                  month: "short",
-                  year: "numeric",
-                })}
-              </td>
-              <td className="px-4 py-3 font-medium text-slate-900">{row.trade}</td>
-              <td className="px-4 py-3 text-slate-600">
-                {formatUkDate(row.periodFrom)} – {formatUkDate(row.periodTo)}
-              </td>
-              <td className="px-4 py-3 tabular-nums font-semibold text-slate-900">{formatMoney(row.netProfitGbp)}</td>
-              <td className="px-4 py-3">
-                {(() => {
-                  const filing = getSubmissionFilingDisplay(row);
-                  return (
-                    <span className="inline-flex flex-col gap-0.5">
-                      <span
-                        className={`text-xs font-semibold uppercase ${
-                          filing.tone === "live" ? "text-emerald-700" : "text-amber-800"
-                        }`}
-                      >
-                        {filing.label}
-                      </span>
-                      {filing.detail ? (
-                        <span className="text-xs text-slate-600">{filing.detail}</span>
-                      ) : null}
-                    </span>
-                  );
-                })()}
-              </td>
-              <td className="px-4 py-3">
-                <Link
-                  href={`/dashboard/submissions/${row.id}`}
-                  className="text-sm font-semibold text-brand-green hover:underline"
-                >
-                  View / PDF
-                </Link>
-              </td>
+    <div className="space-y-3">
+      <p className="text-sm text-slate-600">
+        Monthly records and HMRC quarterly submits are listed separately. Dashboard income and expense totals
+        use monthly records only, so submitting to HMRC does not double your figures.
+      </p>
+      <div className="overflow-x-auto rounded-xl border border-slate-200">
+        <table className="min-w-full text-left text-sm">
+          <thead className="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
+            <tr>
+              <th className="px-4 py-3">Submitted</th>
+              <th className="px-4 py-3">Type</th>
+              <th className="px-4 py-3">Business type</th>
+              <th className="px-4 py-3">Period</th>
+              <th className="px-4 py-3">Net profit</th>
+              <th className="px-4 py-3">Filing</th>
+              <th className="px-4 py-3">Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {rows.map((row) => (
+              <tr
+                key={row.id}
+                className={`border-t border-slate-100 ${highlightId === row.id ? "bg-brand-mint/50" : "bg-white"}`}
+              >
+                <td className="px-4 py-3 text-slate-700">
+                  {new Date(row.submittedAt).toLocaleDateString("en-GB", {
+                    day: "numeric",
+                    month: "short",
+                    year: "numeric",
+                  })}
+                </td>
+                <td className="px-4 py-3 text-slate-700">{recordKindLabel(row)}</td>
+                <td className="px-4 py-3 font-medium text-slate-900">{row.trade}</td>
+                <td className="px-4 py-3 text-slate-600">
+                  {formatUkDate(row.periodFrom)} – {formatUkDate(row.periodTo)}
+                </td>
+                <td className="px-4 py-3 tabular-nums font-semibold text-slate-900">{formatMoney(row.netProfitGbp)}</td>
+                <td className="px-4 py-3">
+                  {(() => {
+                    const filing = getSubmissionFilingDisplay(row);
+                    return (
+                      <span className="inline-flex flex-col gap-0.5">
+                        <span
+                          className={`text-xs font-semibold uppercase ${
+                            filing.tone === "live" ? "text-emerald-700" : "text-amber-800"
+                          }`}
+                        >
+                          {filing.label}
+                        </span>
+                        {filing.detail ? (
+                          <span className="text-xs text-slate-600">{filing.detail}</span>
+                        ) : null}
+                      </span>
+                    );
+                  })()}
+                </td>
+                <td className="px-4 py-3">
+                  <Link
+                    href={`/dashboard/submissions/${row.id}`}
+                    className="text-sm font-semibold text-brand-green hover:underline"
+                  >
+                    View / PDF
+                  </Link>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { AlertCircle, Check, Eye, Loader2, Send } from "lucide-react";
 
 import { ensureHmrcFraudContext, collectHmrcFraudContext } from "@/lib/hmrc-fraud-client";
+import { resolveQuarterlySubmitWindow } from "@/lib/quarterly-submit-window";
 
 type ObligationRow = {
   periodStart: string;
@@ -166,6 +167,8 @@ export function HmrcSandboxStatusCard({
   }
 
   const nextObligation = obligations?.[0] ?? null;
+  const quarterlyWindow = resolveQuarterlySubmitWindow();
+  const canQuarterlySubmit = sandboxFilingEnabled && quarterlyWindow.open;
 
   return (
     <section className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm sm:p-6">
@@ -246,7 +249,17 @@ export function HmrcSandboxStatusCard({
             <div className="mt-4 space-y-3 border-t border-slate-200 pt-4">
               <p className="font-semibold text-slate-800">Sandbox quarterly update</p>
               <p className="text-xs text-slate-500">
-                Cumulative year-to-date totals from your monthly records will be sent to HMRC sandbox (not live filing).
+                Save monthly records through the quarter. When the quarter approaches, preview and submit cumulative
+                year-to-date totals to HMRC sandbox (not live filing).
+              </p>
+              <p
+                className={`rounded-lg border px-3 py-2 text-sm ${
+                  quarterlyWindow.open
+                    ? "border-emerald-200 bg-emerald-50 text-emerald-900"
+                    : "border-slate-200 bg-white text-slate-700"
+                }`}
+              >
+                {quarterlyWindow.message}
               </p>
               {previewError ? <p className="text-sm text-red-700">{previewError}</p> : null}
               {submitMessage ? (
@@ -287,7 +300,7 @@ export function HmrcSandboxStatusCard({
               <div className="flex flex-wrap gap-3">
                 <button
                   type="button"
-                  disabled={busy !== null || !activeBusinessId}
+                  disabled={busy !== null || !activeBusinessId || !canQuarterlySubmit}
                   onClick={() => void loadPreview()}
                   className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-60"
                 >
@@ -296,7 +309,7 @@ export function HmrcSandboxStatusCard({
                 </button>
                 <button
                   type="button"
-                  disabled={busy !== null || !preview}
+                  disabled={busy !== null || !preview || !canQuarterlySubmit}
                   onClick={() => void submitToHmrc()}
                   className="inline-flex items-center gap-2 rounded-xl bg-brand-green px-4 py-2.5 text-sm font-bold text-white hover:bg-brand-green/90 disabled:opacity-60"
                 >

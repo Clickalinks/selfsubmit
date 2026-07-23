@@ -2,6 +2,7 @@ import { prisma } from "@/lib/db";
 import { getActiveBusinessContext } from "@/lib/active-business";
 import { getHmrcConnectionStatus } from "@/lib/hmrc-connection-server";
 import { isHmrcSandboxFilingEnabled } from "@/lib/hmrc-filing-status";
+import { resolveQuarterlySubmitWindow } from "@/lib/quarterly-submit-window";
 import { getTaxIdsStatus } from "@/lib/tax-ids-server";
 import { getBusinessCount, getUserPlan } from "@/lib/subscription-server";
 
@@ -174,16 +175,25 @@ export async function getMtdDashboardSnapshot(
       totalExpensesGbp: true,
       netProfitGbp: true,
       submittedAt: true,
+      submissionType: true,
+      status: true,
     },
     orderBy: { submittedAt: "desc" },
   });
+
+  // Dashboard money and quarter progress come from monthly records only.
+  // HMRC quarterly sandbox rows store cumulative totals and must not be summed again.
+  const monthlySubmissions = submissions.filter(
+    (s) => s.submissionType === "monthly_return" || s.status === "practice_saved",
+  );
 
   const hasPlan = Boolean(plan);
   const hasBusiness = businessCount > 0;
   const hasTaxIds = taxIds.complete;
   const hmrcSandboxReady = hmrcConnected && hasTaxIds && Boolean(activeBusinessHmrcId);
+  const quarterlyWindow = resolveQuarterlySubmitWindow(now);
 
-  const quarterSubmissions = submissions.filter((s) =>
+  const quarterSubmissions = monthlySubmissions.filter((s) =>
     periodsOverlap(s.periodFrom, s.periodTo, currentQuarter.from, currentQuarter.to),
   );
 
@@ -195,7 +205,7 @@ export async function getMtdDashboardSnapshot(
   const endedQuarters = quarters.filter((q) => q.to.getTime() < now.getTime());
   const pendingQuarter = endedQuarters.find(
     (q) =>
-      !submissions.some((s) => periodsOverlap(s.periodFrom, s.periodTo, q.from, q.to)),
+      !monthlySubmissions.some((s) => periodsOverlap(s.periodFrom, s.periodTo, q.from, q.to)),
   );
 
   const nextDeadline = pendingQuarter?.deadline ?? currentQuarter.deadline;
@@ -204,7 +214,7 @@ export async function getMtdDashboardSnapshot(
   let mtdStatus: MtdStatus = "not_started";
   let mtdStatusLabel = "Not started";
 
-  if (submissions.length === 0) {
+  if (monthlySubmissions.length === 0) {
     mtdStatus = "not_started";
     mtdStatusLabel = "Not started";
   } else if (pendingQuarter && now.getTime() > pendingQuarter.deadline.getTime()) {
@@ -245,8 +255,16 @@ export async function getMtdDashboardSnapshot(
   } else if (pendingQuarter && daysUntilDeadline <= 10) {
     todayMessage = `Quarterly update due in ${daysUntilDeadline} day${daysUntilDeadline === 1 ? "" : "s"}.`;
     todayTone = daysUntilDeadline <= 3 ? "urgent" : "warning";
-  } else if (hmrcSandboxReady && isHmrcSandboxFilingEnabled() && quarterIncomeGbp + quarterExpensesGbp > 0) {
+  } else if (
+    hmrcSandboxReady &&
+    isHmrcSandboxFilingEnabled() &&
+    quarterlyWindow.open &&
+    quarterIncomeGbp + quarterExpensesGbp > 0
+  ) {
     todayMessage = "Preview and submit your cumulative quarterly update to HMRC sandbox from the card below.";
+    todayTone = "info";
+  } else if (hmrcSandboxReady && isHmrcSandboxFilingEnabled() && !quarterlyWindow.open) {
+    todayMessage = quarterlyWindow.message;
     todayTone = "info";
   } else if (hmrcConnected && anyBusinessHmrcLinked && !activeBusinessHmrcId) {
     todayMessage =

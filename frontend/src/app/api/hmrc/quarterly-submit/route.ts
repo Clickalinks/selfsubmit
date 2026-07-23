@@ -52,7 +52,12 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Could not submit to HMRC sandbox.";
-    const status = message.includes("not enabled") ? 503 : 502;
+    const status =
+      message.includes("not enabled")
+        ? 503
+        : message.includes("monthly records") || message.includes("Quarterly HMRC") || message.includes("Keep saving")
+          ? 400
+          : 502;
     return NextResponse.json({ error: message }, { status });
   }
 }

@@ -33,6 +33,7 @@ import { HeaderAuth } from "@/components/auth/HeaderAuth";
 import { HmrcSimplifiedMileageNotice } from "@/components/forms/HmrcSimplifiedMileageNotice";
 import { CsvImportPanel } from "@/components/forms/CsvImportPanel";
 import { PeriodPresets } from "@/components/forms/PeriodPresets";
+import { defaultAllowedMonthlyPeriod, isAllowedMonthlyRecordPeriod } from "@/lib/monthly-record-period";
 import type { ParsedCsvLine } from "@/lib/csv-import";
 import { uploadReceiptFile } from "@/lib/upload-receipt-client";
 import { StickerIconFrame } from "@/components/ui/StickerIconFrame";
@@ -71,15 +72,6 @@ function isoDateToUkDisplay(iso: string): string {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(iso)) return iso;
   const [y, m, d] = iso.split("-");
   return `${d}/${m}/${y}`;
-}
-
-function defaultPeriodFromCalendarMonth(d = new Date()): { from: string; to: string } {
-  const y = d.getFullYear();
-  const mo = d.getMonth();
-  const from = `${y}-${String(mo + 1).padStart(2, "0")}-01`;
-  const lastDay = new Date(y, mo + 1, 0).getDate();
-  const to = `${y}-${String(mo + 1).padStart(2, "0")}-${String(lastDay).padStart(2, "0")}`;
-  return { from, to };
 }
 
 function buildInitialRows(items: MoneyLineItem[]): Record<string, RowState> {
@@ -184,8 +176,8 @@ export function MonthlyExpenseForm({
   const [uploadReceiptLines, setUploadReceiptLines] = useState<UploadReceiptLine[]>([]);
   const [receiptApplyMessage, setReceiptApplyMessage] = useState<string | undefined>(undefined);
 
-  const [periodFrom, setPeriodFrom] = useState(() => defaultPeriodFromCalendarMonth().from);
-  const [periodTo, setPeriodTo] = useState(() => defaultPeriodFromCalendarMonth().to);
+  const [periodFrom, setPeriodFrom] = useState(() => defaultAllowedMonthlyPeriod().from);
+  const [periodTo, setPeriodTo] = useState(() => defaultAllowedMonthlyPeriod().to);
 
   const [mileageMiles, setMileageMiles] = useState("");
   const [mileageVehicle, setMileageVehicle] = useState<MileageVehicleKind>("car_or_goods_vehicle");
@@ -449,12 +441,7 @@ export function MonthlyExpenseForm({
   );
   const cisDeductionAmount = cisDeductionParsed.ok ? cisDeductionParsed.value : 0;
 
-  const periodValid =
-    periodFrom !== "" &&
-    periodTo !== "" &&
-    /^\d{4}-\d{2}-\d{2}$/.test(periodFrom) &&
-    /^\d{4}-\d{2}-\d{2}$/.test(periodTo) &&
-    periodFrom <= periodTo;
+  const periodValid = isAllowedMonthlyRecordPeriod(periodFrom, periodTo);
 
   const periodSummaryUk =
     periodFrom && periodTo && /^\d{4}-\d{2}-\d{2}$/.test(periodFrom) && /^\d{4}-\d{2}-\d{2}$/.test(periodTo)
@@ -612,7 +599,8 @@ export function MonthlyExpenseForm({
             Return period
           </h2>
           <p className="mt-1 text-xs text-brand-muted">
-            Choose a quick preset or pick exact from / up to dates for this return.
+            Save one calendar month at a time. Only <strong>this month</strong> or <strong>last month</strong> can be
+            added — not future months. Quarterly HMRC submit opens near the end of each tax quarter.
           </p>
           <PeriodPresets
             periodFrom={periodFrom}
@@ -622,44 +610,18 @@ export function MonthlyExpenseForm({
               setPeriodTo(to);
             }}
           />
-          <div className="mt-4 grid gap-4 min-[520px]:grid-cols-2">
-            <div>
-              <label htmlFor="period-from" className="block text-sm font-semibold text-brand-black">
-                From
-              </label>
-              <input
-                id="period-from"
-                type="date"
-                value={periodFrom}
-                onChange={(e) => setPeriodFrom(e.target.value)}
-                className="mt-2 w-full rounded-xl border border-black/15 bg-white px-3 py-2.5 text-sm font-medium text-brand-black shadow-sm focus:border-brand-green focus:outline-none focus:ring-2 focus:ring-brand-green/25"
-              />
-            </div>
-            <div>
-              <label htmlFor="period-to" className="block text-sm font-semibold text-brand-black">
-                Up to
-              </label>
-              <input
-                id="period-to"
-                type="date"
-                value={periodTo}
-                onChange={(e) => setPeriodTo(e.target.value)}
-                className="mt-2 w-full rounded-xl border border-black/15 bg-white px-3 py-2.5 text-sm font-medium text-brand-black shadow-sm focus:border-brand-green focus:outline-none focus:ring-2 focus:ring-brand-green/25"
-              />
-            </div>
-          </div>
           {periodSummaryUk ? (
             <p className="mt-3 text-sm text-brand-black">
-              This return covers{" "}
+              This monthly record covers{" "}
               <strong className="tabular-nums">{isoDateToUkDisplay(periodFrom)}</strong> up to{" "}
               <strong className="tabular-nums">{isoDateToUkDisplay(periodTo)}</strong>.
             </p>
           ) : (
-            <p className="mt-3 text-sm text-amber-800">Choose both dates so we know which period these figures belong to.</p>
+            <p className="mt-3 text-sm text-amber-800">Choose this month or last month for these figures.</p>
           )}
           {periodFrom && periodTo && !periodValid ? (
             <p className="mt-2 text-sm text-red-600" role="alert">
-              The end date must be on or after the start date.
+              Choose this month or last month only (full calendar month).
             </p>
           ) : null}
         </section>

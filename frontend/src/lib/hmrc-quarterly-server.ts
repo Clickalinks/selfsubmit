@@ -4,6 +4,7 @@ import { getHmrcConnectionStatus } from "@/lib/hmrc-connection-server";
 import { isHmrcSandboxFilingEnabled } from "@/lib/hmrc-filing-status";
 import type { HmrcFraudClientContext } from "@/lib/hmrc-fraud-context";
 import { buildQuarterlyPreview, type QuarterlyPreview } from "@/lib/hmrc-quarterly-mapper";
+import { assertQuarterlySubmitWindowOpen } from "@/lib/quarterly-submit-window";
 import { getDecryptedTaxIds } from "@/lib/tax-ids-server";
 
 export async function assertSandboxQuarterlyReady(
@@ -48,7 +49,12 @@ export async function getSandboxQuarterlyPreview(
   periodEndDate?: string,
 ): Promise<QuarterlyPreview> {
   await assertSandboxQuarterlyReady(userId, businessId);
-  return buildQuarterlyPreview({ userId, businessId, periodEndDate });
+  const window = assertQuarterlySubmitWindowOpen();
+  return buildQuarterlyPreview({
+    userId,
+    businessId,
+    periodEndDate: periodEndDate ?? window.periodEndDate ?? undefined,
+  });
 }
 
 export async function submitSandboxQuarterlyUpdate(input: {
@@ -60,10 +66,11 @@ export async function submitSandboxQuarterlyUpdate(input: {
   userLoginId?: string | null;
 }): Promise<{ submissionId: string; reference: string; preview: QuarterlyPreview }> {
   const ready = await assertSandboxQuarterlyReady(input.userId, input.businessId);
+  const window = assertQuarterlySubmitWindowOpen();
   const preview = await buildQuarterlyPreview({
     userId: input.userId,
     businessId: input.businessId,
-    periodEndDate: input.periodEndDate,
+    periodEndDate: input.periodEndDate ?? window.periodEndDate ?? undefined,
   });
 
   const result = await submitHmrcCumulativeQuarterlyUpdate({

@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
 import { submitToHmrcMock } from "@/lib/hmrc-mock";
 import { getTemplateIdForProfession, isKnownProfession } from "@/data/expenseCategories";
+import { isAllowedMonthlyRecordPeriod } from "@/lib/monthly-record-period";
 
 export type SubmissionLinePayload = {
   id: string;
@@ -44,6 +45,9 @@ export async function createMonthlySubmission(userId: string, input: CreateSubmi
   }
   if (input.periodFrom > input.periodTo) {
     throw new Error("Period end must be on or after start");
+  }
+  if (!isAllowedMonthlyRecordPeriod(input.periodFrom, input.periodTo)) {
+    throw new Error("Monthly records can only cover this month or last month (full calendar month).");
   }
 
   const templateId = input.templateId ?? getTemplateIdForProfession(trade);
@@ -134,6 +138,7 @@ export async function listSubmissionsForUser(userId: string) {
       periodFrom: true,
       periodTo: true,
       status: true,
+      submissionType: true,
       totalIncomeGbp: true,
       totalExpensesGbp: true,
       netProfitGbp: true,
