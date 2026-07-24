@@ -1,6 +1,49 @@
 import { hmrcApiRequest } from "@/lib/hmrc-api-client";
+import { getHmrcConfig } from "@/lib/hmrc-config";
 import type { HmrcFraudClientContext } from "@/lib/hmrc-fraud-context";
 import type { HmrcCumulativeUpdateBody } from "@/lib/hmrc-quarterly-mapper";
+
+export type HmrcCumulativeRetrieved = {
+  periodDates: {
+    periodStartDate: string;
+    periodEndDate: string;
+  };
+  periodIncome: {
+    turnover?: number;
+    other?: number;
+    taxTakenOffTradingIncome?: number;
+  };
+  periodExpenses: {
+    consolidatedExpenses?: number;
+    costOfGoods?: number;
+    paymentsToSubcontractors?: number;
+    wagesAndStaffCosts?: number;
+    carVanTravelExpenses?: number;
+    premisesRunningCosts?: number;
+    maintenanceCosts?: number;
+    adminCosts?: number;
+    businessEntertainmentCosts?: number;
+    advertisingCosts?: number;
+    interestOnBankOtherLoans?: number;
+    financeCharges?: number;
+    irrecoverableDebts?: number;
+    professionalFees?: number;
+    depreciation?: number;
+    otherExpenses?: number;
+  };
+};
+
+function cumulativePath(nino: string, businessId: string, taxYear: string): string {
+  return `/individuals/business/self-employment/${encodeURIComponent(nino)}/${encodeURIComponent(businessId)}/cumulative/${encodeURIComponent(taxYear)}`;
+}
+
+function isSandboxApiBase(): boolean {
+  try {
+    return getHmrcConfig().apiBase.includes("test-api.service.hmrc.gov.uk");
+  } catch {
+    return false;
+  }
+}
 
 export async function submitHmrcCumulativeQuarterlyUpdate(input: {
   userId: string;
@@ -13,7 +56,7 @@ export async function submitHmrcCumulativeQuarterlyUpdate(input: {
   userLoginId?: string | null;
 }): Promise<{ reference: string } | { error: string }> {
   const nino = input.nino.replace(/\s/g, "").toUpperCase();
-  const path = `/individuals/business/self-employment/${encodeURIComponent(nino)}/${encodeURIComponent(input.businessId)}/cumulative/${encodeURIComponent(input.taxYear)}`;
+  const path = cumulativePath(nino, input.businessId, input.taxYear);
 
   const result = await hmrcApiRequest<Record<string, never>>({
     userId: input.userId,
@@ -24,6 +67,8 @@ export async function submitHmrcCumulativeQuarterlyUpdate(input: {
     fraudContext: input.fraudContext,
     userLoginId: input.userLoginId,
     accept: "application/vnd.hmrc.5.0+json",
+    // Stateful sandbox so a following GET can retrieve what we just submitted.
+    govTestScenario: isSandboxApiBase() ? "STATEFUL" : undefined,
   });
 
   if (!result.ok) {
@@ -32,4 +77,35 @@ export async function submitHmrcCumulativeQuarterlyUpdate(input: {
 
   const reference = `${input.body.periodDates.periodStartDate}_${input.body.periodDates.periodEndDate}`;
   return { reference };
+}
+
+/** Retrieve the cumulative period summary held by HMRC for this tax year (In-Year checklist). */
+export async function retrieveHmrcCumulativeQuarterlyUpdate(input: {
+  userId: string;
+  request: Request;
+  nino: string;
+  businessId: string;
+  taxYear: string;
+  fraudContext?: HmrcFraudClientContext | null;
+  userLoginId?: string | null;
+}): Promise<{ summary: HmrcCumulativeRetrieved } | { error: string; status?: number }> {
+  const nino = input.nino.replace(/\s/g, "").toUpperCase();
+  const path = cumulativePath(nino, input.businessId, input.taxYear);
+
+  const result = await hmrcApiRequest<HmrcCumulativeRetrieved>({
+    userId: input.userId,
+    request: input.request,
+    path,
+    method: "GET",
+    fraudContext: input.fraudContext,
+    userLoginId: input.userLoginId,
+    accept: "application/vnd.hmrc.5.0+json",
+    govTestScenario: isSandboxApiBase() ? "STATEFUL" : undefined,
+  });
+
+  if (!result.ok) {
+    return { error: result.error.message, status: result.error.status };
+  }
+
+  return { summary: result.data };
 }

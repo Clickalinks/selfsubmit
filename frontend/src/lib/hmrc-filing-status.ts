@@ -25,12 +25,17 @@ export const MTD_PLATFORM_FEATURES = [
   {
     label: "Quarterly MTD updates",
     status: "live" as const,
-    detail: "Preview and submit cumulative quarterly updates when your HMRC account is connected.",
+    detail: "Preview, submit, and retrieve cumulative self-employment quarterly updates when HMRC is connected.",
   },
   {
     label: "Production HMRC filing",
     status: "planned" as const,
     detail: "Live submissions to HMRC production following API recognition.",
+  },
+  {
+    label: "Final Declaration (end of year)",
+    status: "planned" as const,
+    detail: "Year-end Final Declaration in SelfSubmit — until then, use HMRC Personal Tax Account or other compatible software.",
   },
   {
     label: "GOV.UK compatible software listing",

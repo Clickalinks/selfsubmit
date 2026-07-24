@@ -90,11 +90,22 @@ export default function HowTaxDueWorksPage() {
       <LegalH2 id="selfsubmit">3. SelfSubmit scope</LegalH2>
       <LegalP>
         <strong className="text-brand-black">Included:</strong> recording income and expenses, storing receipts,
-        tracking obligations, and submitting MTD updates when your HMRC connection and product settings allow.
+        tracking obligations, and submitting MTD <em>in-year</em> quarterly updates for self-employment when your HMRC
+        connection and product settings allow.
       </LegalP>
       <LegalP>
-        <strong className="text-brand-black">Not included:</strong> replacing HMRC’s official tax calculation or payment
-        interface. The amount payable remains the figure shown in your HMRC Personal Tax Account.
+        <strong className="text-brand-black">Not included yet:</strong> submitting a Final Declaration from SelfSubmit,
+        UK property / foreign property MTD API filing, or replacing HMRC’s official tax calculation or payment interface.
+        For Final Declaration and other MTD-compatible products, see{" "}
+        <a
+          href="https://www.gov.uk/guidance/find-software-thats-compatible-with-making-tax-digital-for-income-tax"
+          className="text-brand-green underline underline-offset-2"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          GOV.UK — find MTD-compatible software
+        </a>
+        . The amount payable remains the figure shown in your HMRC Personal Tax Account.
       </LegalP>
 
       <LegalH2 id="tips">4. Recommended practice</LegalH2>

@@ -1,9 +1,14 @@
 import { prisma } from "@/lib/db";
-import { submitHmrcCumulativeQuarterlyUpdate } from "@/lib/hmrc-cumulative-submit";
+import {
+  retrieveHmrcCumulativeQuarterlyUpdate,
+  submitHmrcCumulativeQuarterlyUpdate,
+  type HmrcCumulativeRetrieved,
+} from "@/lib/hmrc-cumulative-submit";
 import { getHmrcConnectionStatus } from "@/lib/hmrc-connection-server";
 import { isHmrcSandboxFilingEnabled } from "@/lib/hmrc-filing-status";
 import type { HmrcFraudClientContext } from "@/lib/hmrc-fraud-context";
 import { buildQuarterlyPreview, type QuarterlyPreview } from "@/lib/hmrc-quarterly-mapper";
+import { currentUkTaxYearLabel } from "@/lib/hmrc-tax-year";
 import { assertQuarterlySubmitWindowOpen } from "@/lib/quarterly-submit-window";
 import { getDecryptedTaxIds } from "@/lib/tax-ids-server";
 
@@ -64,7 +69,12 @@ export async function submitSandboxQuarterlyUpdate(input: {
   periodEndDate?: string;
   fraudContext?: HmrcFraudClientContext | null;
   userLoginId?: string | null;
-}): Promise<{ submissionId: string; reference: string; preview: QuarterlyPreview }> {
+}): Promise<{
+  submissionId: string;
+  reference: string;
+  preview: QuarterlyPreview;
+  retrieved: HmrcCumulativeRetrieved | null;
+}> {
   const ready = await assertSandboxQuarterlyReady(input.userId, input.businessId);
   const window = assertQuarterlySubmitWindowOpen();
   const preview = await buildQuarterlyPreview({
@@ -88,6 +98,23 @@ export async function submitSandboxQuarterlyUpdate(input: {
     throw new Error(result.error);
   }
 
+  // In-Year checklist: submit and retrieve. Confirm HMRC holds the cumulative summary.
+  const retrieved = await retrieveHmrcCumulativeQuarterlyUpdate({
+    userId: input.userId,
+    request: input.request,
+    nino: ready.nino,
+    businessId: ready.hmrcBusinessId,
+    taxYear: preview.taxYear,
+    fraudContext: input.fraudContext,
+    userLoginId: input.userLoginId,
+  });
+
+  const retrievedSummary = "summary" in retrieved ? retrieved.summary : null;
+  const retrieveNote =
+    "error" in retrieved
+      ? ` Submit succeeded; retrieve returned: ${retrieved.error}`
+      : " Retrieved cumulative summary from HMRC after submit.";
+
   const submission = await prisma.submission.create({
     data: {
       userId: input.userId,
@@ -101,15 +128,49 @@ export async function submitSandboxQuarterlyUpdate(input: {
       payloadJson: JSON.stringify({
         hmrcPayload: preview.hmrcPayload,
         preview,
+        retrievedFromHmrc: retrievedSummary,
       }),
       totalIncomeGbp: preview.turnover + preview.otherIncome,
       totalExpensesGbp: preview.consolidatedExpenses,
       netProfitGbp: preview.netProfit,
       hmrcReference: result.reference,
       hmrcStatus: "accepted",
-      hmrcMessage: "Submitted to HMRC sandbox (cumulative quarterly update).",
+      hmrcMessage: `Submitted to HMRC sandbox (cumulative quarterly update).${retrieveNote}`,
     },
   });
 
-  return { submissionId: submission.id, reference: result.reference, preview };
+  return {
+    submissionId: submission.id,
+    reference: result.reference,
+    preview,
+    retrieved: retrievedSummary,
+  };
+}
+
+export async function retrieveSandboxQuarterlySummary(input: {
+  userId: string;
+  request: Request;
+  businessId: string;
+  taxYear?: string;
+  fraudContext?: HmrcFraudClientContext | null;
+  userLoginId?: string | null;
+}): Promise<{ taxYear: string; summary: HmrcCumulativeRetrieved }> {
+  const ready = await assertSandboxQuarterlyReady(input.userId, input.businessId);
+  const taxYear = input.taxYear?.trim() || currentUkTaxYearLabel();
+
+  const retrieved = await retrieveHmrcCumulativeQuarterlyUpdate({
+    userId: input.userId,
+    request: input.request,
+    nino: ready.nino,
+    businessId: ready.hmrcBusinessId,
+    taxYear,
+    fraudContext: input.fraudContext,
+    userLoginId: input.userLoginId,
+  });
+
+  if ("error" in retrieved) {
+    throw new Error(retrieved.error);
+  }
+
+  return { taxYear, summary: retrieved.summary };
 }

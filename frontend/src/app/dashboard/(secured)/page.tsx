@@ -13,6 +13,7 @@ import {
 import { BusinessSwitcher } from "@/components/dashboard/BusinessSwitcher";
 import { DashboardSetupWizard } from "@/components/dashboard/DashboardSetupWizard";
 import { HmrcSandboxStatusCard } from "@/components/dashboard/HmrcSandboxStatusCard";
+import { MtdInYearScopeNotice } from "@/components/mtd/MtdInYearScopeNotice";
 import { isEncryptionConfigured } from "@/lib/field-encryption";
 import { isHmrcOAuthConfigured } from "@/lib/hmrc-config";
 import { isHmrcSandboxFilingEnabled } from "@/lib/hmrc-filing-status";
@@ -172,6 +173,8 @@ export default async function DashboardPage({
           How tax due works
         </Link>
       </section>
+
+      <MtdInYearScopeNotice />
 
       {setupComplete && (snapshot.hmrcConnected || snapshot.anyBusinessHmrcLinked) ? (
         <HmrcSandboxStatusCard

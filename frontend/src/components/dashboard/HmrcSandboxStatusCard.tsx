@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { AlertCircle, Check, Eye, Loader2, Send } from "lucide-react";
+import { AlertCircle, Check, Download, Eye, Loader2, Send } from "lucide-react";
 
 import { ensureHmrcFraudContext, collectHmrcFraudContext } from "@/lib/hmrc-fraud-client";
 import { resolveQuarterlySubmitWindow } from "@/lib/quarterly-submit-window";
@@ -23,6 +23,12 @@ type QuarterlyPreview = {
   consolidatedExpenses: number;
   netProfit: number;
   monthlyRecordCount: number;
+};
+
+type RetrievedSummary = {
+  periodDates?: { periodStartDate?: string; periodEndDate?: string };
+  periodIncome?: { turnover?: number; other?: number };
+  periodExpenses?: { consolidatedExpenses?: number };
 };
 
 type Props = {
@@ -66,6 +72,7 @@ export function HmrcSandboxStatusCard({
   const [preview, setPreview] = useState<QuarterlyPreview | null>(null);
   const [previewError, setPreviewError] = useState<string | null>(null);
   const [submitMessage, setSubmitMessage] = useState<string | null>(null);
+  const [retrieved, setRetrieved] = useState<RetrievedSummary | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
 
   useEffect(() => {
@@ -148,15 +155,49 @@ export function HmrcSandboxStatusCard({
       });
       const data = (await res.json().catch(() => ({}))) as {
         reference?: string;
+        retrieved?: RetrievedSummary | null;
         error?: string;
       };
       if (!res.ok) {
         setPreviewError(data.error ?? "Could not submit to HMRC sandbox.");
         return;
       }
-      setSubmitMessage(`Submitted to HMRC sandbox. Reference: ${data.reference ?? "saved"}.`);
+      if (data.retrieved) setRetrieved(data.retrieved);
+      setSubmitMessage(
+        data.retrieved
+          ? `Submitted to HMRC sandbox and retrieved the cumulative summary. Reference: ${data.reference ?? "saved"}.`
+          : `Submitted to HMRC sandbox. Reference: ${data.reference ?? "saved"}. Use Retrieve to confirm HMRC totals.`,
+      );
     } catch {
       setPreviewError("Could not submit to HMRC sandbox.");
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const retrieveFromHmrc = async () => {
+    if (!activeBusinessId) return;
+    setBusy("retrieve");
+    setPreviewError(null);
+    setSubmitMessage(null);
+    try {
+      await ensureHmrcFraudContext();
+      const params = new URLSearchParams({ businessId: activeBusinessId });
+      if (preview?.taxYear) params.set("taxYear", preview.taxYear);
+      const res = await fetch(`/api/hmrc/quarterly-retrieve?${params.toString()}`);
+      const data = (await res.json().catch(() => ({}))) as {
+        summary?: RetrievedSummary;
+        error?: string;
+      };
+      if (!res.ok) {
+        setPreviewError(data.error ?? "Could not retrieve HMRC cumulative summary.");
+        setRetrieved(null);
+        return;
+      }
+      setRetrieved(data.summary ?? null);
+      setSubmitMessage("Retrieved cumulative period summary currently held by HMRC.");
+    } catch {
+      setPreviewError("Could not retrieve HMRC cumulative summary.");
     } finally {
       setBusy(null);
     }
@@ -297,6 +338,43 @@ export function HmrcSandboxStatusCard({
                   </div>
                 </dl>
               ) : null}
+              {retrieved ? (
+                <div className="rounded-lg border border-slate-200 bg-white px-3 py-3 text-sm">
+                  <p className="font-semibold text-slate-800">Retrieved from HMRC</p>
+                  <dl className="mt-2 grid gap-2 sm:grid-cols-2">
+                    <div>
+                      <dt className="text-slate-500">Period</dt>
+                      <dd className="font-medium text-slate-900">
+                        {retrieved.periodDates?.periodStartDate
+                          ? formatDate(retrieved.periodDates.periodStartDate)
+                          : "—"}{" "}
+                        –{" "}
+                        {retrieved.periodDates?.periodEndDate
+                          ? formatDate(retrieved.periodDates.periodEndDate)
+                          : "—"}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="text-slate-500">Turnover</dt>
+                      <dd className="font-medium text-slate-900">
+                        {formatGbp(retrieved.periodIncome?.turnover ?? 0)}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="text-slate-500">Other income</dt>
+                      <dd className="font-medium text-slate-900">
+                        {formatGbp(retrieved.periodIncome?.other ?? 0)}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="text-slate-500">Consolidated expenses</dt>
+                      <dd className="font-medium text-slate-900">
+                        {formatGbp(retrieved.periodExpenses?.consolidatedExpenses ?? 0)}
+                      </dd>
+                    </div>
+                  </dl>
+                </div>
+              ) : null}
               <div className="flex flex-wrap gap-3">
                 <button
                   type="button"
@@ -315,6 +393,19 @@ export function HmrcSandboxStatusCard({
                 >
                   {busy === "submit" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
                   Submit to HMRC sandbox
+                </button>
+                <button
+                  type="button"
+                  disabled={busy !== null || !activeBusinessId}
+                  onClick={() => void retrieveFromHmrc()}
+                  className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-60"
+                >
+                  {busy === "retrieve" ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Download className="h-4 w-4" />
+                  )}
+                  Retrieve from HMRC
                 </button>
               </div>
             </div>

@@ -21,7 +21,7 @@ export const FAQ_ITEMS: FaqItem[] = [
     id: "hmrc-filing",
     question: "Does SelfSubmit file directly with HMRC?",
     answer:
-      "SelfSubmit is built to support MTD quarterly updates and final declarations through HMRC-compatible flows. Filing availability depends on your account setup and HMRC programme status — we will always show clearly when a submission is a draft, sandbox test, or live filing.",
+      "SelfSubmit supports Making Tax Digital quarterly updates for self-employment (in-year). Final Declaration is not submitted in SelfSubmit yet — use your HMRC Personal Tax Account or other MTD-compatible software for year-end. We always show clearly when a submission is a draft, sandbox test, or live filing.",
   },
   {
     id: "mtd-income-tax",

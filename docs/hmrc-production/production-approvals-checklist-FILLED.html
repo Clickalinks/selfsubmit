@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>SelfSubmit — HMRC Production Approvals Checklist (filled)</title>
+  <style>
+    body { font-family: Georgia, "Times New Roman", serif; max-width: 920px; margin: 2rem auto; padding: 0 1.5rem; color: #111; line-height: 1.45; }
+    h1 { font-size: 1.35rem; }
+    h2 { font-size: 1.1rem; margin-top: 1.75rem; border-bottom: 1px solid #ccc; padding-bottom: 0.25rem; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.92rem; }
+    th, td { border: 1px solid #bbb; padding: 0.45rem 0.55rem; vertical-align: top; text-align: left; }
+    th { background: #f3f3f3; }
+    .meta td { font-weight: normal; }
+    .yes { font-weight: 700; color: #0b5; }
+    .no { font-weight: 700; }
+    .warn { background: #fff8e6; }
+    p.note { font-size: 0.9rem; color: #444; }
+    @media print { body { margin: 0.5rem; max-width: none; } }
+  </style>
+</head>
+<body>
+  <h1>MTD ITSA Software Production Checklist — Completed answers</h1>
+  <p class="note">Product: <strong>SelfSubmit</strong> · Company: <strong>Clicado Media UK Ltd</strong> · Stage: <strong>In-Year only (iterative)</strong><br />
+  Transfer these answers into HMRC’s PDF or attach this printout with your reply email.</p>
+
+  <h2>Header</h2>
+  <table class="meta">
+    <tr><th>Company name</th><td>Clicado Media UK Ltd</td></tr>
+    <tr><th>Application name</th><td>SelfSubmit</td></tr>
+    <tr><th>Sandbox ID</th><td><em>[FILL FROM DEVELOPER HUB]</em></td></tr>
+    <tr><th>Production Application ID</th><td><em>[FILL FROM DEVELOPER HUB]</em></td></tr>
+    <tr><th>Company website URL</th><td>https://www.selfsubmit.co.uk</td></tr>
+    <tr><th>Completed by</th><td>Ullah Noor</td></tr>
+    <tr><th>Date</th><td>24 July 2026 (update when sending)</td></tr>
+  </table>
+
+  <h2>General</h2>
+  <table>
+    <tr><th>Question</th><th>Answer</th><th>Comments</th></tr>
+    <tr><td>Read Production access process in service guide</td><td class="yes">Yes</td><td></td></tr>
+    <tr><td>Testing meets service guide requirements</td><td class="yes">Yes</td><td>Via SelfSubmit product, not a submission tool</td></tr>
+    <tr><td>Acknowledge ongoing maintenance obligation</td><td class="yes">Yes</td><td></td></tr>
+    <tr><td>Understand access may be withdrawn if not maintained</td><td class="yes">Yes</td><td></td></tr>
+    <tr><td>Fraud prevention headers on all API calls</td><td class="yes">Yes</td><td>WEB_APP_VIA_SERVER</td></tr>
+    <tr><td>APIs called via software (not submission tool only)</td><td class="yes">Yes</td><td>www.selfsubmit.co.uk</td></tr>
+    <tr><td>Customer owns / can export records</td><td class="yes">Yes</td><td>History, PDF, account export</td></tr>
+    <tr><td>Individuals</td><td class="yes">Yes</td><td></td></tr>
+    <tr><td>Agents</td><td class="no">No</td><td></td></tr>
+    <tr><td>In-Year product only</td><td class="yes">Yes</td><td>Iterative stage: in-year</td></tr>
+    <tr><td>End of Year product only</td><td class="no">No</td><td></td></tr>
+    <tr><td>Full End to End product</td><td class="no">No</td><td></td></tr>
+    <tr><td>Building iteratively</td><td class="yes">Yes</td><td>In-Year stage</td></tr>
+    <tr><td>Self-Employment</td><td class="yes">Yes</td><td></td></tr>
+    <tr><td>UK Property</td><td class="no">No</td><td>Not claimed for MTD filing</td></tr>
+    <tr><td>Foreign Property</td><td class="no">No</td><td></td></tr>
+    <tr><td>Standard quarterly</td><td class="yes">Yes</td><td></td></tr>
+    <tr><td>Calendar quarterly</td><td class="no">No</td><td></td></tr>
+    <tr><td>Cash accounting</td><td class="yes">Yes</td><td></td></tr>
+    <tr><td>Accruals</td><td class="no">No</td><td></td></tr>
+    <tr><td>Unsupported sources clearly stated + GOV.UK software link</td><td class="yes">Yes</td><td>Confirm copy before send</td></tr>
+    <tr><td>No EOY / Final Declaration clearly stated + link</td><td class="yes">Yes</td><td>In-year only — confirm copy before send</td></tr>
+    <tr><td>Individual Calculations API in product</td><td class="no">No</td><td></td></tr>
+    <tr><td>If No — signpost to Personal Tax Account</td><td class="yes">Yes</td><td></td></tr>
+    <tr><td>Appropriate error messages displayed</td><td class="yes">Yes</td><td></td></tr>
+  </table>
+
+  <h2>In-Year</h2>
+  <table>
+    <tr><th>Question</th><th>Answer</th><th>Comments</th></tr>
+    <tr><td>Business Details (MTD) list/retrieve</td><td class="yes">Yes</td><td>Tested</td></tr>
+    <tr><td>Calendar period type create/amend</td><td>N/A</td><td>Not supported</td></tr>
+    <tr><td>Periods of Account in in-year build</td><td class="no">No</td><td>In-year only</td></tr>
+    <tr><td>I&amp;E Obligations retrieve</td><td class="yes">Yes</td><td>Tested</td></tr>
+    <tr><td>Final Declaration obligation with I&amp;E</td><td class="no">No</td><td>Not required for in-year only</td></tr>
+    <tr><td>Submission from digital records (no manual keying in submit)</td><td class="yes">Yes</td><td></td></tr>
+    <tr><td>Submit and retrieve in-year summaries (SE cumulative)</td><td class="yes">Yes</td><td>PUT submit + GET retrieve in Filing readiness; auto-retrieve after submit</td></tr>
+    <tr><td>Foreign property details</td><td>N/A</td><td></td></tr>
+    <tr><td>Annual Submission endpoints in in-year</td><td class="no">No</td><td></td></tr>
+    <tr><td>Individual Calculations trigger/list/retrieve</td><td class="no">No</td><td>Signposted to PTA</td></tr>
+  </table>
+
+  <h2>End of Year</h2>
+  <p><strong>N/A — applying for In-Year product only.</strong> Do not complete Final Declaration / BSAS / losses sections for this request.</p>
+
+  <h2>Sign-off</h2>
+  <p>Name: Ullah Noor &nbsp;&nbsp; Position: Director, Clicado Media UK Ltd<br />
+  Date: _______________ &nbsp;&nbsp; Signature: _______________</p>
+</body>
+</html>

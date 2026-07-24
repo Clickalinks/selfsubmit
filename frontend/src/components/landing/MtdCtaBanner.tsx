@@ -8,7 +8,7 @@ const GOV_UK_MTD_OVERVIEW =
 const MTD_POINTS = [
   "Maintain digital records of business income and expenses throughout the year.",
   "Submit quarterly updates to HMRC when Making Tax Digital for Income Tax applies.",
-  "Complete your final declaration and pay any tax due by Self Assessment deadlines.",
+  "Complete your final declaration via HMRC or MTD-compatible year-end software by Self Assessment deadlines.",
 ] as const;
 
 export function MtdCtaBanner() {

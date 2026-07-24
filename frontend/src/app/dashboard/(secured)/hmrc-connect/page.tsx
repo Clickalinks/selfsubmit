@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { HmrcBusinessLinkSection } from "@/components/dashboard/HmrcBusinessLinkSection";
 import { HmrcConnectionSection } from "@/components/dashboard/HmrcConnectionSection";
 import { TaxIdsSection } from "@/components/dashboard/TaxIdsSection";
+import { MtdInYearScopeNotice } from "@/components/mtd/MtdInYearScopeNotice";
 
 export const metadata: Metadata = {
   title: "HMRC connect — SelfSubmit",
@@ -20,6 +21,8 @@ export default function HmrcConnectPage() {
           the dashboard during setup — use this page to update or fix your connection later.
         </p>
       </div>
+
+      <MtdInYearScopeNotice />
 
       <div id="tax-details">
         <TaxIdsSection />

@@ -2,11 +2,12 @@ import { auth, currentUser } from "@clerk/nextjs/server";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
-import { readFraudContextCookie } from "@/lib/hmrc-fraud-context";
 import { hmrcRateLimitOrNull } from "@/lib/hmrc-api-rate-limit";
-import { submitSandboxQuarterlyUpdate } from "@/lib/hmrc-quarterly-server";
+import { readFraudContextCookie } from "@/lib/hmrc-fraud-context";
+import { retrieveSandboxQuarterlySummary } from "@/lib/hmrc-quarterly-server";
 
-export async function POST(request: Request) {
+/** Retrieve the cumulative in-year summary HMRC holds for this business (Self Employment MTD). */
+export async function GET(request: Request) {
   const { userId } = await auth();
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -15,16 +16,9 @@ export async function POST(request: Request) {
   const rateLimited = await hmrcRateLimitOrNull(userId);
   if (rateLimited) return rateLimited;
 
-  let body: unknown;
-  try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
-  }
-
-  const b = body as Record<string, unknown>;
-  const businessId = typeof b.businessId === "string" ? b.businessId.trim() : "";
-  const periodEndDate = typeof b.periodEndDate === "string" ? b.periodEndDate.trim() : undefined;
+  const url = new URL(request.url);
+  const businessId = url.searchParams.get("businessId")?.trim();
+  const taxYear = url.searchParams.get("taxYear")?.trim() || undefined;
 
   if (!businessId) {
     return NextResponse.json({ error: "businessId is required." }, { status: 400 });
@@ -36,29 +30,29 @@ export async function POST(request: Request) {
   const userLoginId = clerkUser?.primaryEmailAddress?.emailAddress ?? null;
 
   try {
-    const result = await submitSandboxQuarterlyUpdate({
+    const result = await retrieveSandboxQuarterlySummary({
       userId,
       request,
       businessId,
-      periodEndDate,
+      taxYear,
       fraudContext,
       userLoginId,
     });
     return NextResponse.json({
       ok: true,
-      submissionId: result.submissionId,
-      reference: result.reference,
-      preview: result.preview,
-      retrieved: result.retrieved,
+      taxYear: result.taxYear,
+      summary: result.summary,
     });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Could not submit to HMRC sandbox.";
+    const message = error instanceof Error ? error.message : "Could not retrieve HMRC cumulative summary.";
     const status =
       message.includes("not enabled")
         ? 503
-        : message.includes("monthly records") || message.includes("Quarterly HMRC") || message.includes("Keep saving")
-          ? 400
-          : 502;
+        : message.includes("not found") || message.includes("Matching resource")
+          ? 404
+          : message.includes("Connect") || message.includes("Link") || message.includes("National Insurance")
+            ? 400
+            : 502;
     return NextResponse.json({ error: message }, { status });
   }
 }

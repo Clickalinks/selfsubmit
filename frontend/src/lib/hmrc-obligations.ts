@@ -1,4 +1,5 @@
 import { hmrcApiRequest } from "@/lib/hmrc-api-client";
+import { getHmrcConfig } from "@/lib/hmrc-config";
 import type { HmrcFraudClientContext } from "@/lib/hmrc-fraud-context";
 
 export type HmrcObligationRow = {
@@ -56,6 +57,13 @@ export async function fetchIncomeAndExpenditureObligations(input: {
 
   const path = `/obligations/details/${encodeURIComponent(nino)}/income-and-expenditure?fromDate=${fromDate}&toDate=${toDate}&status=open`;
 
+  let sandboxApi = false;
+  try {
+    sandboxApi = getHmrcConfig().apiBase.includes("test-api.service.hmrc.gov.uk");
+  } catch {
+    sandboxApi = false;
+  }
+
   const result = await hmrcApiRequest<ObligationsApiResponse>({
     userId: input.userId,
     request: input.request,
@@ -63,7 +71,8 @@ export async function fetchIncomeAndExpenditureObligations(input: {
     fraudContext: input.fraudContext,
     userLoginId: input.userLoginId,
     accept: "application/vnd.hmrc.3.0+json",
-    govTestScenario: "DYNAMIC",
+    // DYNAMIC is sandbox-only — never send on production API.
+    govTestScenario: sandboxApi ? "DYNAMIC" : undefined,
   });
 
   if (!result.ok) {

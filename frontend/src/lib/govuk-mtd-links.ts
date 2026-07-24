@@ -14,5 +14,11 @@ export const GOVUK_MTD_ITSA_HOW_TO_USE =
 export const GOVUK_MTD_SOFTWARE =
   "https://www.gov.uk/guidance/choose-the-right-software-for-making-tax-digital-for-income-tax";
 
+/** HMRC checklist requires this link when Final Declaration / unsupported sources are not in-product. */
+export const GOVUK_MTD_COMPATIBLE_SOFTWARE_FINDER =
+  "https://www.gov.uk/guidance/find-software-thats-compatible-with-making-tax-digital-for-income-tax";
+
+export const GOVUK_PERSONAL_TAX_ACCOUNT = "https://www.gov.uk/personal-tax-account";
+
 export const GOVUK_SELF_ASSESSMENT_DEADLINES =
   "https://www.gov.uk/self-assessment-tax-returns/deadlines";

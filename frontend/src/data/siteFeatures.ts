@@ -66,8 +66,9 @@ export const SITE_FEATURE_GROUPS: { title: string; features: SiteFeature[] }[] =
       },
       {
         id: "final-declaration",
-        title: "Final declaration support",
-        description: "End-of-year confirmation support as HMRC final declaration flows are completed.",
+        title: "Final declaration (year end)",
+        description:
+          "Not in SelfSubmit yet. After year end, complete Final Declaration in your HMRC Personal Tax Account or other MTD-compatible software — we link you to GOV.UK guidance.",
         icon: ShieldCheck,
       },
       {
