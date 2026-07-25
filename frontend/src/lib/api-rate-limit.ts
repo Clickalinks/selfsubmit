@@ -10,28 +10,44 @@ type RateLimitConfig = {
 
 type RateLimitResult = { allowed: true } | { allowed: false; retryAfterSec: number };
 
+/**
+ * Fixed-window rate limit.
+ * Uses `lockedUntil` as the window end so Prisma `@updatedAt` on increments cannot
+ * keep sliding the window open forever under continuous traffic.
+ */
 export async function checkApiRateLimit(config: RateLimitConfig): Promise<RateLimitResult> {
   const now = Date.now();
   const row = await prisma.accountLockout.findUnique({ where: { key: config.key } });
+  const windowExpired = !row?.lockedUntil || row.lockedUntil.getTime() <= now;
 
-  if (!row || row.updatedAt.getTime() < now - config.windowMs) {
+  if (!row || windowExpired) {
+    const lockedUntil = new Date(now + config.windowMs);
     await prisma.accountLockout.upsert({
       where: { key: config.key },
-      create: { key: config.key, lockType: "api_rate", failedCount: 1 },
-      update: { lockType: "api_rate", failedCount: 1, lockedUntil: null, updatedAt: new Date() },
+      create: {
+        key: config.key,
+        lockType: "api_rate",
+        failedCount: 1,
+        lockedUntil,
+      },
+      update: {
+        lockType: "api_rate",
+        failedCount: 1,
+        lockedUntil,
+      },
     });
     return { allowed: true };
   }
 
   const next = row.failedCount + 1;
   if (next > config.max) {
-    const retryAfterSec = Math.ceil((row.updatedAt.getTime() + config.windowMs - now) / 1000);
+    const retryAfterSec = Math.ceil((row.lockedUntil!.getTime() - now) / 1000);
     return { allowed: false, retryAfterSec: Math.max(retryAfterSec, 1) };
   }
 
   await prisma.accountLockout.update({
     where: { key: config.key },
-    data: { failedCount: next, updatedAt: new Date() },
+    data: { failedCount: next },
   });
   return { allowed: true };
 }
@@ -51,8 +67,11 @@ export const API_RATE_LIMITS = {
   consent: { max: 30, windowMs: 15 * 60 * 1000 },
   /** Sign-in pre-check and failure reporting */
   loginProtection: { max: 30, windowMs: 15 * 60 * 1000 },
-  /** HMRC API calls per user */
-  hmrc: { max: 40, windowMs: 15 * 60 * 1000 },
+  /**
+   * HMRC-related API routes per user (15‑minute fixed window).
+   * Dashboard auto-loads obligations on each visit — keep headroom for normal use + sandbox testing.
+   */
+  hmrc: { max: 80, windowMs: 15 * 60 * 1000 },
   /** Receipt uploads */
   receiptsUpload: { max: 40, windowMs: 15 * 60 * 1000 },
   /** Monthly record saves */

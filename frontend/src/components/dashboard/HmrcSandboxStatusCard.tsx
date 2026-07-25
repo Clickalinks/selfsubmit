@@ -69,6 +69,7 @@ export function HmrcSandboxStatusCard({
   const [loading, setLoading] = useState(false);
   const [obligations, setObligations] = useState<ObligationRow[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [rateLimitNotice, setRateLimitNotice] = useState<string | null>(null);
   const [preview, setPreview] = useState<QuarterlyPreview | null>(null);
   const [previewError, setPreviewError] = useState<string | null>(null);
   const [submitMessage, setSubmitMessage] = useState<string | null>(null);
@@ -79,12 +80,15 @@ export function HmrcSandboxStatusCard({
     if (!hmrcSandboxReady || !activeBusinessHmrcId) {
       setObligations(null);
       setError(null);
+      setRateLimitNotice(null);
       return;
     }
 
     let cancelled = false;
     setLoading(true);
     setError(null);
+    setRateLimitNotice(null);
+    setPreviewError(null);
 
     void (async () => {
       try {
@@ -97,8 +101,16 @@ export function HmrcSandboxStatusCard({
         };
         if (cancelled) return;
         if (!res.ok) {
-          setError(data.error ?? "Could not load HMRC obligations.");
           setObligations(null);
+          if (res.status === 429) {
+            // Auto-load on login — soft notice, not a hard failure (limit is from recent sandbox testing).
+            setRateLimitNotice(
+              "HMRC checks are briefly paused after recent activity. Wait a few minutes, then refresh — you do not need to click the buttons yet.",
+            );
+            setError(null);
+          } else {
+            setError(data.error ?? "Could not load HMRC obligations.");
+          }
           return;
         }
         setObligations(data.obligations ?? []);
@@ -124,7 +136,11 @@ export function HmrcSandboxStatusCard({
       const res = await fetch(`/api/hmrc/quarterly-preview?${params.toString()}`);
       const data = (await res.json().catch(() => ({}))) as { preview?: QuarterlyPreview; error?: string };
       if (!res.ok) {
-        setPreviewError(data.error ?? "Could not load preview.");
+        setPreviewError(
+          res.status === 429
+            ? "Please wait a few minutes, then try Preview again."
+            : (data.error ?? "Could not load preview."),
+        );
         setPreview(null);
         return;
       }
@@ -267,6 +283,10 @@ export function HmrcSandboxStatusCard({
             <p className="flex items-center gap-2">
               <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
               Loading open obligations for this business…
+            </p>
+          ) : rateLimitNotice ? (
+            <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-950">
+              {rateLimitNotice}
             </p>
           ) : error ? (
             <p className="text-red-700">{error}</p>
