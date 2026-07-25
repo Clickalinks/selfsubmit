@@ -44,13 +44,17 @@ export async function GET(request: Request) {
       summary: result.summary,
     });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Could not retrieve HMRC cumulative summary.";
+    const raw = error instanceof Error ? error.message : "Could not retrieve HMRC cumulative summary.";
+    const notFound = /not found|matching resource/i.test(raw);
+    const message = notFound
+      ? "HMRC has no cumulative summary for this business yet. Preview and Submit to HMRC sandbox first, then Retrieve."
+      : raw;
     const status =
       message.includes("not enabled")
         ? 503
-        : message.includes("not found") || message.includes("Matching resource")
+        : notFound
           ? 404
-          : message.includes("Connect") || message.includes("Link") || message.includes("National Insurance")
+          : raw.includes("Connect") || raw.includes("Link") || raw.includes("National Insurance")
             ? 400
             : 502;
     return NextResponse.json({ error: message }, { status });
