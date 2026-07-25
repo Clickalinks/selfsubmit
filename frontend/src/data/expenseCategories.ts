@@ -366,6 +366,16 @@ export const EXPENSE_TEMPLATES: Record<string, TradeFormTemplate> = {
     incomeLineItems: [
       { id: "income_projects", label: "Project fees, day rates & hourly billing" },
       { id: "income_retainer", label: "Retainers & recurring billing" },
+      {
+        id: "income_cleaning_jobs",
+        label: "Domestic cleaning jobs (one-off & ad-hoc)",
+        hint: "0 if not applicable",
+      },
+      {
+        id: "income_cleaning_contracts",
+        label: "Regular domestic cleaning contracts / weekly clients",
+        hint: "0 if not applicable",
+      },
       { id: "income_hosting_domain_resale", label: "Hosting, domain, plugin or licence resale to clients", hint: "0 if not applicable" },
       { id: "income_maintenance_support", label: "Maintenance, support & emergency / rush fees", hint: "0 if not applicable" },
       {
@@ -604,6 +614,7 @@ export const PROFESSION_TO_TEMPLATE: Record<string, keyof typeof EXPENSE_TEMPLAT
   "Property Income Earner": "property_income",
 
   // Other services
+  "Domestic Cleaner": "freelancers",
   "Cleaner (Domestic & Commercial)": "freelancers",
   "Cleaner (domestic & commercial)": "freelancers",
   "Dog Walker / Pet Sitter": "freelancers",

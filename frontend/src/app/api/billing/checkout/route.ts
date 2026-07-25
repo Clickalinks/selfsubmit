@@ -166,6 +166,9 @@ export async function POST(req: Request) {
         metadata: { clerkUserId: userId, plan },
         // Collect a card during trial so billing starts automatically when the trial ends.
         payment_method_collection: "always",
+        // Name/address on invoices Stripe generates for each billing period.
+        billing_address_collection: "required",
+        customer_update: { address: "auto", name: "auto" },
         // Friends/promo codes (e.g. MTDFRIENDS) — 100% off for N months after trial, per Stripe coupon.
         allow_promotion_codes: true,
         subscription_data: {

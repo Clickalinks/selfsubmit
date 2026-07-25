@@ -29,6 +29,8 @@ export const INCOME_LINE_VISIBILITY: Record<string, LineVisibilityMap> = {
     income_gym_studio_pass_through: ["fitness"],
   },
   freelancers: {
+    income_cleaning_jobs: ["cleaning"],
+    income_cleaning_contracts: ["cleaning"],
     income_hosting_domain_resale: ["web_dev"],
     income_maintenance_support: ["web_dev", "consulting", "bookkeeping"],
     income_content_ads_social: ["social_content", "creative_design"],

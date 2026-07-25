@@ -1,5 +1,5 @@
 /**
- * UK self-employed & side-income business types (52 in picker, 60+ with legacy aliases).
+ * UK self-employed & side-income business types (53 in picker, 60+ with legacy aliases).
  * Used at sign-up and on the monthly return form.
  */
 
@@ -73,6 +73,7 @@ export const SELF_EMPLOYED_PROFESSIONS = [
   "Property Income Earner",
 
   // Other services
+  "Domestic Cleaner",
   "Cleaner (Domestic & Commercial)",
   "Dog Walker / Pet Sitter",
   "Caterer / Personal Chef",

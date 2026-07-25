@@ -126,6 +126,7 @@ export const PROFESSION_ICONS: Record<string, LucideIcon> = {
   "Landlord (Rental Income)": Building2,
   "Airbnb Host": Building2,
   "Property Income Earner": Building2,
+  "Domestic Cleaner": Sparkles,
   "Cleaner (Domestic & Commercial)": Sparkles,
   "Freelancer (General)": Briefcase,
   "Tradesperson (General)": HardHat,

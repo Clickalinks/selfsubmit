@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import type Stripe from "stripe";
 
 import { clearStripeSubscription, upsertStripeSubscription } from "@/lib/billing-server";
+import { emailStripeInvoiceToCustomer } from "@/lib/billing-invoice-email";
 import { isPlanId, normalizePlanId, type PlanId } from "@/lib/plan-config";
 import { prisma } from "@/lib/db";
 import { getStripe, isStripeConfigured, planIdFromStripePriceId } from "@/lib/stripe-server";
@@ -39,6 +40,9 @@ export async function POST(req: Request) {
         break;
       case "customer.subscription.deleted":
         await handleSubscriptionDeleted(event.data.object as Stripe.Subscription);
+        break;
+      case "invoice.paid":
+        await handleInvoicePaid(event.data.object as Stripe.Invoice);
         break;
       default:
         break;
@@ -123,4 +127,25 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
   const userId = await resolveUserIdFromSubscription(subscription);
   if (!userId) return;
   await clearStripeSubscription(userId);
+}
+
+/** Stripe generates the invoice; we email hosted URL / PDF on every paid invoice (trial £0 or monthly charge). */
+async function handleInvoicePaid(invoice: Stripe.Invoice) {
+  if (invoice.billing_reason === "manual") return;
+
+  let enriched = invoice;
+  if (!invoice.customer_email && invoice.customer) {
+    const stripe = getStripe();
+    const customerId = typeof invoice.customer === "string" ? invoice.customer : invoice.customer.id;
+    try {
+      const customer = await stripe.customers.retrieve(customerId);
+      if (!("deleted" in customer && customer.deleted) && customer.email) {
+        enriched = { ...invoice, customer_email: customer.email };
+      }
+    } catch (err) {
+      console.warn("[stripe-webhook] could not load customer for invoice email", invoice.id, err);
+    }
+  }
+
+  await emailStripeInvoiceToCustomer(enriched);
 }

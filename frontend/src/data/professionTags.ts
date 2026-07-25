@@ -172,6 +172,7 @@ export const PROFESSION_TAGS: Record<string, readonly ProfessionTag[]> = {
   "Property Income Earner": [TAG.landlord],
 
   // Other services
+  "Domestic Cleaner": [TAG.cleaning],
   "Cleaner (Domestic & Commercial)": [TAG.cleaning],
   "Cleaner (domestic & commercial)": [TAG.cleaning],
   "Dog Walker / Pet Sitter": [TAG.pet_care],
