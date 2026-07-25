@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { SignIn } from "@clerk/nextjs";
 
+import { ClerkSignInFieldHints } from "@/components/auth/ClerkSignInFieldHints";
 import { SignInLoginProtection } from "@/components/auth/SignInLoginProtection";
 import { SignInInactiveNotice } from "@/components/auth/SignInInactiveNotice";
 import { NOINDEX_ROBOTS } from "@/lib/seo";
@@ -57,6 +58,7 @@ export default async function SignInPage({
             </Link>
           </p>
           <SignInLoginProtection />
+          <ClerkSignInFieldHints />
           <SignIn
               appearance={clerkAppearance}
               routing="path"
