@@ -1,7 +1,11 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
-import { Calculator, Copy, X } from "lucide-react";
+import { useEffect, useId, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
+import { Copy, X } from "lucide-react";
+
+const FAB_POS_KEY = "selfsubmit-fee-calc-fab-pos";
+const FAB_SIZE = 56;
+const DRAG_THRESHOLD = 8;
 
 type Op = "+" | "-" | "×" | "÷";
 
@@ -48,6 +52,47 @@ export function FormCalculator({ className = "", placement = "dock" }: FormCalcu
 
   const isFab = placement === "fab";
   const isDock = placement === "dock";
+
+  const [fabPos, setFabPos] = useState<{ x: number; y: number } | null>(null);
+  const dragRef = useRef<{
+    pointerId: number;
+    startX: number;
+    startY: number;
+    originX: number;
+    originY: number;
+    moved: boolean;
+  } | null>(null);
+
+  useEffect(() => {
+    if (!isFab) return;
+    const clamp = (x: number, y: number) => {
+      const maxX = Math.max(8, window.innerWidth - FAB_SIZE - 8);
+      const maxY = Math.max(8, window.innerHeight - FAB_SIZE - 8);
+      return {
+        x: Math.min(maxX, Math.max(8, x)),
+        y: Math.min(maxY, Math.max(8, y)),
+      };
+    };
+    try {
+      const raw = sessionStorage.getItem(FAB_POS_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw) as { x?: number; y?: number };
+        if (typeof parsed.x === "number" && typeof parsed.y === "number") {
+          setFabPos(clamp(parsed.x, parsed.y));
+          return;
+        }
+      }
+    } catch {
+      // ignore
+    }
+    setFabPos(clamp(window.innerWidth - FAB_SIZE - 16, window.innerHeight - FAB_SIZE - 24));
+
+    const onResize = () => {
+      setFabPos((prev) => (prev ? clamp(prev.x, prev.y) : prev));
+    };
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, [isFab]);
 
   useEffect(() => {
     if (!isFab || !open) return;
@@ -169,7 +214,7 @@ export function FormCalculator({ className = "", placement = "dock" }: FormCalcu
       aria-label="Percentage and amount calculator"
       className={
         isFab
-          ? "absolute bottom-[4.25rem] right-0 z-40 w-[min(100vw-2rem,18.5rem)] rounded-2xl border border-black/10 bg-white p-3 shadow-xl shadow-black/10"
+          ? "w-[min(100vw-2rem,18.5rem)] rounded-2xl border border-black/10 bg-white p-3 shadow-xl shadow-black/10"
           : "w-full rounded-2xl border border-black/10 bg-white p-3 shadow-card"
       }
     >
@@ -296,42 +341,111 @@ export function FormCalculator({ className = "", placement = "dock" }: FormCalcu
     );
   }
 
+  const onFabPointerDown = (e: ReactPointerEvent<HTMLButtonElement>) => {
+    if (!fabPos) return;
+    e.currentTarget.setPointerCapture(e.pointerId);
+    dragRef.current = {
+      pointerId: e.pointerId,
+      startX: e.clientX,
+      startY: e.clientY,
+      originX: fabPos.x,
+      originY: fabPos.y,
+      moved: false,
+    };
+  };
+
+  const onFabPointerMove = (e: ReactPointerEvent<HTMLButtonElement>) => {
+    const drag = dragRef.current;
+    if (!drag || drag.pointerId !== e.pointerId) return;
+    const dx = e.clientX - drag.startX;
+    const dy = e.clientY - drag.startY;
+    if (Math.abs(dx) > DRAG_THRESHOLD || Math.abs(dy) > DRAG_THRESHOLD) {
+      drag.moved = true;
+    }
+    if (!drag.moved) return;
+    const maxX = Math.max(8, window.innerWidth - FAB_SIZE - 8);
+    const maxY = Math.max(8, window.innerHeight - FAB_SIZE - 8);
+    setFabPos({
+      x: Math.min(maxX, Math.max(8, drag.originX + dx)),
+      y: Math.min(maxY, Math.max(8, drag.originY + dy)),
+    });
+  };
+
+  const endFabPointer = (e: ReactPointerEvent<HTMLButtonElement>) => {
+    const drag = dragRef.current;
+    if (!drag || drag.pointerId !== e.pointerId) return;
+    try {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    } catch {
+      // ignore
+    }
+    if (drag.moved) {
+      setFabPos((prev) => {
+        if (!prev) return prev;
+        try {
+          sessionStorage.setItem(FAB_POS_KEY, JSON.stringify(prev));
+        } catch {
+          // ignore
+        }
+        return prev;
+      });
+    } else {
+      setOpen((v) => !v);
+    }
+    dragRef.current = null;
+  };
+
+  if (!fabPos) {
+    return null;
+  }
+
+  const panelOpensUp = fabPos.y > window.innerHeight * 0.45;
+
   return (
-    <div ref={rootRef} className={`fixed bottom-5 right-4 z-40 sm:bottom-8 sm:right-8 ${className}`}>
+    <div
+      ref={rootRef}
+      className={`fixed z-40 ${className}`}
+      style={{ left: fabPos.x, top: fabPos.y, width: FAB_SIZE, height: FAB_SIZE }}
+    >
       <button
         type="button"
-        onClick={() => setOpen((v) => !v)}
+        onPointerDown={onFabPointerDown}
+        onPointerMove={onFabPointerMove}
+        onPointerUp={endFabPointer}
+        onPointerCancel={endFabPointer}
         aria-expanded={open}
         aria-controls={panelId}
-        className="inline-flex items-center gap-2.5 rounded-2xl border-2 border-brand-green bg-slate-200 px-3.5 py-3 text-brand-black shadow-lg shadow-black/10 transition hover:bg-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-green/40"
-        title="Open calculator for % fees and amounts"
+        className="flex h-14 w-14 touch-none items-center justify-center rounded-2xl border-2 border-brand-green bg-slate-200 shadow-lg shadow-black/10 transition hover:bg-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-green/40 active:cursor-grabbing"
+        title="Drag to move · tap to open calculator"
       >
-        <span
-          className="grid grid-cols-2 gap-0.5 rounded-lg border border-brand-green/50 bg-slate-300/80 p-1"
-          aria-hidden
-        >
-          <span className="flex h-3.5 w-3.5 items-center justify-center rounded-full bg-slate-500 text-[8px] font-bold leading-none text-white">
+        <span className="grid grid-cols-2 gap-0.5 rounded-lg border border-brand-green/50 bg-slate-300/80 p-1.5" aria-hidden>
+          <span className="flex h-4 w-4 items-center justify-center rounded-full bg-slate-500 text-[9px] font-bold leading-none text-white">
             +
           </span>
-          <span className="flex h-3.5 w-3.5 items-center justify-center rounded-full bg-slate-500 text-[8px] font-bold leading-none text-white">
+          <span className="flex h-4 w-4 items-center justify-center rounded-full bg-slate-500 text-[9px] font-bold leading-none text-white">
             −
           </span>
-          <span className="flex h-3.5 w-3.5 items-center justify-center rounded-full bg-slate-500 text-[8px] font-bold leading-none text-white">
+          <span className="flex h-4 w-4 items-center justify-center rounded-full bg-slate-500 text-[9px] font-bold leading-none text-white">
             ×
           </span>
-          <span className="flex h-3.5 w-3.5 items-center justify-center rounded-full bg-brand-green text-[8px] font-bold leading-none text-white">
+          <span className="flex h-4 w-4 items-center justify-center rounded-full bg-brand-green text-[9px] font-bold leading-none text-white">
             %
           </span>
         </span>
-        <span className="flex flex-col items-start leading-tight">
-          <span className="text-xs font-bold text-brand-black">Calculator</span>
-          <span className="text-[10px] font-medium text-brand-muted">Fees &amp; %</span>
-        </span>
-        <Calculator className="h-4 w-4 text-brand-green" aria-hidden />
-        <span className="sr-only">Open calculator</span>
+        <span className="sr-only">Open calculator (drag to move)</span>
       </button>
 
-      {open ? panel : null}
+      {open ? (
+        <div
+          className={
+            panelOpensUp
+              ? "absolute bottom-[4.25rem] right-0 z-50"
+              : "absolute top-[4.25rem] right-0 z-50"
+          }
+        >
+          {panel}
+        </div>
+      ) : null}
     </div>
   );
 }
