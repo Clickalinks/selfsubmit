@@ -303,10 +303,31 @@ export function FormCalculator({ className = "", placement = "dock" }: FormCalcu
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-controls={panelId}
-        className="inline-flex h-14 w-14 items-center justify-center rounded-2xl border-2 border-brand-green bg-gradient-to-br from-brand-ink via-brand-ink to-brand-forest text-white shadow-lg shadow-brand-green/25 ring-2 ring-brand-green/30 transition hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-brand-green/50"
+        className="inline-flex items-center gap-2.5 rounded-2xl border-2 border-brand-green bg-slate-200 px-3.5 py-3 text-brand-black shadow-lg shadow-black/10 transition hover:bg-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-green/40"
         title="Open calculator for % fees and amounts"
       >
-        <Calculator className="h-6 w-6 text-brand-green-bright" aria-hidden />
+        <span
+          className="grid grid-cols-2 gap-0.5 rounded-lg border border-brand-green/50 bg-slate-300/80 p-1"
+          aria-hidden
+        >
+          <span className="flex h-3.5 w-3.5 items-center justify-center rounded-full bg-slate-500 text-[8px] font-bold leading-none text-white">
+            +
+          </span>
+          <span className="flex h-3.5 w-3.5 items-center justify-center rounded-full bg-slate-500 text-[8px] font-bold leading-none text-white">
+            −
+          </span>
+          <span className="flex h-3.5 w-3.5 items-center justify-center rounded-full bg-slate-500 text-[8px] font-bold leading-none text-white">
+            ×
+          </span>
+          <span className="flex h-3.5 w-3.5 items-center justify-center rounded-full bg-brand-green text-[8px] font-bold leading-none text-white">
+            %
+          </span>
+        </span>
+        <span className="flex flex-col items-start leading-tight">
+          <span className="text-xs font-bold text-brand-black">Calculator</span>
+          <span className="text-[10px] font-medium text-brand-muted">Fees &amp; %</span>
+        </span>
+        <Calculator className="h-4 w-4 text-brand-green" aria-hidden />
         <span className="sr-only">Open calculator</span>
       </button>
 
