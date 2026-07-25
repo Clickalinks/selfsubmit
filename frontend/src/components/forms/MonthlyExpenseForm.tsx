@@ -32,6 +32,7 @@ import {
 import { HeaderAuth } from "@/components/auth/HeaderAuth";
 import { HmrcSimplifiedMileageNotice } from "@/components/forms/HmrcSimplifiedMileageNotice";
 import { CsvImportPanel } from "@/components/forms/CsvImportPanel";
+import { FormCalculator } from "@/components/forms/FormCalculator";
 import { PeriodDateInputs, PeriodPresets } from "@/components/forms/PeriodPresets";
 import { defaultAllowedMonthlyPeriod, isAllowedMonthlyRecordPeriod } from "@/lib/monthly-record-period";
 import type { ParsedCsvLine } from "@/lib/csv-import";
@@ -658,9 +659,16 @@ export function MonthlyExpenseForm({
             </div>
           ) : null}
 
-          <label htmlFor="profession" className="block text-sm font-semibold text-brand-black">
-            Business / profession
-          </label>
+          <div className="flex items-center justify-between gap-3">
+            <label htmlFor="profession" className="block text-sm font-semibold text-brand-black">
+              Business / profession
+            </label>
+            <FormCalculator placement="inline" />
+          </div>
+          {/* Sticky corner access while scrolling long income/expense lists (mobile/tablet). */}
+          <div className="min-[900px]:hidden">
+            <FormCalculator placement="fab" />
+          </div>
           <div className="mt-2 flex flex-col gap-3 min-[520px]:flex-row min-[520px]:items-stretch">
             <StickerIconFrame tone={tradeStickerTone} size="md" className="min-[520px]:self-stretch">
               <TradeIcon strokeWidth={2.35} aria-hidden />
