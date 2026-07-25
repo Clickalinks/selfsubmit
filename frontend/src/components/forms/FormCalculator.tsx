@@ -28,15 +28,15 @@ function applyOp(left: number, right: number, op: Op): number {
 
 type FormCalculatorProps = {
   className?: string;
-  /** inline = next to form headings; fab = fixed corner for long forms while scrolling */
-  placement?: "inline" | "fab";
+  /** dock = always-open desktop sidebar; fab = mobile floating button */
+  placement?: "dock" | "fab";
 };
 
 /**
  * Simple form helper calculator — especially for % charges (card readers, platform fees).
  * Example: 1500 × 1.75 % → 26.25
  */
-export function FormCalculator({ className = "", placement = "inline" }: FormCalculatorProps) {
+export function FormCalculator({ className = "", placement = "dock" }: FormCalculatorProps) {
   const panelId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
@@ -46,8 +46,11 @@ export function FormCalculator({ className = "", placement = "inline" }: FormCal
   const [freshEntry, setFreshEntry] = useState(true);
   const [copied, setCopied] = useState(false);
 
+  const isFab = placement === "fab";
+  const isDock = placement === "dock";
+
   useEffect(() => {
-    if (!open) return;
+    if (!isFab || !open) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") setOpen(false);
     };
@@ -65,7 +68,7 @@ export function FormCalculator({ className = "", placement = "inline" }: FormCal
       document.removeEventListener("mousedown", onPointer);
       document.removeEventListener("touchstart", onPointer);
     };
-  }, [open]);
+  }, [isFab, open]);
 
   const current = Number.parseFloat(display);
   const safeCurrent = Number.isFinite(current) ? current : 0;
@@ -159,173 +162,155 @@ export function FormCalculator({ className = "", placement = "inline" }: FormCal
   const keyClass =
     "flex h-11 items-center justify-center rounded-xl text-sm font-semibold transition active:scale-[0.97] disabled:opacity-50";
 
-  const isFab = placement === "fab";
+  const panel = (
+    <div
+      id={panelId}
+      role={isFab ? "dialog" : "region"}
+      aria-label="Percentage and amount calculator"
+      className={
+        isFab
+          ? "absolute bottom-[4.25rem] right-0 z-40 w-[min(100vw-2rem,18.5rem)] rounded-2xl border border-black/10 bg-white p-3 shadow-xl shadow-black/10"
+          : "w-full rounded-2xl border border-black/10 bg-white p-3 shadow-card"
+      }
+    >
+      <div className="mb-2 flex items-start justify-between gap-2">
+        <div>
+          <p className="text-xs font-bold uppercase tracking-[0.12em] text-slate-400">Helper</p>
+          <p className="text-sm font-semibold text-brand-black">Fee calculator</p>
+        </div>
+        {isFab ? (
+          <button
+            type="button"
+            onClick={() => setOpen(false)}
+            className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+            aria-label="Close calculator"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        ) : null}
+      </div>
+
+      <p className="mb-2 text-[11px] leading-snug text-brand-muted">
+        Card / platform fees: enter amount, press <strong className="text-brand-black">×</strong>, enter %, press{" "}
+        <strong className="text-brand-black">%</strong>. Example: <span className="tabular-nums">1500 × 1.75 %</span>
+      </p>
+
+      <div className="mb-2 rounded-xl border border-black/10 bg-neutral-50 px-3 py-3">
+        <p className="text-right font-mono text-2xl font-semibold tabular-nums tracking-tight text-brand-black">
+          {display}
+        </p>
+        {pendingOp && accumulator !== null ? (
+          <p className="mt-0.5 text-right text-[11px] tabular-nums text-slate-400">
+            {formatDisplay(accumulator)} {pendingOp}
+          </p>
+        ) : null}
+      </div>
+
+      <div className="mb-2 grid grid-cols-4 gap-1.5">
+        <button type="button" className={`${keyClass} bg-slate-100 text-slate-700 hover:bg-slate-200`} onClick={clearAll}>
+          AC
+        </button>
+        <button type="button" className={`${keyClass} bg-slate-100 text-slate-700 hover:bg-slate-200`} onClick={clearEntry}>
+          CE
+        </button>
+        <button type="button" className={`${keyClass} bg-slate-100 text-slate-700 hover:bg-slate-200`} onClick={backspace}>
+          ⌫
+        </button>
+        <button
+          type="button"
+          className={`${keyClass} bg-brand-mint text-brand-forest hover:bg-brand-green/20`}
+          onClick={percent}
+        >
+          %
+        </button>
+
+        <button type="button" className={`${keyClass} bg-neutral-100 text-brand-black hover:bg-neutral-200`} onClick={() => inputDigit("7")}>
+          7
+        </button>
+        <button type="button" className={`${keyClass} bg-neutral-100 text-brand-black hover:bg-neutral-200`} onClick={() => inputDigit("8")}>
+          8
+        </button>
+        <button type="button" className={`${keyClass} bg-neutral-100 text-brand-black hover:bg-neutral-200`} onClick={() => inputDigit("9")}>
+          9
+        </button>
+        <button type="button" className={`${keyClass} bg-slate-800 text-white hover:bg-slate-700`} onClick={() => chooseOp("÷")}>
+          ÷
+        </button>
+
+        <button type="button" className={`${keyClass} bg-neutral-100 text-brand-black hover:bg-neutral-200`} onClick={() => inputDigit("4")}>
+          4
+        </button>
+        <button type="button" className={`${keyClass} bg-neutral-100 text-brand-black hover:bg-neutral-200`} onClick={() => inputDigit("5")}>
+          5
+        </button>
+        <button type="button" className={`${keyClass} bg-neutral-100 text-brand-black hover:bg-neutral-200`} onClick={() => inputDigit("6")}>
+          6
+        </button>
+        <button type="button" className={`${keyClass} bg-slate-800 text-white hover:bg-slate-700`} onClick={() => chooseOp("×")}>
+          ×
+        </button>
+
+        <button type="button" className={`${keyClass} bg-neutral-100 text-brand-black hover:bg-neutral-200`} onClick={() => inputDigit("1")}>
+          1
+        </button>
+        <button type="button" className={`${keyClass} bg-neutral-100 text-brand-black hover:bg-neutral-200`} onClick={() => inputDigit("2")}>
+          2
+        </button>
+        <button type="button" className={`${keyClass} bg-neutral-100 text-brand-black hover:bg-neutral-200`} onClick={() => inputDigit("3")}>
+          3
+        </button>
+        <button type="button" className={`${keyClass} bg-slate-800 text-white hover:bg-slate-700`} onClick={() => chooseOp("-")}>
+          −
+        </button>
+
+        <button type="button" className={`${keyClass} bg-neutral-100 text-brand-black hover:bg-neutral-200`} onClick={() => inputDigit("0")}>
+          0
+        </button>
+        <button type="button" className={`${keyClass} bg-neutral-100 text-brand-black hover:bg-neutral-200`} onClick={() => inputDigit(".")}>
+          .
+        </button>
+        <button type="button" className={`${keyClass} bg-brand-green text-white hover:bg-brand-green-dark`} onClick={equals}>
+          =
+        </button>
+        <button type="button" className={`${keyClass} bg-slate-800 text-white hover:bg-slate-700`} onClick={() => chooseOp("+")}>
+          +
+        </button>
+      </div>
+
+      <button
+        type="button"
+        onClick={() => void copyAmount()}
+        className="flex w-full items-center justify-center gap-2 rounded-xl border border-brand-green/30 bg-brand-mint/40 px-3 py-2.5 text-xs font-semibold text-brand-forest transition hover:bg-brand-mint"
+      >
+        <Copy className="h-3.5 w-3.5" aria-hidden />
+        {copied ? "Copied — paste into a £ field" : "Copy result to paste into amount"}
+      </button>
+    </div>
+  );
+
+  if (isDock) {
+    return (
+      <div ref={rootRef} className={className}>
+        {panel}
+      </div>
+    );
+  }
 
   return (
-    <div
-      ref={rootRef}
-      className={isFab ? `fixed bottom-5 right-4 z-40 sm:bottom-8 sm:right-8 ${className}` : `relative ${className}`}
-    >
+    <div ref={rootRef} className={`fixed bottom-5 right-4 z-40 sm:bottom-8 sm:right-8 ${className}`}>
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-controls={panelId}
-        className={
-          isFab
-            ? "inline-flex h-14 w-14 items-center justify-center rounded-2xl border border-black/10 bg-brand-ink text-white shadow-lg shadow-black/20 transition hover:bg-brand-ink/90 focus:outline-none focus:ring-2 focus:ring-brand-green/40"
-            : "inline-flex items-center gap-2 rounded-xl border border-black/10 bg-brand-ink px-2.5 py-2 text-white shadow-sm transition hover:bg-brand-ink/90 focus:outline-none focus:ring-2 focus:ring-brand-green/40"
-        }
+        className="inline-flex h-14 w-14 items-center justify-center rounded-2xl border-2 border-brand-green bg-gradient-to-br from-brand-ink via-brand-ink to-brand-forest text-white shadow-lg shadow-brand-green/25 ring-2 ring-brand-green/30 transition hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-brand-green/50"
         title="Open calculator for % fees and amounts"
       >
-        {isFab ? (
-          <Calculator className="h-6 w-6" aria-hidden />
-        ) : (
-          <>
-            <span className="grid grid-cols-2 gap-0.5" aria-hidden>
-              <span className="flex h-4 w-4 items-center justify-center rounded-full bg-slate-500 text-[9px] font-bold leading-none">
-                +
-              </span>
-              <span className="flex h-4 w-4 items-center justify-center rounded-full bg-slate-500 text-[9px] font-bold leading-none">
-                −
-              </span>
-              <span className="flex h-4 w-4 items-center justify-center rounded-full bg-slate-500 text-[9px] font-bold leading-none">
-                ×
-              </span>
-              <span className="flex h-4 w-4 items-center justify-center rounded-full bg-brand-green text-[9px] font-bold leading-none">
-                %
-              </span>
-            </span>
-            <span className="hidden text-xs font-semibold sm:inline">Calculator</span>
-            <Calculator className="h-4 w-4 sm:hidden" aria-hidden />
-          </>
-        )}
+        <Calculator className="h-6 w-6 text-brand-green-bright" aria-hidden />
         <span className="sr-only">Open calculator</span>
       </button>
 
-      {open ? (
-        <div
-          id={panelId}
-          role="dialog"
-          aria-label="Percentage and amount calculator"
-          className={
-            isFab
-              ? "absolute bottom-[4.25rem] right-0 z-40 w-[min(100vw-2rem,18.5rem)] rounded-2xl border border-black/10 bg-white p-3 shadow-xl shadow-black/10"
-              : "absolute right-0 z-40 mt-2 w-[min(100vw-2rem,18.5rem)] rounded-2xl border border-black/10 bg-white p-3 shadow-xl shadow-black/10"
-          }
-        >
-          <div className="mb-2 flex items-start justify-between gap-2">
-            <div>
-              <p className="text-xs font-bold uppercase tracking-[0.12em] text-slate-400">Helper</p>
-              <p className="text-sm font-semibold text-brand-black">Fee calculator</p>
-            </div>
-            <button
-              type="button"
-              onClick={() => setOpen(false)}
-              className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
-              aria-label="Close calculator"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          </div>
-
-          <p className="mb-2 text-[11px] leading-snug text-brand-muted">
-            Card / platform fees: enter amount, press <strong className="text-brand-black">×</strong>, enter %, press{" "}
-            <strong className="text-brand-black">%</strong>. Example: <span className="tabular-nums">1500 × 1.75 %</span>
-          </p>
-
-          <div className="mb-2 rounded-xl border border-black/10 bg-neutral-50 px-3 py-3">
-            <p className="text-right font-mono text-2xl font-semibold tabular-nums tracking-tight text-brand-black">
-              {display}
-            </p>
-            {pendingOp && accumulator !== null ? (
-              <p className="mt-0.5 text-right text-[11px] tabular-nums text-slate-400">
-                {formatDisplay(accumulator)} {pendingOp}
-              </p>
-            ) : null}
-          </div>
-
-          <div className="mb-2 grid grid-cols-4 gap-1.5">
-            <button type="button" className={`${keyClass} bg-slate-100 text-slate-700 hover:bg-slate-200`} onClick={clearAll}>
-              AC
-            </button>
-            <button type="button" className={`${keyClass} bg-slate-100 text-slate-700 hover:bg-slate-200`} onClick={clearEntry}>
-              CE
-            </button>
-            <button type="button" className={`${keyClass} bg-slate-100 text-slate-700 hover:bg-slate-200`} onClick={backspace}>
-              ⌫
-            </button>
-            <button
-              type="button"
-              className={`${keyClass} bg-brand-mint text-brand-forest hover:bg-brand-green/20`}
-              onClick={percent}
-            >
-              %
-            </button>
-
-            <button type="button" className={`${keyClass} bg-neutral-100 text-brand-black hover:bg-neutral-200`} onClick={() => inputDigit("7")}>
-              7
-            </button>
-            <button type="button" className={`${keyClass} bg-neutral-100 text-brand-black hover:bg-neutral-200`} onClick={() => inputDigit("8")}>
-              8
-            </button>
-            <button type="button" className={`${keyClass} bg-neutral-100 text-brand-black hover:bg-neutral-200`} onClick={() => inputDigit("9")}>
-              9
-            </button>
-            <button type="button" className={`${keyClass} bg-slate-800 text-white hover:bg-slate-700`} onClick={() => chooseOp("÷")}>
-              ÷
-            </button>
-
-            <button type="button" className={`${keyClass} bg-neutral-100 text-brand-black hover:bg-neutral-200`} onClick={() => inputDigit("4")}>
-              4
-            </button>
-            <button type="button" className={`${keyClass} bg-neutral-100 text-brand-black hover:bg-neutral-200`} onClick={() => inputDigit("5")}>
-              5
-            </button>
-            <button type="button" className={`${keyClass} bg-neutral-100 text-brand-black hover:bg-neutral-200`} onClick={() => inputDigit("6")}>
-              6
-            </button>
-            <button type="button" className={`${keyClass} bg-slate-800 text-white hover:bg-slate-700`} onClick={() => chooseOp("×")}>
-              ×
-            </button>
-
-            <button type="button" className={`${keyClass} bg-neutral-100 text-brand-black hover:bg-neutral-200`} onClick={() => inputDigit("1")}>
-              1
-            </button>
-            <button type="button" className={`${keyClass} bg-neutral-100 text-brand-black hover:bg-neutral-200`} onClick={() => inputDigit("2")}>
-              2
-            </button>
-            <button type="button" className={`${keyClass} bg-neutral-100 text-brand-black hover:bg-neutral-200`} onClick={() => inputDigit("3")}>
-              3
-            </button>
-            <button type="button" className={`${keyClass} bg-slate-800 text-white hover:bg-slate-700`} onClick={() => chooseOp("-")}>
-              −
-            </button>
-
-            <button type="button" className={`${keyClass} bg-neutral-100 text-brand-black hover:bg-neutral-200`} onClick={() => inputDigit("0")}>
-              0
-            </button>
-            <button type="button" className={`${keyClass} bg-neutral-100 text-brand-black hover:bg-neutral-200`} onClick={() => inputDigit(".")}>
-              .
-            </button>
-            <button type="button" className={`${keyClass} bg-brand-green text-white hover:bg-brand-green-dark`} onClick={equals}>
-              =
-            </button>
-            <button type="button" className={`${keyClass} bg-slate-800 text-white hover:bg-slate-700`} onClick={() => chooseOp("+")}>
-              +
-            </button>
-          </div>
-
-          <button
-            type="button"
-            onClick={() => void copyAmount()}
-            className="flex w-full items-center justify-center gap-2 rounded-xl border border-brand-green/30 bg-brand-mint/40 px-3 py-2.5 text-xs font-semibold text-brand-forest transition hover:bg-brand-mint"
-          >
-            <Copy className="h-3.5 w-3.5" aria-hidden />
-            {copied ? "Copied — paste into a £ field" : "Copy result to paste into amount"}
-          </button>
-        </div>
-      ) : null}
+      {open ? panel : null}
     </div>
   );
 }

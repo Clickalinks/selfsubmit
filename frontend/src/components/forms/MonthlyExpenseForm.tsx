@@ -576,7 +576,19 @@ export function MonthlyExpenseForm({
         </div>
       </div>
 
-      <div className="mx-auto max-w-content px-5 py-8 min-[900px]:px-10 min-[900px]:py-10">
+      <div className="relative mx-auto max-w-content px-5 py-8 min-[900px]:px-10 min-[900px]:py-10">
+        {/* Desktop: always-open fee calculator in the right column (hidden on phones). */}
+        <aside className="pointer-events-none absolute right-5 top-[22rem] z-20 hidden w-[18.5rem] min-[900px]:block min-[900px]:right-10">
+          <div className="pointer-events-auto sticky top-6">
+            <FormCalculator placement="dock" />
+          </div>
+        </aside>
+
+        {/* Mobile / tablet: floating calculator only (desktop dock is hidden below 900px). */}
+        <div className="min-[900px]:hidden">
+          <FormCalculator placement="fab" />
+        </div>
+
         <h1 className="text-2xl font-bold text-brand-black min-[900px]:text-3xl">Your monthly return</h1>
         <p className="mt-2 max-w-2xl text-brand-muted">
           <strong className="text-brand-black">1.</strong> If you use a vehicle for this trade, choose{" "}
@@ -659,16 +671,9 @@ export function MonthlyExpenseForm({
             </div>
           ) : null}
 
-          <div className="flex items-center justify-between gap-3">
-            <label htmlFor="profession" className="block text-sm font-semibold text-brand-black">
-              Business / profession
-            </label>
-            <FormCalculator placement="inline" />
-          </div>
-          {/* Sticky corner access while scrolling long income/expense lists (mobile/tablet). */}
-          <div className="min-[900px]:hidden">
-            <FormCalculator placement="fab" />
-          </div>
+          <label htmlFor="profession" className="block text-sm font-semibold text-brand-black">
+            Business / profession
+          </label>
           <div className="mt-2 flex flex-col gap-3 min-[520px]:flex-row min-[520px]:items-stretch">
             <StickerIconFrame tone={tradeStickerTone} size="md" className="min-[520px]:self-stretch">
               <TradeIcon strokeWidth={2.35} aria-hidden />
