@@ -7,6 +7,7 @@ export const TEMPLATE_STICKER_TONE: Record<string, StickerCardTone> = {
   trades: "cream",
   teaching_training: "mint",
   freelancers: "sky",
+  domestic_cleaning: "mint",
   online_sellers: "cream",
   property_income: "mint",
 };

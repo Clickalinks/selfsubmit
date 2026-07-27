@@ -163,7 +163,7 @@ export const LANDING_BUSINESSES: LandingBusiness[] = [
     id: "cleaner",
     title: "Cleaner",
     trade: "Cleaner (Domestic & Commercial)",
-    description: "Supplies, travel, insurance, and contract cleaning income.",
+    description: "Cleaning jobs, supplies, travel between clients, and public liability.",
     icon: PROFESSION_ICONS["Cleaner (Domestic & Commercial)"] ?? DEFAULT_PROFESSION_ICON,
   },
   {

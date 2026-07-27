@@ -142,6 +142,7 @@ export const TEMPLATE_ICONS: Record<string, LucideIcon> = {
   trades: HardHat,
   teaching_training: GraduationCap,
   freelancers: Laptop,
+  domestic_cleaning: Sparkles,
   online_sellers: Store,
   property_income: Building2,
 };
@@ -193,6 +194,12 @@ const LINE_ITEM_ICONS: Record<string, LucideIcon> = {
   income_content_ads_social: Megaphone,
   income_photo_video_extras: Camera,
   income_licensing: ImageIcon,
+  income_cleaning_jobs: Sparkles,
+  income_cleaning_contracts: ClipboardList,
+  income_end_of_tenancy: Home,
+  income_commercial_cleaning: Building2,
+  income_ironing_laundry: Shirt,
+  income_materials_recharged: Package,
   vehicle_simplified_running_mileage: Route,
   lease_finance: Car,
   fuel: Fuel,
@@ -278,6 +285,12 @@ const LINE_ITEM_ICONS: Record<string, LucideIcon> = {
   coworking: Building2,
   professional_insurance: Shield,
   phone_internet: Smartphone,
+  cleaning_supplies: Sparkles,
+  cleaning_equipment: Wrench,
+  ppe_uniform: Shirt,
+  equipment_repair: Wrench,
+  parking_congestion: MapPin,
+  booking_software: Smartphone,
 };
 
 function inferLineItemIcon(id: string): LucideIcon {

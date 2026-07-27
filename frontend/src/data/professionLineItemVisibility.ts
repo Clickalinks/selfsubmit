@@ -29,8 +29,6 @@ export const INCOME_LINE_VISIBILITY: Record<string, LineVisibilityMap> = {
     income_gym_studio_pass_through: ["fitness"],
   },
   freelancers: {
-    income_cleaning_jobs: ["cleaning"],
-    income_cleaning_contracts: ["cleaning"],
     income_hosting_domain_resale: ["web_dev"],
     income_maintenance_support: ["web_dev", "consulting", "bookkeeping"],
     income_content_ads_social: ["social_content", "creative_design"],
@@ -97,8 +95,6 @@ export const EXPENSE_LINE_VISIBILITY: Record<string, LineVisibilityMap> = {
     studio_props: ["photo_video"],
     equipment_insurance: ["photo_video"],
     drone_registration: ["photo_video"],
-    cleaning_supplies: ["cleaning"],
-    cleaning_equipment: ["cleaning"],
     pet_insurance: ["pet_care"],
     pet_supplies: ["pet_care"],
     food_ingredients: ["catering"],

@@ -9,6 +9,7 @@ const TEMPLATE_ORDER = [
   "trades",
   "personal_services",
   "teaching_training",
+  "domestic_cleaning",
   "freelancers",
   "online_sellers",
   "property_income",

@@ -366,16 +366,6 @@ export const EXPENSE_TEMPLATES: Record<string, TradeFormTemplate> = {
     incomeLineItems: [
       { id: "income_projects", label: "Project fees, day rates & hourly billing" },
       { id: "income_retainer", label: "Retainers & recurring billing" },
-      {
-        id: "income_cleaning_jobs",
-        label: "Domestic cleaning jobs (one-off & ad-hoc)",
-        hint: "0 if not applicable",
-      },
-      {
-        id: "income_cleaning_contracts",
-        label: "Regular domestic cleaning contracts / weekly clients",
-        hint: "0 if not applicable",
-      },
       { id: "income_hosting_domain_resale", label: "Hosting, domain, plugin or licence resale to clients", hint: "0 if not applicable" },
       { id: "income_maintenance_support", label: "Maintenance, support & emergency / rush fees", hint: "0 if not applicable" },
       {
@@ -409,16 +399,6 @@ export const EXPENSE_TEMPLATES: Record<string, TradeFormTemplate> = {
       {
         id: "drone_registration",
         label: "Drone registration, training & aviation insurance",
-        hint: "0 if not applicable",
-      },
-      {
-        id: "cleaning_supplies",
-        label: "Cleaning chemicals, cloths & consumables",
-        hint: "0 if not applicable",
-      },
-      {
-        id: "cleaning_equipment",
-        label: "Vacuums, mops, pressure washers & cleaning kit",
         hint: "0 if not applicable",
       },
       {
@@ -461,6 +441,114 @@ export const EXPENSE_TEMPLATES: Record<string, TradeFormTemplate> = {
       { id: "office_stationery", label: "Office stationery & postage" },
       { id: "professional_memberships", label: "Professional subscriptions & memberships", hint: "0 if not applicable" },
       { id: "bank_charges", label: "Bank & card payment charges (Stripe, etc.)" },
+      { id: "accountant", label: "Accountant or bookkeeping software fees" },
+      { id: "other", label: "Other allowable expenses" },
+    ],
+  },
+  domestic_cleaning: {
+    id: "domestic_cleaning",
+    title: "Domestic & commercial cleaning",
+    incomeLineItems: [
+      {
+        id: "income_cleaning_jobs",
+        label: "One-off & ad-hoc domestic cleans",
+        hint: "Deep cleans, spring cleans, one-off bookings",
+      },
+      {
+        id: "income_cleaning_contracts",
+        label: "Regular domestic clients (weekly / fortnightly)",
+      },
+      {
+        id: "income_end_of_tenancy",
+        label: "End-of-tenancy & move-out cleans",
+        hint: "0 if not applicable",
+      },
+      {
+        id: "income_commercial_cleaning",
+        label: "Commercial / office / Airbnb turnaround cleans",
+        hint: "0 if you only clean private homes",
+      },
+      {
+        id: "income_ironing_laundry",
+        label: "Ironing, laundry & extras charged to clients",
+        hint: "0 if not applicable",
+      },
+      {
+        id: "income_materials_recharged",
+        label: "Cleaning products recharged to clients",
+        hint: "Only if you bill materials separately",
+      },
+      { id: "income_tips", label: "Tips & gratuities (declared amount)", hint: "0 if none" },
+      { id: "income_other", label: "Other cleaning income" },
+    ],
+    expenseLineItems: [
+      {
+        id: "cleaning_supplies",
+        label: "Cleaning chemicals, cloths, sponges & consumables",
+      },
+      {
+        id: "cleaning_equipment",
+        label: "Vacuums, mops, buckets, steamers & cleaning kit",
+      },
+      {
+        id: "ppe_uniform",
+        label: "Gloves, masks, aprons, uniforms & PPE",
+        hint: "Business use only",
+      },
+      {
+        id: "equipment_repair",
+        label: "Repair & replacement of cleaning equipment",
+        hint: "0 if not applicable",
+      },
+      {
+        id: "travel",
+        label: "Travel between clients (mileage, bus, taxi)",
+        hint: "Business journeys only — keep a mileage log if using HMRC rates",
+      },
+      {
+        id: "parking_congestion",
+        label: "Parking, congestion, ULEZ & tolls while working",
+        hint: "0 if not applicable",
+      },
+      {
+        id: "professional_insurance",
+        label: "Public liability (and professional indemnity if held)",
+      },
+      {
+        id: "dbs_checks",
+        label: "DBS / background checks",
+        hint: "0 if not required by clients",
+      },
+      {
+        id: "training",
+        label: "Training (COSHH, hygiene, first aid, CPD)",
+        hint: "0 if not applicable",
+      },
+      {
+        id: "marketing",
+        label: "Advertising & finding clients",
+        hint: "Leaflets, Checkatrade, Facebook, Google, directories",
+      },
+      {
+        id: "phone_internet",
+        label: "Phone & internet (business use %)",
+      },
+      {
+        id: "booking_software",
+        label: "Booking apps & invoicing software",
+        hint: "0 if not applicable",
+      },
+      {
+        id: "home_office",
+        label: "Home storage / office costs (simplified or actual %)",
+        hint: "Supplies stored at home, admin area — business proportion only",
+      },
+      {
+        id: "waste_disposal",
+        label: "Bin bags, waste disposal & recycling fees",
+        hint: "0 if not applicable",
+      },
+      { id: "bank_charges", label: "Bank & card payment charges" },
       { id: "accountant", label: "Accountant or bookkeeping software fees" },
       { id: "other", label: "Other allowable expenses" },
     ],
@@ -613,10 +701,10 @@ export const PROFESSION_TO_TEMPLATE: Record<string, keyof typeof EXPENSE_TEMPLAT
   "Airbnb Host": "property_income",
   "Property Income Earner": "property_income",
 
-  // Other services
-  "Domestic Cleaner": "freelancers",
-  "Cleaner (Domestic & Commercial)": "freelancers",
-  "Cleaner (domestic & commercial)": "freelancers",
+  // Cleaning
+  "Domestic Cleaner": "domestic_cleaning",
+  "Cleaner (Domestic & Commercial)": "domestic_cleaning",
+  "Cleaner (domestic & commercial)": "domestic_cleaning",
   "Dog Walker / Pet Sitter": "freelancers",
   "Caterer / Personal Chef": "freelancers",
 };
