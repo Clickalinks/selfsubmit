@@ -21,15 +21,26 @@ const PAGE_TITLES: Record<string, string> = {
 type Props = {
   profile: DashboardShellProfile;
   canCreateBusiness?: boolean;
+  showAdminLink?: boolean;
   children: ReactNode;
 };
 
-export function DashboardFrame({ profile, canCreateBusiness = false, children }: Props) {
+export function DashboardFrame({
+  profile,
+  canCreateBusiness = false,
+  showAdminLink = false,
+  children,
+}: Props) {
   const pathname = usePathname();
   const title = PAGE_TITLES[pathname] ?? "Dashboard";
 
   return (
-    <DashboardShell profile={profile} title={title} canCreateBusiness={canCreateBusiness}>
+    <DashboardShell
+      profile={profile}
+      title={title}
+      canCreateBusiness={canCreateBusiness}
+      showAdminLink={showAdminLink}
+    >
       {children}
     </DashboardShell>
   );

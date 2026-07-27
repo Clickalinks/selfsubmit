@@ -2,7 +2,21 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Building2, Briefcase, Calculator, CircleHelp, ClipboardList, CreditCard, LayoutDashboard, Link2, Receipt, Send, Settings, X } from "lucide-react";
+import {
+  Building2,
+  Briefcase,
+  Calculator,
+  CircleHelp,
+  ClipboardList,
+  CreditCard,
+  LayoutDashboard,
+  Link2,
+  Receipt,
+  Send,
+  Settings,
+  Shield,
+  X,
+} from "lucide-react";
 
 import type { DashboardShellProfile } from "@/lib/dashboard-profile";
 
@@ -30,6 +44,7 @@ const NAV: NavItem[] = [
 type Props = {
   profile: Pick<DashboardShellProfile, "firstName" | "lastName" | "businessName">;
   canCreateBusiness?: boolean;
+  showAdminLink?: boolean;
   mobileOpen: boolean;
   onCloseMobile: () => void;
 };
@@ -42,6 +57,7 @@ function isActive(pathname: string, href: string, exact?: boolean) {
 export function DashboardSidebar({
   profile,
   canCreateBusiness = false,
+  showAdminLink = false,
   mobileOpen,
   onCloseMobile,
 }: Props) {
@@ -109,6 +125,20 @@ export function DashboardSidebar({
               </Link>
             );
           })}
+          {showAdminLink ? (
+            <Link
+              href="/admin"
+              onClick={onCloseMobile}
+              className={`group mt-3 flex items-center gap-3 rounded-xl border border-emerald-500/30 px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
+                pathname.startsWith("/admin")
+                  ? "bg-emerald-600 text-white shadow-md"
+                  : "text-emerald-300 hover:bg-emerald-500/20 hover:text-white"
+              }`}
+            >
+              <Shield className="h-5 w-5 shrink-0" strokeWidth={2} />
+              Admin
+            </Link>
+          ) : null}
         </nav>
 
         <div className="border-t border-white/10 px-5 py-4">

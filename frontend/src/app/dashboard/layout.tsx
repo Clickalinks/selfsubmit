@@ -39,9 +39,14 @@ export default async function DashboardLayout({ children }: { children: ReactNod
 
   let profile;
   let allowCreateBusiness = false;
+  let showAdminLink = false;
   try {
     profile = await getClientProfile(userId);
     allowCreateBusiness = await canCreateBusiness(userId);
+    const dbUser = await prisma.user.findUnique({ where: { id: userId }, select: { role: true } });
+    showAdminLink = Boolean(
+      dbUser && canAccessAdminPanel(dbUser.role) && isOnAdminAllowlist(userId),
+    );
   } catch (err) {
     console.error("[dashboard/layout] profile load failed", err);
     return <DashboardDbUnavailable />;
@@ -52,7 +57,11 @@ export default async function DashboardLayout({ children }: { children: ReactNod
   }
 
   return (
-    <DashboardFrame profile={toDashboardShellProfile(profile)} canCreateBusiness={allowCreateBusiness}>
+    <DashboardFrame
+      profile={toDashboardShellProfile(profile)}
+      canCreateBusiness={allowCreateBusiness}
+      showAdminLink={showAdminLink}
+    >
       {children}
     </DashboardFrame>
   );
