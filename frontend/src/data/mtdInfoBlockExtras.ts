@@ -114,7 +114,7 @@ export const MTD_INFO_BLOCK_EXTRAS: Record<string, MtdInfoBlockExtras> = {
       "Treating all money in the bank as income without deducting allowable costs",
     ],
     selfSubmitTip:
-      "SelfSubmit templates cover taxi drivers, couriers, trades, freelancers, and more — with line items matched to common UK self-employment declarations.",
+      "SelfSubmit gives each business type its own simple income and expense form — from taxi drivers and trades to cleaners, freelancers, and landlords.",
   },
   "landlord-mtd": {
     cardIntro:

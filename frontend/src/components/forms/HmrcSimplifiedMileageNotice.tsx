@@ -1,6 +1,7 @@
 "use client";
 
 import type { VehicleCostMethod } from "@/data/expenseCategories";
+import { usesBusinessVehicleTemplate } from "@/data/expenseCategories";
 
 /**
  * Summary of HMRC “simplified expenses” vehicle mileage for self-employed traders.
@@ -11,8 +12,6 @@ import type { VehicleCostMethod } from "@/data/expenseCategories";
 const GOV_UK_VEHICLES =
   "https://www.gov.uk/simpler-income-tax-simplified-expenses/vehicles-";
 
-const TEMPLATES_WITH_VEHICLE_COSTS = new Set(["transport_driving", "trades", "teaching_training"]);
-
 type Props = {
   trade: string;
   templateId: string;
@@ -20,7 +19,7 @@ type Props = {
 };
 
 export function HmrcSimplifiedMileageNotice({ trade, templateId, vehicleCostMethod }: Props) {
-  if (!TEMPLATES_WITH_VEHICLE_COSTS.has(templateId)) return null;
+  if (!usesBusinessVehicleTemplate(templateId)) return null;
 
   const t = trade.toLowerCase();
   const isDrivingInstructor = t.includes("driving instructor");

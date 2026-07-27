@@ -138,13 +138,28 @@ export const DEFAULT_PROFESSION_ICON = Briefcase;
 
 export const TEMPLATE_ICONS: Record<string, LucideIcon> = {
   transport_driving: Truck,
+  taxi_driver: Truck,
+  uber_driver: Car,
+  delivery_driver: Package,
+  courier_van_driver: Truck,
+  hgv_lorry_driver: Truck,
   personal_services: Sparkles,
+  barber: Scissors,
+  hairdresser: Scissors,
+  beautician: Sparkles,
+  nail_technician: Sparkles,
+  massage_therapist: HeartHandshake,
   trades: HardHat,
-  teaching_training: GraduationCap,
   freelancers: Laptop,
   domestic_cleaning: Sparkles,
+  domestic_cleaner: Sparkles,
+  cleaner_domestic_commercial: Sparkles,
   online_sellers: Store,
   property_income: Building2,
+  landlord_rental_income: Building2,
+  airbnb_host: Building2,
+  teaching_training: GraduationCap,
+  driving_instructor: Car,
 };
 
 const DEFAULT_INCOME_ICON = TrendingUp;
