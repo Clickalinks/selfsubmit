@@ -7,6 +7,7 @@ import { Inter } from "next/font/google";
 import { SessionInactivityGuard } from "@/components/auth/SessionInactivityGuard";
 import { ComplianceDisclaimerBanner } from "@/components/ComplianceDisclaimerBanner";
 import { CookieConsentBanner } from "@/components/legal/CookieConsentBanner";
+import { SiteAnnouncementBanner } from "@/components/SiteAnnouncementBanner";
 import { clerkProviderProxyUrl, reconcileClerkProxyEnv } from "@/lib/clerk-env";
 import { defaultOpenGraph, defaultTwitter } from "@/lib/seo";
 import { getSiteUrl } from "@/lib/site-url";
@@ -89,6 +90,7 @@ export default function RootLayout({
           }}
         >
           <SessionInactivityGuard />
+          <SiteAnnouncementBanner />
           <ComplianceDisclaimerBanner />
           <CookieConsentBanner />
           {children}

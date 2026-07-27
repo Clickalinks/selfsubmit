@@ -76,6 +76,8 @@ export const API_RATE_LIMITS = {
   receiptsUpload: { max: 40, windowMs: 15 * 60 * 1000 },
   /** Monthly record saves */
   submissions: { max: 60, windowMs: 15 * 60 * 1000 },
+  /** Admin panel APIs — tight limit */
+  admin: { max: 40, windowMs: 15 * 60 * 1000 },
 } as const;
 
 export function rateLimitKey(prefix: string, identifier: string): string {

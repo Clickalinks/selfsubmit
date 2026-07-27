@@ -9,6 +9,7 @@ export default function robots(): MetadataRoute.Robots {
       allow: "/",
       disallow: [
         "/dashboard/",
+        "/admin/",
         "/api/",
         "/sign-in",
         "/sign-up",
@@ -16,6 +17,7 @@ export default function robots(): MetadataRoute.Robots {
         "/submit",
         "/onboarding",
         "/add-business",
+        "/maintenance",
       ],
     },
     sitemap: `${getSiteUrl()}/sitemap.xml`,

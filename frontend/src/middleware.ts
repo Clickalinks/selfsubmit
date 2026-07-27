@@ -11,6 +11,7 @@ const isProtectedPage = createRouteMatcher([
   "/submit(.*)",
   "/add-business(.*)",
   "/dashboard(.*)",
+  "/admin(.*)",
   "/onboarding(.*)",
   "/setup-mfa(.*)",
 ]);

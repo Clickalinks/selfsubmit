@@ -227,3 +227,18 @@ model ConsentRecord {
   @@index([userId, consentType, createdAt])
   @@index([consentType, createdAt])
 }
+
+/// Singleton site-wide settings (announcement / maintenance). Id is always "default".
+model SiteSetting {
+  id                   String    @id @default("default")
+  announcementEnabled  Boolean   @default(false)
+  announcementMessage  String?
+  /// info | warning | maintenance
+  announcementSeverity String    @default("info")
+  /// When true, non-admin customers see a maintenance page instead of the dashboard.
+  maintenanceMode      Boolean   @default(false)
+  maintenanceUntil     DateTime?
+  updatedByUserId      String?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+}
