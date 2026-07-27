@@ -32,9 +32,13 @@ async function main() {
   });
 
   const existing = await clerk.users.getUser(userId);
+  const previousMeta =
+    existing.publicMetadata && typeof existing.publicMetadata === "object"
+      ? existing.publicMetadata
+      : {};
   await clerk.users.updateUser(userId, {
     publicMetadata: {
-      ...(existing.publicMetadata as Record<string, unknown>),
+      ...previousMeta,
       role: "super_admin",
     },
   });
