@@ -65,6 +65,9 @@ function resolvedPublicClerkProxyUrl(): string {
   return proxy;
 }
 
+// F-03 (pen-test): unsafe-inline + unsafe-eval weaken XSS defence-in-depth.
+// Required today for Clerk + Next.js inline bootstrapping; migrate to nonce/hash
+// CSP when Clerk/Next support allows removing these without breaking auth.
 const scriptSources = `'self' 'unsafe-inline' 'unsafe-eval' ${clerkOrigins}`;
 
 const csp = [

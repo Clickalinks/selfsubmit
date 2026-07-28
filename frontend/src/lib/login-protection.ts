@@ -362,9 +362,14 @@ export async function getSecurityNotificationsForUser(userId: string, limit = 20
   });
 }
 
-export async function markSecurityNotificationsRead(userId: string, ids?: string[]) {
-  return prisma.securityNotification.updateMany({
+export async function markSecurityNotificationsRead(
+  userId: string,
+  ids?: string[],
+): Promise<{ count: number }> {
+  const result = await prisma.securityNotification.updateMany({
     where: ids?.length ? { userId, id: { in: ids } } : { userId, read: false },
     data: { read: true },
   });
+  return { count: result.count };
 }
+
