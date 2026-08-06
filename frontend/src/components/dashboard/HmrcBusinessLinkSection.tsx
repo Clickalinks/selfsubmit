@@ -19,6 +19,14 @@ type HmrcBusinessRow = {
   tradingName: string | null;
 };
 
+type HmrcBusinessDetails = {
+  businessId: string;
+  typeOfBusiness: string;
+  tradingName: string | null;
+  accountingType: string | null;
+  commencementDate: string | null;
+};
+
 type HmrcConnectionStatus = {
   connected: boolean;
 };
@@ -27,6 +35,7 @@ export function HmrcBusinessLinkSection() {
   const [hmrcConnected, setHmrcConnected] = useState(false);
   const [localBusinesses, setLocalBusinesses] = useState<LocalBusinessLink[]>([]);
   const [hmrcBusinesses, setHmrcBusinesses] = useState<HmrcBusinessRow[] | null>(null);
+  const [hmrcDetails, setHmrcDetails] = useState<HmrcBusinessDetails[]>([]);
   const [selectedBusinessId, setSelectedBusinessId] = useState("");
   const [selectedHmrcId, setSelectedHmrcId] = useState("");
   const [loading, setLoading] = useState(true);
@@ -87,6 +96,7 @@ export function HmrcBusinessLinkSection() {
       const res = await fetch("/api/hmrc/businesses");
       const data = (await res.json().catch(() => ({}))) as {
         businesses?: HmrcBusinessRow[];
+        details?: HmrcBusinessDetails[];
         error?: string;
       };
       if (!res.ok) {
@@ -94,11 +104,20 @@ export function HmrcBusinessLinkSection() {
         return;
       }
       setHmrcBusinesses(data.businesses ?? []);
+      setHmrcDetails(data.details ?? []);
       if ((data.businesses ?? []).length === 0) {
         setMessage("HMRC returned no businesses for your test user.");
-      } else if (!selectedHmrcId && data.businesses?.[0]) {
-        const selfEmployment = data.businesses.find((b) => b.typeOfBusiness === "self-employment");
-        setSelectedHmrcId(selfEmployment?.businessId ?? data.businesses[0].businessId);
+      } else {
+        const detailCount = data.details?.length ?? 0;
+        setMessage(
+          detailCount > 0
+            ? `Loaded ${data.businesses!.length} HMRC business(es) and retrieved full details for ${detailCount}.`
+            : `Loaded ${data.businesses!.length} HMRC business(es).`,
+        );
+        if (!selectedHmrcId && data.businesses?.[0]) {
+          const selfEmployment = data.businesses.find((b) => b.typeOfBusiness === "self-employment");
+          setSelectedHmrcId(selfEmployment?.businessId ?? data.businesses[0].businessId);
+        }
       }
     } catch {
       setError("Could not load HMRC businesses.");
@@ -270,6 +289,19 @@ export function HmrcBusinessLinkSection() {
             </p>
           </div>
         </div>
+
+        {hmrcDetails.length > 0 ? (
+          <ul className="space-y-2 rounded-xl border border-emerald-200 bg-emerald-50/80 p-4 text-sm text-emerald-950">
+            {hmrcDetails.map((d) => (
+              <li key={d.businessId}>
+                <span className="font-semibold">{d.businessId}</span>
+                {d.tradingName ? ` — ${d.tradingName}` : ""}
+                {d.accountingType ? ` · ${d.accountingType}` : ""}
+                {d.commencementDate ? ` · started ${d.commencementDate}` : ""}
+              </li>
+            ))}
+          </ul>
+        ) : null}
 
         <div className="flex flex-wrap gap-3">
           <button

@@ -2,7 +2,7 @@ import { auth, currentUser } from "@clerk/nextjs/server";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
-import { fetchHmrcBusinessList } from "@/lib/hmrc-business-details";
+import { fetchHmrcBusinessListAndDetails } from "@/lib/hmrc-business-details";
 import { getHmrcConnectionStatus } from "@/lib/hmrc-connection-server";
 import { hmrcRateLimitOrNull } from "@/lib/hmrc-api-rate-limit";
 import { readFraudContextCookie } from "@/lib/hmrc-fraud-context";
@@ -35,7 +35,8 @@ export async function GET(request: Request) {
   const clerkUser = await currentUser();
   const userLoginId = clerkUser?.primaryEmailAddress?.emailAddress ?? null;
 
-  const result = await fetchHmrcBusinessList({
+  // List + Retrieve Business Details — both required for HMRC production sample checks.
+  const result = await fetchHmrcBusinessListAndDetails({
     userId,
     request,
     nino: taxIds.niNumber,
@@ -47,5 +48,19 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: result.error }, { status: 502 });
   }
 
-  return NextResponse.json({ businesses: result.businesses });
+  if (result.businesses.length > 0 && result.details.length === 0) {
+    return NextResponse.json(
+      {
+        error: result.retrieveErrors[0] ?? "Could not retrieve HMRC business details.",
+        retrieveErrors: result.retrieveErrors,
+      },
+      { status: 502 },
+    );
+  }
+
+  return NextResponse.json({
+    businesses: result.businesses,
+    details: result.details,
+    retrieveErrors: result.retrieveErrors,
+  });
 }

@@ -1,4 +1,4 @@
-import { fetchHmrcBusinessList } from "@/lib/hmrc-business-details";
+import { fetchHmrcBusinessDetails, fetchHmrcBusinessList } from "@/lib/hmrc-business-details";
 import { linkBusinessToHmrc } from "@/lib/hmrc-business-server";
 import type { HmrcFraudClientContext } from "@/lib/hmrc-fraud-context";
 import { getDecryptedTaxIds } from "@/lib/tax-ids-server";
@@ -19,13 +19,15 @@ export async function autoLinkHmrcBusinessForUser(input: {
     return { linked: false, reason: "missing_nino" };
   }
 
-  const list = await fetchHmrcBusinessList({
+  const callCtx = {
     userId: input.userId,
     request: input.request,
     nino: taxIds.niNumber,
     fraudContext: input.fraudContext,
     userLoginId: input.userLoginId,
-  });
+  };
+
+  const list = await fetchHmrcBusinessList(callCtx);
 
   if ("error" in list) {
     return { linked: false, reason: "api_error" };
@@ -37,6 +39,16 @@ export async function autoLinkHmrcBusinessForUser(input: {
   }
 
   const hmrcBusinessId = selfEmployment[0].businessId;
+
+  // HMRC production sample check requires Retrieve Business Details (not only List).
+  const retrieved = await fetchHmrcBusinessDetails({
+    ...callCtx,
+    businessId: hmrcBusinessId,
+  });
+  if ("error" in retrieved) {
+    return { linked: false, reason: "api_error" };
+  }
+
   try {
     await linkBusinessToHmrc(input.userId, input.businessId, hmrcBusinessId);
     return { linked: true, hmrcBusinessId };
