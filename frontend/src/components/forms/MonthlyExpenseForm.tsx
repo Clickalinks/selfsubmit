@@ -140,7 +140,7 @@ export function MonthlyExpenseForm({
   const [vehicleCostMethod, setVehicleCostMethod] = useState<VehicleCostMethod>("actual");
 
   const [incomeRows, setIncomeRows] = useState<Record<string, RowState>>(() =>
-    buildInitialRows(getVisibleIncomeLineItems(initialTemplate, defaultTrade)),
+    buildInitialRows(getVisibleIncomeLineItems(initialTemplate)),
   );
   const [expenseRows, setExpenseRows] = useState<Record<string, RowState>>(() =>
     buildInitialRows(getVisibleExpenseLineItems(initialTemplate, "actual", defaultTrade)),
@@ -187,10 +187,7 @@ export function MonthlyExpenseForm({
 
   const [cisDeductionThisPeriod, setCisDeductionThisPeriod] = useState("");
 
-  const visibleIncomeItems = useMemo(
-    () => getVisibleIncomeLineItems(template, trade),
-    [template, trade],
-  );
+  const visibleIncomeItems = useMemo(() => getVisibleIncomeLineItems(template), [template]);
 
   const visibleExpenseItems = useMemo(
     () => getVisibleExpenseLineItems(template, vehicleCostMethod, trade),

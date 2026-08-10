@@ -145,7 +145,7 @@ export function vehicleSimplifiedMileageAllowed(trade: string, templateId: strin
 }
 
 /** Income lines for this profession’s dedicated form. */
-export function getVisibleIncomeLineItems(template: TradeFormTemplate, _trade: string): MoneyLineItem[] {
+export function getVisibleIncomeLineItems(template: TradeFormTemplate): MoneyLineItem[] {
   return template.incomeLineItems;
 }
 
