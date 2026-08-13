@@ -54,7 +54,7 @@ export async function getSandboxQuarterlyPreview(
   periodEndDate?: string,
 ): Promise<QuarterlyPreview> {
   await assertSandboxQuarterlyReady(userId, businessId);
-  const window = assertQuarterlySubmitWindowOpen();
+  const window = assertQuarterlySubmitWindowOpen(undefined, { sandboxTesting: true });
   return buildQuarterlyPreview({
     userId,
     businessId,
@@ -76,7 +76,7 @@ export async function submitSandboxQuarterlyUpdate(input: {
   retrieved: HmrcCumulativeRetrieved | null;
 }> {
   const ready = await assertSandboxQuarterlyReady(input.userId, input.businessId);
-  const window = assertQuarterlySubmitWindowOpen();
+  const window = assertQuarterlySubmitWindowOpen(undefined, { sandboxTesting: true });
   const preview = await buildQuarterlyPreview({
     userId: input.userId,
     businessId: input.businessId,

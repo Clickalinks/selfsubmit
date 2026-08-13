@@ -1,4 +1,4 @@
-import { getUkTaxYearQuarters, type MtdQuarter } from "@/lib/mtd-quarters";
+import { getCurrentQuarter, getUkTaxYearQuarters, type MtdQuarter } from "@/lib/mtd-quarters";
 
 /** Open HMRC quarterly submit from 14 days before quarter end through the HMRC deadline. */
 export const QUARTERLY_SUBMIT_APPROACH_DAYS = 14;
@@ -42,9 +42,23 @@ function isInSubmitWindow(quarter: MtdQuarter, now: Date): boolean {
 
 /**
  * Whether the user may preview/submit a cumulative quarterly update to HMRC.
- * Mid-quarter: keep adding monthly records only.
+ * Mid-quarter: keep adding monthly records only — except sandbox testing, which
+ * stays open so HMRC production-sample checks can hit submit/retrieve anytime.
  */
-export function resolveQuarterlySubmitWindow(now = new Date()): QuarterlySubmitWindow {
+export function resolveQuarterlySubmitWindow(
+  now = new Date(),
+  options?: { sandboxTesting?: boolean },
+): QuarterlySubmitWindow {
+  if (options?.sandboxTesting) {
+    const quarter = getCurrentQuarter(now);
+    return {
+      open: true,
+      quarter,
+      periodEndDate: toIsoDate(quarter.to),
+      message: `Sandbox testing is open for ${quarter.label} (period ending ${formatUk(quarter.to)}). This is not live filing.`,
+    };
+  }
+
   const quarters = getUkTaxYearQuarters(now);
   const open = quarters.filter((q) => isInSubmitWindow(q, now));
 
@@ -78,8 +92,11 @@ export function resolveQuarterlySubmitWindow(now = new Date()): QuarterlySubmitW
   };
 }
 
-export function assertQuarterlySubmitWindowOpen(now = new Date()): QuarterlySubmitWindow {
-  const window = resolveQuarterlySubmitWindow(now);
+export function assertQuarterlySubmitWindowOpen(
+  now = new Date(),
+  options?: { sandboxTesting?: boolean },
+): QuarterlySubmitWindow {
+  const window = resolveQuarterlySubmitWindow(now, options);
   if (!window.open) {
     throw new Error(window.message);
   }

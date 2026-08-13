@@ -153,7 +153,9 @@ export async function getMtdDashboardSnapshot(
   const hasBusiness = businessCount > 0;
   const hasTaxIds = taxIds.complete;
   const hmrcSandboxReady = hmrcConnected && hasTaxIds && Boolean(activeBusinessHmrcId);
-  const quarterlyWindow = resolveQuarterlySubmitWindow(now);
+  const quarterlyWindow = resolveQuarterlySubmitWindow(now, {
+    sandboxTesting: isHmrcSandboxFilingEnabled(),
+  });
 
   const quarterSubmissions = monthlySubmissions.filter((s) =>
     periodsOverlap(s.periodFrom, s.periodTo, currentQuarter.from, currentQuarter.to),
