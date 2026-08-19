@@ -11,16 +11,16 @@ import { pageCanonical, defaultOpenGraph, defaultTwitter } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "FAQ — SelfSubmit",
-  description: "Frequently asked questions about SelfSubmit, MTD quarterly updates, pricing, receipts, and support.",
+  description: "Frequently asked questions about SelfSubmit, Making Tax Digital, the free trial, HMRC filing, receipts, and support.",
   alternates: pageCanonical("/faq"),
   openGraph: defaultOpenGraph({
     title: "FAQ — SelfSubmit",
-    description: "Frequently asked questions about SelfSubmit, MTD quarterly updates, pricing, receipts, and support.",
+    description: "Frequently asked questions about SelfSubmit, Making Tax Digital, the free trial, HMRC filing, receipts, and support.",
     url: "/faq",
   }),
   twitter: defaultTwitter({
     title: "FAQ — SelfSubmit",
-    description: "Frequently asked questions about SelfSubmit, MTD quarterly updates, pricing, receipts, and support.",
+    description: "Frequently asked questions about SelfSubmit, Making Tax Digital, the free trial, HMRC filing, receipts, and support.",
   }),
 };
 
@@ -31,7 +31,7 @@ export default function FaqPage() {
       <SitePageHero
         eyebrow="Help"
         title="Frequently asked questions"
-        description="Answers on SelfSubmit, Making Tax Digital, and subscriptions."
+        description="Answers on SelfSubmit, Making Tax Digital, the free trial, and subscriptions."
       />
 
       <div className="mx-auto max-w-3xl px-5 py-12 sm:px-8 sm:py-16 lg:px-10">
