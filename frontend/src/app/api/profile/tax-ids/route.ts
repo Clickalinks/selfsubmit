@@ -2,7 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
 import { isEncryptionConfigured } from "@/lib/field-encryption";
-import { getTaxIdsStatus, saveTaxIds } from "@/lib/tax-ids-server";
+import { getTaxIdsStatus, saveTaxIds, TaxIdsLockedError } from "@/lib/tax-ids-server";
 import { validateNiNumber, validateUtr } from "@/lib/tax-id-validation";
 
 export async function GET() {
@@ -38,6 +38,14 @@ export async function PATCH(req: Request) {
   const b = body as Record<string, unknown>;
   const utr = typeof b.utr === "string" ? b.utr : "";
   const niNumber = typeof b.niNumber === "string" ? b.niNumber : "";
+  const confirmed = b.confirm === true;
+
+  if (!confirmed) {
+    return NextResponse.json(
+      { error: "Please confirm that your UTR and National Insurance number are correct." },
+      { status: 400 },
+    );
+  }
 
   const utrError = validateUtr(utr);
   const niError = validateNiNumber(niNumber);
@@ -50,7 +58,16 @@ export async function PATCH(req: Request) {
 
   try {
     await saveTaxIds(userId, utr, niNumber);
-  } catch {
+  } catch (err) {
+    if (err instanceof TaxIdsLockedError) {
+      return NextResponse.json(
+        {
+          error:
+            "Your UTR and National Insurance number are locked. Email support@selfsubmit.co.uk if you need a correction.",
+        },
+        { status: 409 },
+      );
+    }
     return NextResponse.json({ error: "Profile not found" }, { status: 404 });
   }
 

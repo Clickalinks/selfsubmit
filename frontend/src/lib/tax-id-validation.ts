@@ -37,3 +37,10 @@ export function maskNiNumber(value: string): string {
   if (n.length < 4) return "••••";
   return `••••••${n.slice(-2)}`;
 }
+
+/** Display NI as QQ 12 34 56 C for confirmation screens. */
+export function formatNiNumberForDisplay(value: string): string {
+  const n = normalizeNiNumber(value);
+  if (n.length !== 9) return n;
+  return `${n.slice(0, 2)} ${n.slice(2, 4)} ${n.slice(4, 6)} ${n.slice(6, 8)} ${n.slice(8)}`;
+}

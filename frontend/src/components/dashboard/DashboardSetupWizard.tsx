@@ -10,7 +10,7 @@ import { ProfessionSelect } from "@/components/forms/ProfessionSelect";
 import { ALL_PROFESSIONS } from "@/data/expenseCategories";
 import { collectHmrcFraudContext, ensureHmrcFraudContext } from "@/lib/hmrc-fraud-client";
 import { getActiveSetupStep } from "@/lib/setup-progress";
-import { validateNiNumber, validateUtr } from "@/lib/tax-id-validation";
+import { formatNiNumberForDisplay, normalizeUtr, validateNiNumber, validateUtr } from "@/lib/tax-id-validation";
 
 const inputClass =
   "mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-brand-green focus:ring-2 focus:ring-brand-green/20";
@@ -81,6 +81,8 @@ function DashboardSetupWizardInner({
 
   const [utr, setUtr] = useState("");
   const [niNumber, setNiNumber] = useState("");
+  const [taxStep, setTaxStep] = useState<"enter" | "confirm">("enter");
+  const [taxConfirmed, setTaxConfirmed] = useState(false);
   const [taxFieldErrors, setTaxFieldErrors] = useState<{ utr?: string; niNumber?: string }>({});
   const [taxError, setTaxError] = useState<string | null>(null);
   const [taxSaving, setTaxSaving] = useState(false);
@@ -188,7 +190,7 @@ function DashboardSetupWizardInner({
     }
   }
 
-  async function saveTaxIds() {
+  function goToTaxConfirm() {
     setTaxError(null);
     const utrError = validateUtr(utr);
     const niError = validateNiNumber(niNumber);
@@ -197,12 +199,22 @@ function DashboardSetupWizardInner({
       return;
     }
     setTaxFieldErrors({});
+    setTaxConfirmed(false);
+    setTaxStep("confirm");
+  }
+
+  async function saveTaxIds() {
+    if (!taxConfirmed) {
+      setTaxError("Please tick the box to confirm these details are correct.");
+      return;
+    }
+    setTaxError(null);
     setTaxSaving(true);
     try {
       const res = await fetch("/api/profile/tax-ids", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ utr, niNumber }),
+        body: JSON.stringify({ utr, niNumber, confirm: true }),
       });
       const data = (await res.json().catch(() => ({}))) as {
         error?: string;
@@ -215,6 +227,8 @@ function DashboardSetupWizardInner({
       }
       setUtr("");
       setNiNumber("");
+      setTaxConfirmed(false);
+      setTaxStep("enter");
       router.refresh();
     } finally {
       setTaxSaving(false);
@@ -422,11 +436,69 @@ function DashboardSetupWizardInner({
 
               {isExpanded && step.id === 4 ? (
                 <div className="mt-4 border-t border-brand-green/10 pt-4">
-                  <p className="text-sm text-slate-600">
-                    Your UTR and National Insurance number are encrypted. For sandbox testing, use the same values as
-                    your HMRC test user.
-                  </p>
-                  <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                  {taxStep === "confirm" ? (
+                    <>
+                      <p className="text-sm text-slate-600">
+                        Check these carefully. After you confirm, they are locked to this account.
+                      </p>
+                      <dl className="mt-4 space-y-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm">
+                        <div>
+                          <dt className="font-semibold text-slate-500">UTR</dt>
+                          <dd className="mt-0.5 font-mono text-base font-bold tracking-wide text-slate-900">
+                            {normalizeUtr(utr)}
+                          </dd>
+                        </div>
+                        <div>
+                          <dt className="font-semibold text-slate-500">National Insurance number</dt>
+                          <dd className="mt-0.5 font-mono text-base font-bold tracking-wide text-slate-900">
+                            {formatNiNumberForDisplay(niNumber)}
+                          </dd>
+                        </div>
+                      </dl>
+                      <label className="mt-4 flex items-start gap-3 text-sm text-slate-700">
+                        <input
+                          type="checkbox"
+                          className="mt-1 h-4 w-4 rounded border-slate-300 text-brand-green focus:ring-brand-green"
+                          checked={taxConfirmed}
+                          onChange={(e) => setTaxConfirmed(e.target.checked)}
+                        />
+                        <span>I confirm these are my UTR and National Insurance number, entered correctly.</span>
+                      </label>
+                      {taxError ? (
+                        <p className="mt-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+                          {taxError}
+                        </p>
+                      ) : null}
+                      <div className="mt-4 flex flex-wrap gap-3">
+                        <button
+                          type="button"
+                          onClick={() => void saveTaxIds()}
+                          disabled={taxSaving || !taxConfirmed}
+                          className="inline-flex items-center gap-2 rounded-xl bg-brand-green px-5 py-3 text-sm font-bold text-white hover:bg-brand-green-dark disabled:opacity-60"
+                        >
+                          {taxSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                          {taxSaving ? "Locking…" : "Confirm and lock"}
+                        </button>
+                        <button
+                          type="button"
+                          disabled={taxSaving}
+                          onClick={() => {
+                            setTaxStep("enter");
+                            setTaxConfirmed(false);
+                            setTaxError(null);
+                          }}
+                          className="inline-flex rounded-xl border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                        >
+                          Edit details
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-sm text-slate-600">
+                        Enter your UTR and National Insurance number, then confirm them. After that they are locked.
+                      </p>
+                      <div className="mt-4 grid gap-4 sm:grid-cols-2">
                     <div>
                       <label className="block text-sm font-semibold text-slate-800" htmlFor="setup-utr">
                         UTR (10 digits)
@@ -468,13 +540,13 @@ function DashboardSetupWizardInner({
                   ) : null}
                   <button
                     type="button"
-                    onClick={() => void saveTaxIds()}
-                    disabled={taxSaving}
-                    className="mt-4 inline-flex items-center gap-2 rounded-xl bg-brand-green px-5 py-3 text-sm font-bold text-white hover:bg-brand-green-dark disabled:opacity-60"
+                    onClick={goToTaxConfirm}
+                    className="mt-4 inline-flex items-center gap-2 rounded-xl bg-brand-green px-5 py-3 text-sm font-bold text-white hover:bg-brand-green-dark"
                   >
-                    {taxSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                    {taxSaving ? "Saving…" : "Save tax details"}
+                    Continue to confirm
                   </button>
+                    </>
+                  )}
                 </div>
               ) : null}
 

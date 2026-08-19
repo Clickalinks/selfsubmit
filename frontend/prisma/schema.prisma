@@ -73,6 +73,8 @@ model ClientProfile {
   utrEncrypted       String?
   /// AES-256-GCM encrypted at rest when ENCRYPTION_KEY is set
   niNumberEncrypted  String?
+  /// Set when the user confirms UTR + NI; after this they cannot change them in-app
+  taxIdsConfirmedAt  DateTime?
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
 }
