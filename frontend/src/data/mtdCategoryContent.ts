@@ -198,12 +198,13 @@ export const MTD_CATEGORY_CONTENT: MtdCategoryContent[] = [
       "Individuals with UK property income above the MTD threshold, including some joint owners — check how your share of income is counted.",
     whatYouNeedToDo: [
       "Record rent and property expenses digitally.",
-      "Submit quarterly updates for property income.",
-      "Include property profits on your final declaration.",
+      "HMRC expects quarterly updates for property income where you are in MTD — SelfSubmit does not send those property updates yet.",
+      "Include property profits on your final declaration (SelfSubmit does not submit a Final Declaration).",
     ],
     keyPoints: [
       "Furnished holiday lettings and other property types can have different tax rules.",
       "Mortgage interest restrictions still apply — not always a straight deduction.",
+      "SelfSubmit currently files in-year MTD quarterly updates for self-employment only.",
     ],
     hmrcLinks: [
       { label: "GOV.UK — Making Tax Digital for Income Tax", url: "https://www.gov.uk/government/collections/making-tax-digital-for-income-tax-for-businesses-step-by-step" },
