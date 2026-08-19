@@ -36,6 +36,22 @@ export default function BusinessTypesPage() {
                     {group.title}
                   </h2>
                 </div>
+                {group.id === "property" ? (
+                  <p className="mt-3 max-w-3xl text-sm leading-relaxed text-slate-600">
+                    These forms are for keeping digital records of rent and property costs. SelfSubmit does not yet
+                    send UK property or foreign property quarterly updates to HMRC. In-year HMRC filing today is
+                    self-employment only. For property MTD filing see the{" "}
+                    <a
+                      href={GOVUK_MTD_COMPATIBLE_SOFTWARE_FINDER}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-semibold text-brand-green underline underline-offset-2"
+                    >
+                      GOV.UK compatible software list
+                    </a>
+                    .
+                  </p>
+                ) : null}
                 <ul className="mt-5 grid grid-cols-1 gap-2 min-[420px]:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
                   {group.professions.map((profession) => {
                     const Icon = profession.icon;
