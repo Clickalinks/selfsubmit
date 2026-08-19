@@ -38,9 +38,10 @@ export default function BusinessTypesPage() {
                 </div>
                 {group.id === "property" ? (
                   <p className="mt-3 max-w-3xl text-sm leading-relaxed text-slate-600">
-                    These forms are for keeping digital records of rent and property costs. SelfSubmit does not yet
-                    send UK property or foreign property quarterly updates to HMRC. In-year HMRC filing today is
-                    self-employment only. For property MTD filing see the{" "}
+                    Keep rent and property cost records here now. HMRC quarterly filing for UK property income is
+                    planned for a later update, after we receive HMRC production approval for that product. Until
+                    then, in-year HMRC filing through SelfSubmit is self-employment only. For property MTD filing
+                    today, see the{" "}
                     <a
                       href={GOVUK_MTD_COMPATIBLE_SOFTWARE_FINDER}
                       target="_blank"

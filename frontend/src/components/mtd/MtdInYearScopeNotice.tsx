@@ -51,7 +51,8 @@ export function MtdInYearScopeNotice({ className = "" }: { className?: string })
         </li>
         <li>
           <strong className="text-slate-900">UK property / foreign property</strong> MTD API filing is not
-          included in this release. You can still keep records in SelfSubmit; for property MTD filing see the{" "}
+          included in this release. You can keep records in SelfSubmit now; property filing to HMRC is planned
+          after production approval for those APIs. Until then, for property MTD filing see the{" "}
           <a
             href={GOVUK_MTD_COMPATIBLE_SOFTWARE_FINDER}
             target="_blank"
