@@ -5,6 +5,7 @@ import { ArrowRight } from "lucide-react";
 import { SitePageHero, SitePageShell } from "@/components/landing/SitePageShell";
 import { SELF_EMPLOYED_PROFESSION_COUNT } from "@/data/selfEmployedProfessions";
 import { SUPPORTED_BUSINESS_GROUPS } from "@/data/supportedBusinessGroups";
+import { GOVUK_MTD_COMPATIBLE_SOFTWARE_FINDER } from "@/lib/govuk-mtd-links";
 
 export const metadata: Metadata = {
   title: "Supported business types — SelfSubmit",
