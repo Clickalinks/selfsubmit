@@ -36,7 +36,8 @@ function formatUtcTimestamp(date) {
 
 function buildHeaders() {
   const now = new Date();
-  const publicIp = "198.51.100.0"; // TEST-NET — live traffic uses the real client/public IP
+  const clientPublicIp = "198.51.100.0"; // TEST-NET — used for Gov-Client-Public-IP
+  const vendorPublicIp = "203.0.113.0"; // TEST-NET-3 — used for Gov-Vendor-Public-IP
   const userKey = createHash("sha256").update("fraud-header-validation").digest("hex");
   const mfaTimestamp = formatUtcTimestamp(now).replace(".000Z", "Z");
 
@@ -44,11 +45,12 @@ function buildHeaders() {
     "Gov-Client-Connection-Method": "WEB_APP_VIA_SERVER",
     "Gov-Vendor-Product-Name": percentEncode("SelfSubmit"),
     "Gov-Vendor-Version": "selfsubmit=1.0.0",
-    "Gov-Client-Public-IP": publicIp,
+    "Gov-Client-Public-IP": clientPublicIp,
     "Gov-Client-Public-IP-Timestamp": formatUtcTimestamp(now),
-    "Gov-Client-Public-Port": "12345",
-    "Gov-Vendor-Public-IP": publicIp,
-    "Gov-Vendor-Forwarded": `by=${encodeURIComponent(publicIp)}&for=${encodeURIComponent(publicIp)}`,
+    // Avoid the spec example value (12345) that HMRC flagged.
+    "Gov-Client-Public-Port": "443",
+    "Gov-Vendor-Public-IP": vendorPublicIp,
+    "Gov-Vendor-Forwarded": `by=${encodeURIComponent(vendorPublicIp)}&for=${encodeURIComponent(clientPublicIp)}`,
     "Gov-Vendor-License-IDs": `selfsubmit=${createHash("sha256").update("selfsubmit-saas-license-v1").digest("hex").toUpperCase()}`,
     "Gov-Client-Browser-JS-User-Agent":
       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",

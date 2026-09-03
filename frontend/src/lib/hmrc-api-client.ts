@@ -23,7 +23,7 @@ export async function hmrcApiRequest<T>(input: {
   const { apiBase } = getHmrcConfig();
   const accessToken = await getHmrcAccessToken(input.userId);
 
-  const fraudHeaders = buildHmrcFraudPreventionHeaders({
+  const fraudHeaders = await buildHmrcFraudPreventionHeaders({
     request: input.request,
     userId: input.userId,
     userLoginId: input.userLoginId,
