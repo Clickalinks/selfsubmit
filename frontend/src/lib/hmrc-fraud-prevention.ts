@@ -5,8 +5,9 @@ import { getRequestIp } from "@/lib/request-ip";
 
 const PRODUCT_NAME = "SelfSubmit";
 const VENDOR_VERSION = "selfsubmit=1.0.0";
-/** Stable SaaS licence identifier (hashed) for Gov-Vendor-License-IDs. */
-const VENDOR_LICENSE_HASH = createHash("sha256").update("selfsubmit-saas-license-v1").digest("hex").toUpperCase();
+function hashLicenseId(seed: string): string {
+  return createHash("sha256").update(`selfsubmit-licence:${seed}`).digest("hex").toUpperCase();
+}
 
 function percentEncode(value: string): string {
   return encodeURIComponent(value);
@@ -64,21 +65,45 @@ async function getVendorPublicIp(): Promise<string> {
   return fallback;
 }
 
-function getRequestPublicPort(request: Request): string {
-  const xForwardedPort = request.headers.get("x-forwarded-port");
-  if (xForwardedPort) {
-    const n = Number.parseInt(String(xForwardedPort), 10);
-    if (Number.isFinite(n) && n >= 1 && n <= 65535) return String(n);
+function isClientTcpPort(n: number): boolean {
+  // HMRC: must be 1–65535 and must not be a server port (80/443).
+  return Number.isInteger(n) && n >= 1 && n <= 65535 && n !== 80 && n !== 443;
+}
+
+function parsePortCandidate(raw: string | null | undefined): string | null {
+  if (!raw) return null;
+  const trimmed = raw.trim();
+  const hostPort = trimmed.match(/:(\d{2,5})$/);
+  const n = Number.parseInt(hostPort?.[1] ?? trimmed, 10);
+  return isClientTcpPort(n) ? String(n) : null;
+}
+
+/**
+ * Originating-device public TCP source port, if the platform exposes it.
+ * Vercel/edge TLS usually does not — in that case omit the header (do not send 80/443/12345).
+ */
+function getRequestPublicPort(request: Request): string | null {
+  const fromForwardedPort = parsePortCandidate(request.headers.get("x-forwarded-port"));
+  if (fromForwardedPort) return fromForwardedPort;
+
+  const fromRealPort = parsePortCandidate(request.headers.get("x-real-port"));
+  if (fromRealPort) return fromRealPort;
+
+  const forwarded = request.headers.get("forwarded");
+  if (forwarded) {
+    const forMatch = forwarded.match(/for=(?:"?\[?[^\];,"]+\]?)(?::(\d{2,5}))?/i);
+    const n = forMatch?.[1] ? Number.parseInt(forMatch[1], 10) : NaN;
+    if (isClientTcpPort(n)) return String(n);
   }
 
-  const xRealPort = request.headers.get("x-real-port");
-  if (xRealPort) {
-    const n = Number.parseInt(String(xRealPort), 10);
-    if (Number.isFinite(n) && n >= 1 && n <= 65535) return String(n);
+  const xff = request.headers.get("x-forwarded-for");
+  if (xff) {
+    const first = xff.split(",")[0]?.trim() ?? "";
+    const fromXff = parsePortCandidate(first.includes("]:") || first.match(/^\d+\.\d+\.\d+\.\d+:\d+$/) ? first : null);
+    if (fromXff) return fromXff;
   }
 
-  // Avoid the spec example value (12345) that HMRC flagged.
-  return "443";
+  return null;
 }
 
 export async function buildHmrcFraudPreventionHeaders(input: {
@@ -94,19 +119,23 @@ export async function buildHmrcFraudPreventionHeaders(input: {
   const clientPublicPort = getRequestPublicPort(input.request);
   const vendorPublicIp = await getVendorPublicIp();
   const vendorForwarded = `by=${encodeURIComponent(vendorPublicIp)}&for=${encodeURIComponent(clientPublicIp)}`;
+  const licenceSeed = input.userId.trim() || input.userLoginId?.trim() || "anonymous";
 
   const headers: Record<string, string> = {
     "Gov-Client-Connection-Method": "WEB_APP_VIA_SERVER",
     "Gov-Vendor-Product-Name": percentEncode(PRODUCT_NAME),
     "Gov-Vendor-Version": VENDOR_VERSION,
-    "Gov-Vendor-License-IDs": `selfsubmit=${VENDOR_LICENSE_HASH}`,
+    // Per-customer hashed SelfSubmit licence (browser has no local vendor licence file).
+    "Gov-Vendor-License-IDs": `selfsubmit=${hashLicenseId(licenceSeed)}`,
     "Gov-Client-Public-IP": clientPublicIp,
     "Gov-Client-Public-IP-Timestamp": formatUtcTimestamp(now),
-    // Must be the client TCP port, not 80/443 (HMRC FPH validator rejects server ports).
-    "Gov-Client-Public-Port": clientPublicPort,
     "Gov-Vendor-Public-IP": vendorPublicIp,
     "Gov-Vendor-Forwarded": vendorForwarded,
   };
+
+  if (clientPublicPort) {
+    headers["Gov-Client-Public-Port"] = clientPublicPort;
+  }
 
   if (ctx?.browserJsUserAgent) {
     headers["Gov-Client-Browser-JS-User-Agent"] = ctx.browserJsUserAgent;

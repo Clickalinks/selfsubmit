@@ -47,11 +47,11 @@ function buildHeaders() {
     "Gov-Vendor-Version": "selfsubmit=1.0.0",
     "Gov-Client-Public-IP": clientPublicIp,
     "Gov-Client-Public-IP-Timestamp": formatUtcTimestamp(now),
-    // Avoid the spec example value (12345) that HMRC flagged.
-    "Gov-Client-Public-Port": "443",
+    // Client TCP source port (not 80/443). Live traffic omits this when Vercel does not expose it.
+    "Gov-Client-Public-Port": "51234",
     "Gov-Vendor-Public-IP": vendorPublicIp,
     "Gov-Vendor-Forwarded": `by=${encodeURIComponent(vendorPublicIp)}&for=${encodeURIComponent(clientPublicIp)}`,
-    "Gov-Vendor-License-IDs": `selfsubmit=${createHash("sha256").update("selfsubmit-saas-license-v1").digest("hex").toUpperCase()}`,
+    "Gov-Vendor-License-IDs": `selfsubmit=${createHash("sha256").update("selfsubmit-licence:fraud-header-validation").digest("hex").toUpperCase()}`,
     "Gov-Client-Browser-JS-User-Agent":
       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
     "Gov-Client-Device-ID": "00000000-0000-4000-8000-000000000001",
