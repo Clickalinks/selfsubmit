@@ -40,7 +40,10 @@ body {
 }
 
 @media print {
+  html,
   body {
+    overflow: visible !important;
+    height: auto !important;
     background: white !important;
   }
 
@@ -50,11 +53,16 @@ body {
 
   .submission-print-root {
     color: #111;
+    overflow: visible !important;
+  }
+
+  .submission-print-root .overflow-x-auto {
+    overflow: visible !important;
   }
 
   aside,
-  header,
-  nav {
+  nav,
+  header:not(.submission-print-keep) {
     display: none !important;
   }
 }

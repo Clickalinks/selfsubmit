@@ -36,6 +36,14 @@ type ReceiptRow = {
   uploadedAt: string;
 };
 
+type MonthlyBreakdown = {
+  id: string;
+  periodFrom: string;
+  periodTo: string;
+  income: LineItem[];
+  expenses: LineItem[];
+};
+
 type SubmissionDetailData = {
   id: string;
   trade: string;
@@ -51,8 +59,24 @@ type SubmissionDetailData = {
   hmrcMessage: string | null;
   submittedAt: string;
   payload: SubmissionPayload | null;
+  income?: LineItem[];
+  expenses?: LineItem[];
+  monthlyBreakdown?: MonthlyBreakdown[];
   receipts: ReceiptRow[];
 };
+
+function asLineItems(value: unknown): LineItem[] {
+  if (!Array.isArray(value)) return [];
+  return value.flatMap((item, index) => {
+    if (!item || typeof item !== "object") return [];
+    const rec = item as Record<string, unknown>;
+    const label = typeof rec.label === "string" ? rec.label : "";
+    const amount = rec.amount == null ? "" : String(rec.amount);
+    const id = typeof rec.id === "string" && rec.id ? rec.id : `line-${index}`;
+    if (!label && !amount) return [];
+    return [{ id, label: label || `Line ${index + 1}`, amount }];
+  });
+}
 
 function isSandboxQuarterlySubmission(data: SubmissionDetailData): boolean {
   return data.submissionType === "quarterly_hmrc_sandbox" || data.status === "sandbox_submitted";
@@ -108,6 +132,15 @@ function formatUkDate(iso: string): string {
 
 function formatMoney(n: number): string {
   return `£${n.toFixed(2)}`;
+}
+
+function formatLineAmount(amount: string): string {
+  const trimmed = amount.trim();
+  if (!trimmed) return "—";
+  if (trimmed.startsWith("£")) return trimmed;
+  const n = Number.parseFloat(trimmed.replace(/,/g, ""));
+  if (Number.isFinite(n)) return formatMoney(n);
+  return trimmed;
 }
 
 function isImageMime(mime: string | null) {
@@ -192,9 +225,13 @@ export function SubmissionDetail({ submissionId }: { submissionId: string }) {
 
   const sandboxSubmission = isSandboxQuarterlySubmission(data);
   const sandboxSummary = sandboxSubmission ? getSandboxSummaryLines(data.payload) : null;
-  const incomeLines = sandboxSummary?.income ?? data.payload?.income ?? [];
-  const expenseLines = sandboxSummary?.expenses ?? data.payload?.expenses ?? [];
+  const monthlyBreakdown = data.monthlyBreakdown ?? [];
+  const incomeFromRecord = asLineItems(data.income?.length ? data.income : data.payload?.income);
+  const expensesFromRecord = asLineItems(data.expenses?.length ? data.expenses : data.payload?.expenses);
+  const incomeLines = incomeFromRecord.length > 0 ? incomeFromRecord : (sandboxSummary?.income ?? []);
+  const expenseLines = expensesFromRecord.length > 0 ? expensesFromRecord : (sandboxSummary?.expenses ?? []);
   const recordKindLabel = getRecordKindLabel(data);
+  const showMonthlyBreakdown = sandboxSubmission && monthlyBreakdown.length > 0;
 
   return (
     <article className="submission-print-root space-y-6">
@@ -216,7 +253,7 @@ export function SubmissionDetail({ submissionId }: { submissionId: string }) {
         </button>
       </div>
 
-      <header className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+      <header className="submission-print-keep rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
         <p className="text-xs font-bold uppercase tracking-wider text-brand-green">{recordKindLabel}</p>
         <h1 className="mt-1 text-xl font-bold text-slate-900 sm:text-2xl">{data.trade}</h1>
         <p className="mt-2 text-sm text-slate-600">
@@ -264,24 +301,36 @@ export function SubmissionDetail({ submissionId }: { submissionId: string }) {
 
       {sandboxSummary?.meta ? (
         <p className="rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-900">
-          {sandboxSummary.meta}. This cumulative quarterly summary was sent to the HMRC sandbox — not individual
-          monthly line items.
+          {sandboxSummary.meta}. HMRC received these cumulative totals
+          {showMonthlyBreakdown ? " — line-by-line income and expenses from your monthly records are listed below." : "."}
         </p>
       ) : null}
 
-      <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-        <h2 className="text-base font-bold text-slate-900">
-          {sandboxSubmission ? "Income (cumulative)" : "Income"}
-        </h2>
-        <LineTable lines={incomeLines} emptyLabel="No income lines recorded." />
-      </section>
+      {showMonthlyBreakdown ? (
+        monthlyBreakdown.map((block) => (
+          <section key={block.id} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <h2 className="text-base font-bold text-slate-900">
+              Monthly record {formatUkDate(block.periodFrom)} – {formatUkDate(block.periodTo)}
+            </h2>
+            <h3 className="mt-4 text-sm font-semibold uppercase tracking-wide text-slate-500">Income</h3>
+            <LineTable lines={asLineItems(block.income)} emptyLabel="No income lines recorded." />
+            <h3 className="mt-6 text-sm font-semibold uppercase tracking-wide text-slate-500">Expenses</h3>
+            <LineTable lines={asLineItems(block.expenses)} emptyLabel="No expense lines recorded." />
+          </section>
+        ))
+      ) : (
+        <>
+          <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <h2 className="text-base font-bold text-slate-900">Income</h2>
+            <LineTable lines={incomeLines} emptyLabel="No income lines recorded." />
+          </section>
 
-      <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-        <h2 className="text-base font-bold text-slate-900">
-          {sandboxSubmission ? "Expenses (cumulative)" : "Expenses"}
-        </h2>
-        <LineTable lines={expenseLines} emptyLabel="No expense lines recorded." />
-      </section>
+          <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <h2 className="text-base font-bold text-slate-900">Expenses</h2>
+            <LineTable lines={expenseLines} emptyLabel="No expense lines recorded." />
+          </section>
+        </>
+      )}
 
       {data.receipts.length > 0 ? (
         <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -334,12 +383,13 @@ function SummaryCard({ label, value, accent }: { label: string; value: string; a
 }
 
 function LineTable({ lines, emptyLabel }: { lines: LineItem[]; emptyLabel: string }) {
-  if (lines.length === 0) {
+  const rows = asLineItems(lines);
+  if (rows.length === 0) {
     return <p className="mt-3 text-sm text-slate-500">{emptyLabel}</p>;
   }
 
   return (
-    <div className="mt-3 overflow-x-auto">
+    <div className="mt-3 overflow-x-auto print:overflow-visible">
       <table className="min-w-full text-left text-sm">
         <thead className="text-xs font-semibold uppercase tracking-wide text-slate-500">
           <tr>
@@ -348,10 +398,12 @@ function LineTable({ lines, emptyLabel }: { lines: LineItem[]; emptyLabel: strin
           </tr>
         </thead>
         <tbody>
-          {lines.map((line) => (
-            <tr key={line.id} className="border-t border-slate-100">
+          {rows.map((line, index) => (
+            <tr key={`${line.id}-${index}`} className="border-t border-slate-100">
               <td className="py-2 pr-4 text-slate-800">{line.label}</td>
-              <td className="py-2 text-right tabular-nums font-medium text-slate-900">{line.amount || "—"}</td>
+              <td className="py-2 text-right tabular-nums font-medium text-slate-900">
+                {formatLineAmount(line.amount)}
+              </td>
             </tr>
           ))}
         </tbody>

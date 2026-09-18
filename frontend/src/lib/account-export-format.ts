@@ -18,6 +18,63 @@ export type BusinessExport = {
 
 export type LineItem = { label: string; amount: string };
 
+export type SubmissionLineItem = { id: string; label: string; amount: string };
+
+function asRecord(value: unknown): Record<string, unknown> | null {
+  return value !== null && typeof value === "object" && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : null;
+}
+
+/** Prisma TEXT is a string; JSON/JSONB or double-encoded values may already be objects. */
+export function parsePayloadJsonValue(raw: unknown): Record<string, unknown> | null {
+  if (raw == null) return null;
+  const direct = asRecord(raw);
+  if (direct) return direct;
+  if (typeof raw !== "string") return null;
+  const trimmed = raw.trim();
+  if (!trimmed) return null;
+  try {
+    let value: unknown = JSON.parse(trimmed);
+    if (typeof value === "string") {
+      try {
+        value = JSON.parse(value);
+      } catch {
+        // keep the inner string
+      }
+    }
+    return asRecord(value);
+  } catch {
+    return null;
+  }
+}
+
+function lineAmount(item: Record<string, unknown>): string {
+  const raw = item.amount ?? item.value ?? item.amountGbp ?? item.gbp;
+  if (typeof raw === "number" && Number.isFinite(raw)) return String(raw);
+  if (typeof raw === "string") return raw;
+  return "";
+}
+
+function lineLabel(item: Record<string, unknown>, fallback: string): string {
+  const raw = item.label ?? item.name ?? item.description ?? item.id;
+  if (typeof raw === "string" && raw.trim()) return raw.trim();
+  return fallback;
+}
+
+export function normalizePayloadLines(items: unknown): SubmissionLineItem[] {
+  if (!Array.isArray(items)) return [];
+  return items.flatMap((item, index) => {
+    if (typeof item === "number" && Number.isFinite(item)) {
+      return [{ id: `line-${index}`, label: `Line ${index + 1}`, amount: String(item) }];
+    }
+    const rec = asRecord(item);
+    if (!rec) return [];
+    const id = typeof rec.id === "string" && rec.id.trim() ? rec.id.trim() : `line-${index}`;
+    return [{ id, label: lineLabel(rec, `Line ${index + 1}`), amount: lineAmount(rec) }];
+  });
+}
+
 export type SubmissionExport = {
   trade: string;
   periodFrom: string;
@@ -100,16 +157,10 @@ export function submissionArchiveName(submission: SubmissionExport): string {
 }
 
 export function parseSubmissionPayload(payloadJson: string): { income: LineItem[]; expenses: LineItem[] } {
-  try {
-    const payload = JSON.parse(payloadJson) as {
-      income?: { label: string; amount: string }[];
-      expenses?: { label: string; amount: string }[];
-    };
-    return {
-      income: (payload.income ?? []).map((item) => ({ label: item.label, amount: item.amount })),
-      expenses: (payload.expenses ?? []).map((item) => ({ label: item.label, amount: item.amount })),
-    };
-  } catch {
-    return { income: [], expenses: [] };
-  }
+  const payload = parsePayloadJsonValue(payloadJson);
+  if (!payload) return { income: [], expenses: [] };
+  return {
+    income: normalizePayloadLines(payload.income).map(({ label, amount }) => ({ label, amount })),
+    expenses: normalizePayloadLines(payload.expenses).map(({ label, amount }) => ({ label, amount })),
+  };
 }

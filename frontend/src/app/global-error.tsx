@@ -4,6 +4,8 @@ import * as Sentry from "@sentry/nextjs";
 import Link from "next/link";
 import { useEffect } from "react";
 
+import { isStaleDeploymentServerActionError } from "@/lib/sentry-filters";
+
 export default function GlobalError({
   error,
   reset,
@@ -12,8 +14,22 @@ export default function GlobalError({
   reset: () => void;
 }) {
   useEffect(() => {
+    if (isStaleDeploymentServerActionError(error)) {
+      window.location.reload();
+      return;
+    }
     Sentry.captureException(error);
   }, [error]);
+
+  if (isStaleDeploymentServerActionError(error)) {
+    return (
+      <html lang="en-GB">
+        <body className="m-0 font-sans antialiased">
+          <p className="px-6 py-12 text-center text-sm text-neutral-600">Refreshing…</p>
+        </body>
+      </html>
+    );
+  }
 
   return (
     <html lang="en-GB">

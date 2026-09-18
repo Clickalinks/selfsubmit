@@ -1421,6 +1421,17 @@ export function MonthlyExpenseForm({
       {showConfirm ? (
         <ConfirmDialog
           periodSummaryUk={periodSummaryUk}
+          incomeLines={visibleIncomeItems.map((li) => ({
+            label: li.label,
+            amount: incomeRows[li.id]?.amount ?? "",
+          }))}
+          expenseLines={visibleExpenseItems.map((li) => ({
+            label: li.label,
+            amount: expenseRows[li.id]?.amount ?? "",
+          }))}
+          totalIncome={totals?.income ?? liveTotals.income}
+          totalExpenses={totals?.expenses ?? liveTotals.expenses}
+          netProfit={totals?.net ?? liveTotals.net}
           onCancel={() => setShowConfirm(false)}
           onConfirm={confirmSubmit}
         />
@@ -1521,10 +1532,20 @@ function LedgerRow({
 
 function ConfirmDialog({
   periodSummaryUk,
+  incomeLines,
+  expenseLines,
+  totalIncome,
+  totalExpenses,
+  netProfit,
   onCancel,
   onConfirm,
 }: {
   periodSummaryUk: string;
+  incomeLines: { label: string; amount: string }[];
+  expenseLines: { label: string; amount: string }[];
+  totalIncome: number;
+  totalExpenses: number;
+  netProfit: number;
   onCancel: () => void;
   onConfirm: () => void | Promise<void>;
 }) {
@@ -1546,7 +1567,7 @@ function ConfirmDialog({
         role="dialog"
         aria-modal="true"
         aria-labelledby="confirm-title"
-        className="max-w-md rounded-2xl border border-black/10 bg-white p-6 shadow-xl"
+        className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-black/10 bg-white p-6 shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
         <h2 id="confirm-title" className="text-lg font-bold text-brand-black">
@@ -1558,6 +1579,22 @@ function ConfirmDialog({
             <strong className="tabular-nums">{periodSummaryUk}</strong>
           </p>
         ) : null}
+        <ConfirmLineList title="Income" lines={incomeLines} />
+        <ConfirmLineList title="Expenses" lines={expenseLines} />
+        <dl className="mt-4 grid gap-2 rounded-lg border border-black/10 bg-neutral-50 px-3 py-3 text-sm">
+          <div className="flex justify-between gap-4">
+            <dt className="text-brand-muted">Total income</dt>
+            <dd className="font-semibold tabular-nums text-brand-black">{formatMoney(totalIncome)}</dd>
+          </div>
+          <div className="flex justify-between gap-4">
+            <dt className="text-brand-muted">Total expenses</dt>
+            <dd className="font-semibold tabular-nums text-brand-black">{formatMoney(totalExpenses)}</dd>
+          </div>
+          <div className="flex justify-between gap-4">
+            <dt className="text-brand-muted">Net (profit)</dt>
+            <dd className="font-bold tabular-nums text-brand-green">{formatMoney(netProfit)}</dd>
+          </div>
+        </dl>
         <p className="mt-3 text-sm leading-relaxed text-brand-muted">
           This saves your monthly record in SelfSubmit. After saving, you will <strong className="text-brand-black">not</strong> be
           able to change these figures from this form. Please confirm you have reviewed every amount.
@@ -1579,6 +1616,27 @@ function ConfirmDialog({
           </button>
         </div>
       </div>
+    </div>
+  );
+}
+
+function ConfirmLineList({ title, lines }: { title: string; lines: { label: string; amount: string }[] }) {
+  return (
+    <div className="mt-4">
+      <h3 className="text-sm font-semibold text-brand-black">{title}</h3>
+      <ul className="mt-2 divide-y divide-black/5 rounded-lg border border-black/10">
+        {lines.map((line, index) => {
+          const parsed = parseAmount(line.amount);
+          return (
+            <li key={`${title}-${index}-${line.label}`} className="flex items-start justify-between gap-3 px-3 py-2 text-sm">
+              <span className="text-brand-black">{line.label}</span>
+              <span className="shrink-0 tabular-nums font-medium text-brand-black">
+                {parsed.ok ? formatMoney(parsed.value) : "—"}
+              </span>
+            </li>
+          );
+        })}
+      </ul>
     </div>
   );
 }

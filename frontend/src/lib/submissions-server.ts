@@ -169,3 +169,31 @@ export async function getSubmissionForUser(userId: string, submissionId: string)
     },
   });
 }
+
+/** Monthly records that rolled into a cumulative quarterly HMRC update. */
+export async function listMonthlyRecordsInPeriod(input: {
+  userId: string;
+  businessId: string | null;
+  trade: string;
+  periodFrom: Date;
+  periodTo: Date;
+}) {
+  return prisma.submission.findMany({
+    where: {
+      userId: input.userId,
+      submissionType: "monthly_return",
+      periodFrom: { gte: input.periodFrom },
+      periodTo: { lte: input.periodTo },
+      OR: input.businessId
+        ? [{ businessId: input.businessId }, { businessId: null, trade: input.trade }]
+        : [{ trade: input.trade }],
+    },
+    orderBy: { periodFrom: "asc" },
+    select: {
+      id: true,
+      periodFrom: true,
+      periodTo: true,
+      payloadJson: true,
+    },
+  });
+}
