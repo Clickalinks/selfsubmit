@@ -1,4 +1,5 @@
 import { mkdir } from "node:fs/promises";
+import { spawnSync } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
@@ -37,3 +38,24 @@ await sharp(source)
   .png()
   .toFile(path.join(root, "src", "app", "apple-icon.png"));
 console.log("Updated src/app/apple-icon.png (180x180)");
+
+const icoScript = `
+from pathlib import Path
+from shutil import copyfile
+from PIL import Image
+root = Path(r${JSON.stringify(root)})
+src = Image.open(root / "public" / "brand" / "selfsubmit-logo.png").convert("RGBA")
+img = src.resize((256, 256), Image.Resampling.LANCZOS)
+public_ico = root / "public" / "favicon.ico"
+app_ico = root / "src" / "app" / "favicon.ico"
+img.save(public_ico, format="ICO", sizes=[(16, 16), (32, 32), (48, 48)])
+copyfile(public_ico, app_ico)
+print("Wrote public/favicon.ico and src/app/favicon.ico")
+`.trim();
+
+const icoResult = spawnSync("python", ["-c", icoScript], { encoding: "utf8" });
+if (icoResult.status !== 0) {
+  console.error(icoResult.stderr || icoResult.stdout || "favicon.ico generation failed");
+  process.exit(1);
+}
+console.log((icoResult.stdout || "").trim());
