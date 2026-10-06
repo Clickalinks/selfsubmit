@@ -1,7 +1,11 @@
 import { createHash } from "crypto";
 
+import { getCloudflareEdgeInfo } from "@/lib/cloudflare-edge";
 import type { HmrcFraudClientContext } from "@/lib/hmrc-fraud-context";
 import { getRequestIp } from "@/lib/request-ip";
+
+/** Vercel's public ingress IP — the `by` of the Cloudflare → Vercel hop. */
+const DEFAULT_VERCEL_ORIGIN_IP = "216.150.1.1";
 
 const PRODUCT_NAME = "SelfSubmit";
 const VENDOR_VERSION = "selfsubmit=1.0.0";
@@ -112,13 +116,20 @@ export async function buildHmrcFraudPreventionHeaders(input: {
   userLoginId?: string | null;
   fraudContext?: HmrcFraudClientContext | null;
 }): Promise<Record<string, string>> {
+  const edge = getCloudflareEdgeInfo(input.request);
   const clientIp = getRequestIp(input.request);
   const now = new Date();
   const ctx = input.fraudContext;
   const clientPublicIp = clientIp !== "unknown" ? clientIp : "198.51.100.0";
-  const clientPublicPort = getRequestPublicPort(input.request);
-  const vendorPublicIp = await getVendorPublicIp();
-  const vendorForwarded = `by=${encodeURIComponent(vendorPublicIp)}&for=${encodeURIComponent(clientPublicIp)}`;
+  const clientPublicPort = edge?.clientPort ?? getRequestPublicPort(input.request);
+  const vendorPublicIp = edge?.edgeIp ?? (await getVendorPublicIp());
+
+  const hops = [`by=${encodeURIComponent(vendorPublicIp)}&for=${encodeURIComponent(clientPublicIp)}`];
+  if (edge?.proxyEgressIp) {
+    const originIp = process.env.HMRC_VENDOR_ORIGIN_IP?.trim() || DEFAULT_VERCEL_ORIGIN_IP;
+    hops.push(`by=${encodeURIComponent(originIp)}&for=${encodeURIComponent(edge.proxyEgressIp)}`);
+  }
+  const vendorForwarded = hops.join(",");
   const licenceSeed = input.userId.trim() || input.userLoginId?.trim() || "anonymous";
 
   const headers: Record<string, string> = {
