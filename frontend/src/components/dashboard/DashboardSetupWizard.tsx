@@ -553,7 +553,7 @@ function DashboardSetupWizardInner({
               {isExpanded && step.id === 5 ? (
                 <div className="mt-4 border-t border-brand-green/10 pt-4">
                   <p className="text-sm text-slate-600">
-                    Sign in with your HMRC sandbox test user on GOV.UK. We will link it to{" "}
+                    Sign in with your HMRC Government Gateway on GOV.UK. We will link it to{" "}
                     <span className="font-semibold">{activeBusinessName ?? "your business"}</span> automatically when
                     possible.
                   </p>

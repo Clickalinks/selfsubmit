@@ -7,7 +7,6 @@ import { Check, ExternalLink, Link2, Loader2, Unlink } from "lucide-react";
 
 import { DashboardCard } from "@/components/dashboard/DashboardCard";
 import { collectHmrcFraudContext, ensureHmrcFraudContext } from "@/lib/hmrc-fraud-client";
-import { HMRC_LIVE_FILING_ENABLED } from "@/lib/hmrc-filing-status";
 
 type HmrcStatus = {
   connected: boolean;
@@ -40,8 +39,11 @@ function formatDate(iso: string): string {
 }
 
 function formatHmrcObligationsError(message: string): string {
+  if (/MATCHING_RESOURCE_NOT_FOUND|NO_OBLIGATIONS|not found/i.test(message)) {
+    return "HMRC has no open quarterly obligations for this tax year yet. If Making Tax Digital starts in a later year, keep saving monthly records until then.";
+  }
   if (/not authorised/i.test(message)) {
-    return `${message} For sandbox testing, the NI number saved on HMRC connect must exactly match the HMRC test user you connected with. Update your UTR or NI number, then try Fetch obligations again.`;
+    return `${message} The National Insurance number on this page must match the Government Gateway account you connected.`;
   }
   return message;
 }
@@ -172,17 +174,12 @@ export function HmrcConnectionSection() {
     }
   };
 
-  const sandboxMode = !HMRC_LIVE_FILING_ENABLED;
   const canConnect = status?.oauthConfigured && status?.configured;
 
   return (
     <DashboardCard
       title="HMRC account"
-      description={
-        sandboxMode
-          ? "Connect your HMRC sandbox test user to verify OAuth and view obligations. Live filing is not enabled yet."
-          : "Connect your HMRC account for Making Tax Digital."
-      }
+      description="Connect your HMRC account to view obligations and link your business. Quarterly filing to HMRC is not enabled yet."
     >
       {loading ? (
         <p className="flex items-center gap-2 text-sm text-slate-500">
@@ -212,11 +209,6 @@ export function HmrcConnectionSection() {
               {status.connected ? <Check className="h-3 w-3" /> : null}
               {status.connected ? "Connected" : "Not connected"}
             </span>
-            {sandboxMode ? (
-              <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-900">
-                Sandbox
-              </span>
-            ) : null}
           </div>
 
           {status.connected && status.connectedAt ? (
@@ -232,8 +224,8 @@ export function HmrcConnectionSection() {
             </p>
           ) : (
             <p>
-              Authorise SelfSubmit to access your self-assessment data via HMRC. You will sign in on GOV.UK (sandbox
-              test user for now).
+              Authorise SelfSubmit to access your self-assessment data via HMRC. You will sign in on GOV.UK with
+              your Government Gateway.
             </p>
           )}
 

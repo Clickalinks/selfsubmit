@@ -35,22 +35,27 @@ export async function GET(request: Request) {
   const clerkUser = await currentUser();
   const userLoginId = clerkUser?.primaryEmailAddress?.emailAddress ?? null;
 
-  const result = await fetchIncomeAndExpenditureObligations({
-    userId,
-    request,
-    nino: taxIds.niNumber,
-    fraudContext,
-    userLoginId,
-  });
+  try {
+    const result = await fetchIncomeAndExpenditureObligations({
+      userId,
+      request,
+      nino: taxIds.niNumber,
+      fraudContext,
+      userLoginId,
+    });
 
-  if ("error" in result) {
-    return NextResponse.json({ error: result.error }, { status: 502 });
+    if ("error" in result) {
+      return NextResponse.json({ error: result.error }, { status: 502 });
+    }
+
+    const businessId = new URL(request.url).searchParams.get("businessId")?.trim();
+    const obligations = businessId
+      ? result.obligations.filter((row) => row.businessId === businessId)
+      : result.obligations;
+
+    return NextResponse.json({ obligations });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Could not fetch obligations from HMRC.";
+    return NextResponse.json({ error: message }, { status: 502 });
   }
-
-  const businessId = new URL(request.url).searchParams.get("businessId")?.trim();
-  const obligations = businessId
-    ? result.obligations.filter((row) => row.businessId === businessId)
-    : result.obligations;
-
-  return NextResponse.json({ obligations });
 }

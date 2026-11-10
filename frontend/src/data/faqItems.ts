@@ -21,7 +21,7 @@ export const FAQ_ITEMS: FaqItem[] = [
     id: "hmrc-filing",
     question: "Does SelfSubmit file directly with HMRC?",
     answer:
-      "SelfSubmit supports Making Tax Digital quarterly updates for self-employment (in-year) when your HMRC account is connected. We always show clearly when a submission is a draft, sandbox test, or live filing. Live production filing depends on HMRC approving this software for that use.",
+      "SelfSubmit connects to HMRC so you can link your self-employment business and keep digital records for Making Tax Digital. We always show clearly when a submission is a draft or a live filing. Live quarterly filing will be switched on after a controlled rollout. SelfSubmit is not described as HMRC recognised, approved or certified.",
   },
   {
     id: "uk-property",

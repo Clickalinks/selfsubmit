@@ -233,13 +233,13 @@ export function HmrcSandboxStatusCard({
     <section className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm sm:p-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.15em] text-slate-400">HMRC sandbox</p>
+          <p className="text-xs font-bold uppercase tracking-[0.15em] text-slate-400">HMRC</p>
           <h2 className="mt-1 text-lg font-bold text-slate-900">Filing readiness</h2>
         </div>
         {hmrcSandboxReady ? (
           <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800">
             <Check className="h-3.5 w-3.5" />
-            Ready for sandbox submit
+            {sandboxFilingEnabled ? "Ready for sandbox submit" : "Connected"}
           </span>
         ) : (
           <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-900">
@@ -433,8 +433,7 @@ export function HmrcSandboxStatusCard({
             </div>
           ) : (
             <p className="mt-2 text-xs text-slate-500">
-              Sandbox quarterly submission will appear here once enabled on the server (
-              <code className="text-[11px]">HMRC_SANDBOX_FILING_ENABLED=true</code>).
+              Keep saving monthly records. Live quarterly filing to HMRC is not enabled yet.
             </p>
           )}
         </div>
@@ -442,7 +441,7 @@ export function HmrcSandboxStatusCard({
         <p className="mt-4 text-sm text-slate-600">
           {hmrcConnected && anyBusinessHmrcLinked && !activeBusinessHmrcId
             ? "Switch to your linked business using the business switcher, or link this business on HMRC connect."
-            : "Connect HMRC and link a business to prepare for sandbox filing."}{" "}
+            : "Connect HMRC and link a business to prepare for quarterly updates."}{" "}
           <Link href="/dashboard/hmrc-connect" className="font-semibold text-brand-green hover:underline">
             Open HMRC connect
           </Link>

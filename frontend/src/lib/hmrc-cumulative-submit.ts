@@ -1,5 +1,6 @@
 import { hmrcApiRequest } from "@/lib/hmrc-api-client";
 import { getHmrcConfig } from "@/lib/hmrc-config";
+import { HMRC_LIVE_FILING_ENABLED } from "@/lib/hmrc-filing-status";
 import type { HmrcFraudClientContext } from "@/lib/hmrc-fraud-context";
 import type { HmrcCumulativeUpdateBody } from "@/lib/hmrc-quarterly-mapper";
 
@@ -71,6 +72,10 @@ export async function submitHmrcCumulativeQuarterlyUpdate(input: {
   const nino = input.nino.replace(/\s/g, "").toUpperCase();
   const path = cumulativePath(nino, input.businessId, input.taxYear);
   const sandbox = isSandboxApiBase();
+
+  if (!sandbox && !HMRC_LIVE_FILING_ENABLED) {
+    return { error: "Live HMRC filing is not enabled." };
+  }
 
   const result = await hmrcApiRequest<Record<string, never>>({
     userId: input.userId,

@@ -106,7 +106,7 @@ export function HmrcBusinessLinkSection() {
       setHmrcBusinesses(data.businesses ?? []);
       setHmrcDetails(data.details ?? []);
       if ((data.businesses ?? []).length === 0) {
-        setMessage("HMRC returned no businesses for your test user.");
+        setMessage("HMRC returned no Making Tax Digital businesses for this account yet.");
       } else {
         const detailCount = data.details?.length ?? 0;
         setMessage(
@@ -173,7 +173,7 @@ export function HmrcBusinessLinkSection() {
     return (
       <DashboardCard
         title="HMRC business link"
-        description="Connect your HMRC account above before linking a business for sandbox quarterly updates."
+        description="Connect your HMRC account above before linking a business."
       >
         <p className="text-sm text-slate-600">Available after HMRC account connection.</p>
       </DashboardCard>
@@ -185,7 +185,7 @@ export function HmrcBusinessLinkSection() {
   return (
     <DashboardCard
       title="HMRC business link"
-      description="Link one of your SelfSubmit businesses to the matching HMRC income source. Required before sandbox quarterly submission (Phase 3)."
+      description="Link one of your SelfSubmit businesses to the matching HMRC income source."
     >
       {message ? (
         <p className="mb-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">

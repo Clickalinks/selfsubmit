@@ -29,8 +29,8 @@ export const MTD_PLATFORM_FEATURES = [
   },
   {
     label: "Production HMRC filing",
-    status: "planned" as const,
-    detail: "Live submissions to HMRC production following API recognition.",
+    status: "in_development" as const,
+    detail: "HMRC production APIs are approved. Live quarterly submit will be turned on after a controlled pilot.",
   },
   {
     label: "Final Declaration (end of year)",

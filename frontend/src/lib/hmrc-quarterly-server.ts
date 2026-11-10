@@ -5,6 +5,7 @@ import {
   type HmrcCumulativeRetrieved,
 } from "@/lib/hmrc-cumulative-submit";
 import { getHmrcConnectionStatus } from "@/lib/hmrc-connection-server";
+import { getHmrcConfig } from "@/lib/hmrc-config";
 import { isHmrcSandboxFilingEnabled } from "@/lib/hmrc-filing-status";
 import type { HmrcFraudClientContext } from "@/lib/hmrc-fraud-context";
 import { buildQuarterlyPreview, type QuarterlyPreview } from "@/lib/hmrc-quarterly-mapper";
@@ -18,6 +19,10 @@ export async function assertSandboxQuarterlyReady(
 ): Promise<{ nino: string; hmrcBusinessId: string; businessCategory: string }> {
   if (!isHmrcSandboxFilingEnabled()) {
     throw new Error("HMRC sandbox filing is not enabled on this server.");
+  }
+
+  if (!getHmrcConfig().apiBase.includes("test-api.service.hmrc.gov.uk")) {
+    throw new Error("Sandbox filing cannot run against the production HMRC API.");
   }
 
   const connection = await getHmrcConnectionStatus(userId);

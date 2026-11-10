@@ -76,6 +76,14 @@ export async function fetchIncomeAndExpenditureObligations(input: {
   });
 
   if (!result.ok) {
+    const notFound =
+      result.error.status === 404 ||
+      /MATCHING_RESOURCE_NOT_FOUND|NO_OBLIGATIONS|NOT_FOUND/i.test(
+        `${result.error.code} ${result.error.message}`,
+      );
+    if (notFound) {
+      return { obligations: [] };
+    }
     return { error: result.error.message };
   }
 
