@@ -38,10 +38,9 @@ export default function BusinessTypesPage() {
                 </div>
                 {group.id === "property" ? (
                   <p className="mt-3 max-w-3xl text-sm leading-relaxed text-slate-600">
-                    Keep rent and property cost records here now. HMRC quarterly filing for UK property income is
-                    planned for a later update, after we receive HMRC production approval for that product. Until
-                    then, in-year HMRC filing through SelfSubmit is self-employment only. For property MTD filing
-                    today, see the{" "}
+                    Keep rent and property cost records here now. You can link a UK property HMRC income source so
+                    quarterly totals can be prepared. Live quarterly submit to HMRC is not enabled yet. For other MTD
+                    products, see the{" "}
                     <a
                       href={GOVUK_MTD_COMPATIBLE_SOFTWARE_FINDER}
                       target="_blank"

@@ -28,6 +28,11 @@ export const MTD_PLATFORM_FEATURES = [
     detail: "Preview, submit, and retrieve cumulative self-employment quarterly updates when HMRC is connected.",
   },
   {
+    label: "UK Property HMRC quarterly filing",
+    status: "planned" as const,
+    detail: "Landlord records are in SelfSubmit. Link a UK property HMRC income source and prepare cumulative quarterly updates. Live submit stays off until the controlled pilot.",
+  },
+  {
     label: "Production HMRC filing",
     status: "in_development" as const,
     detail: "HMRC production APIs are approved. Live quarterly submit will be turned on after a controlled pilot.",

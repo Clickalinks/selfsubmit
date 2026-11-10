@@ -1,8 +1,13 @@
 import { prisma } from "@/lib/db";
 import { currentUkTaxYearLabel, taxYearStartIso } from "@/lib/hmrc-tax-year";
+import {
+  hmrcIncomeSourceLabel,
+  resolveHmrcIncomeSource,
+  type HmrcIncomeSource,
+} from "@/lib/hmrc-income-source";
 import { getCurrentQuarter } from "@/lib/mtd-quarters";
 
-export type HmrcCumulativeUpdateBody = {
+export type HmrcSelfEmploymentCumulativeBody = {
   periodDates: {
     periodStartDate: string;
     periodEndDate: string;
@@ -16,10 +21,27 @@ export type HmrcCumulativeUpdateBody = {
   };
 };
 
+export type HmrcUkPropertyCumulativeBody = {
+  fromDate: string;
+  toDate: string;
+  ukProperty: {
+    income: {
+      periodAmount: number;
+    };
+    expenses: {
+      consolidatedExpenses: number;
+    };
+  };
+};
+
+export type HmrcCumulativeUpdateBody = HmrcSelfEmploymentCumulativeBody | HmrcUkPropertyCumulativeBody;
+
 export type QuarterlyPreview = {
   taxYear: string;
   periodStartDate: string;
   periodEndDate: string;
+  incomeSource: HmrcIncomeSource;
+  incomeSourceLabel: string;
   turnover: number;
   otherIncome: number;
   consolidatedExpenses: number;
@@ -50,6 +72,12 @@ function toIsoDate(d: Date): string {
   return `${y}-${m}-${day}`;
 }
 
+export function isUkPropertyCumulativeBody(
+  body: HmrcCumulativeUpdateBody,
+): body is HmrcUkPropertyCumulativeBody {
+  return "ukProperty" in body;
+}
+
 export async function buildQuarterlyPreview(input: {
   userId: string;
   businessId: string;
@@ -65,11 +93,16 @@ export async function buildQuarterlyPreview(input: {
 
   const business = await prisma.business.findFirst({
     where: { id: input.businessId, userId: input.userId },
-    select: { id: true, category: true },
+    select: { id: true, category: true, hmrcTypeOfBusiness: true },
   });
   if (!business) {
     throw new Error("Business not found");
   }
+
+  const incomeSource = resolveHmrcIncomeSource({
+    category: business.category,
+    hmrcTypeOfBusiness: business.hmrcTypeOfBusiness,
+  });
 
   // Only monthly records feed HMRC cumulative totals — never re-sum prior quarterly submits.
   const submissions = await prisma.submission.findMany({
@@ -117,24 +150,36 @@ export async function buildQuarterlyPreview(input: {
   consolidatedExpenses = roundMoney(consolidatedExpenses);
   const netProfit = roundMoney(turnover + otherIncome - consolidatedExpenses);
 
-  const hmrcPayload: HmrcCumulativeUpdateBody = {
-    periodDates: {
-      periodStartDate,
-      periodEndDate,
-    },
-    periodIncome: {
-      turnover,
-      other: otherIncome,
-    },
-    periodExpenses: {
-      consolidatedExpenses,
-    },
-  };
+  const hmrcPayload: HmrcCumulativeUpdateBody =
+    incomeSource === "uk-property"
+      ? {
+          fromDate: periodStartDate,
+          toDate: periodEndDate,
+          ukProperty: {
+            income: { periodAmount: turnover },
+            expenses: { consolidatedExpenses },
+          },
+        }
+      : {
+          periodDates: {
+            periodStartDate,
+            periodEndDate,
+          },
+          periodIncome: {
+            turnover,
+            other: otherIncome,
+          },
+          periodExpenses: {
+            consolidatedExpenses,
+          },
+        };
 
   return {
     taxYear,
     periodStartDate,
     periodEndDate,
+    incomeSource,
+    incomeSourceLabel: hmrcIncomeSourceLabel(incomeSource),
     turnover,
     otherIncome,
     consolidatedExpenses,

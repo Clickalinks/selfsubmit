@@ -127,7 +127,7 @@ function DashboardSetupWizardInner({
     } else if (setup === "link-multiple") {
       setBanner({
         tone: "info",
-        text: "HMRC returned more than one self-employment business. Use HMRC connect → business link to choose the right one.",
+        text: "HMRC returned more than one matching income source. Use HMRC connect → business link to choose the right one.",
       });
       router.replace("/dashboard", { scroll: false });
     } else if (setup === "hmrc-error") {
@@ -584,8 +584,8 @@ function DashboardSetupWizardInner({
                   ) : (
                     <>
                       <p className="text-sm text-slate-600">
-                        If HMRC returns exactly one self-employment business, SelfSubmit links it to your business
-                        automatically.
+                        If HMRC returns exactly one matching income source (self-employment or UK property), SelfSubmit
+                        links it to this business automatically.
                       </p>
                       <button
                         type="button"

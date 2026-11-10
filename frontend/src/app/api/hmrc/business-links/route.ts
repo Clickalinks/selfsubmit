@@ -1,9 +1,12 @@
-import { auth } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
+import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
 import { linkBusinessToHmrc, listLocalBusinessHmrcLinks } from "@/lib/hmrc-business-server";
-import { isValidHmrcBusinessId } from "@/lib/hmrc-business-details";
+import { fetchHmrcBusinessDetails, isValidHmrcBusinessId } from "@/lib/hmrc-business-details";
 import { hmrcRateLimitOrNull } from "@/lib/hmrc-api-rate-limit";
+import { readFraudContextCookie } from "@/lib/hmrc-fraud-context";
+import { getDecryptedTaxIds } from "@/lib/tax-ids-server";
 
 export async function GET() {
   const { userId } = await auth();
@@ -37,6 +40,7 @@ export async function PATCH(request: Request) {
   const b = body as Record<string, unknown>;
   const businessId = typeof b.businessId === "string" ? b.businessId.trim() : "";
   const hmrcBusinessIdRaw = b.hmrcBusinessId;
+  const typeOfBusinessRaw = b.typeOfBusiness;
 
   if (!businessId) {
     return NextResponse.json({ error: "businessId is required." }, { status: 400 });
@@ -54,8 +58,33 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: "hmrcBusinessId must be a string or null." }, { status: 400 });
   }
 
+  let typeOfBusiness =
+    typeof typeOfBusinessRaw === "string" && typeOfBusinessRaw.trim()
+      ? typeOfBusinessRaw.trim()
+      : null;
+
+  if (hmrcBusinessId && !typeOfBusiness) {
+    const taxIds = await getDecryptedTaxIds(userId);
+    if (taxIds.niNumber) {
+      const cookieStore = await cookies();
+      const fraudContext = readFraudContextCookie(cookieStore.get("hmrc_fp_ctx")?.value);
+      const clerkUser = await currentUser();
+      const retrieved = await fetchHmrcBusinessDetails({
+        userId,
+        request,
+        nino: taxIds.niNumber,
+        businessId: hmrcBusinessId,
+        fraudContext,
+        userLoginId: clerkUser?.primaryEmailAddress?.emailAddress ?? null,
+      });
+      if (!("error" in retrieved) && retrieved.details.typeOfBusiness) {
+        typeOfBusiness = retrieved.details.typeOfBusiness;
+      }
+    }
+  }
+
   try {
-    const business = await linkBusinessToHmrc(userId, businessId, hmrcBusinessId);
+    const business = await linkBusinessToHmrc(userId, businessId, hmrcBusinessId, typeOfBusiness);
     return NextResponse.json({ ok: true, business });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Could not save link.";

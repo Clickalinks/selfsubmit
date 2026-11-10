@@ -1,18 +1,31 @@
 import { prisma } from "@/lib/db";
 import { isValidHmrcBusinessId } from "@/lib/hmrc-business-details";
+import {
+  assertHmrcLinkCompatible,
+  expectedHmrcTypeOfBusiness,
+} from "@/lib/hmrc-income-source";
 
 export type LocalBusinessHmrcLink = {
   id: string;
   name: string;
   category: string;
   hmrcBusinessId: string | null;
+  hmrcTypeOfBusiness: string | null;
 };
+
+const LINK_SELECT = {
+  id: true,
+  name: true,
+  category: true,
+  hmrcBusinessId: true,
+  hmrcTypeOfBusiness: true,
+} as const;
 
 export async function listLocalBusinessHmrcLinks(userId: string): Promise<LocalBusinessHmrcLink[]> {
   return prisma.business.findMany({
     where: { userId },
     orderBy: { createdAt: "asc" },
-    select: { id: true, name: true, category: true, hmrcBusinessId: true },
+    select: LINK_SELECT,
   });
 }
 
@@ -20,6 +33,7 @@ export async function linkBusinessToHmrc(
   userId: string,
   businessId: string,
   hmrcBusinessId: string | null,
+  typeOfBusiness?: string | null,
 ): Promise<LocalBusinessHmrcLink> {
   const business = await prisma.business.findFirst({
     where: { id: businessId, userId },
@@ -34,17 +48,27 @@ export async function linkBusinessToHmrc(
     throw new Error("Invalid HMRC business ID format.");
   }
 
+  const normalizedType = typeOfBusiness?.trim() || null;
+  if (normalizedHmrcId) {
+    assertHmrcLinkCompatible(business.category, normalizedType);
+  }
+
   if (normalizedHmrcId) {
     await prisma.business.updateMany({
       where: { userId, hmrcBusinessId: normalizedHmrcId, NOT: { id: businessId } },
-      data: { hmrcBusinessId: null },
+      data: { hmrcBusinessId: null, hmrcTypeOfBusiness: null },
     });
   }
 
   return prisma.business.update({
     where: { id: businessId },
-    data: { hmrcBusinessId: normalizedHmrcId },
-    select: { id: true, name: true, category: true, hmrcBusinessId: true },
+    data: {
+      hmrcBusinessId: normalizedHmrcId,
+      hmrcTypeOfBusiness: normalizedHmrcId
+        ? normalizedType ?? expectedHmrcTypeOfBusiness(business.category)
+        : null,
+    },
+    select: LINK_SELECT,
   });
 }
 

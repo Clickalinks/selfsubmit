@@ -15,7 +15,7 @@ export const FAQ_ITEMS: FaqItem[] = [
     id: "who-is-it-for",
     question: "Who is SelfSubmit for?",
     answer:
-      "Anyone who is self-employed and needs straightforward monthly record-keeping with profession-specific expense categories — from tradespeople and drivers to freelancers. Landlords can keep rental records in SelfSubmit too; HMRC quarterly filing for UK property is planned after production approval. You choose your trade when you add a business so the form matches how you work.",
+      "Anyone who is self-employed and needs straightforward monthly record-keeping with profession-specific expense categories — from tradespeople and drivers to freelancers. Landlords can keep rental records in SelfSubmit and link a UK property HMRC income source. Live quarterly submit stays off until a controlled rollout. You choose your trade when you add a business so the form matches how you work.",
   },
   {
     id: "hmrc-filing",
@@ -27,7 +27,7 @@ export const FAQ_ITEMS: FaqItem[] = [
     id: "uk-property",
     question: "Can I file UK property or landlord income to HMRC?",
     answer:
-      "You can keep rent and property cost records in SelfSubmit now. HMRC quarterly filing for UK property (and foreign property) is planned for a later update, after we receive HMRC production approval for that product. Until then, in-year HMRC filing through SelfSubmit is self-employment only. For property MTD filing today, use HMRC’s compatible software list on GOV.UK.",
+      "You can keep rent and property cost records in SelfSubmit now, and link a UK property HMRC income source so quarterly totals can be prepared the same way as self-employment. Live quarterly submit to HMRC is not enabled yet. Foreign property filing is not available. Until live submit is on, you can also use HMRC’s compatible software list on GOV.UK.",
   },
   {
     id: "mtd-income-tax",
@@ -51,7 +51,7 @@ export const FAQ_ITEMS: FaqItem[] = [
     id: "included-features",
     question: "What is included in every plan?",
     answer:
-      "Every plan includes income and expense tracking, receipt and CSV uploads, monthly records for MTD, deadline reminders, submission history, secure document storage, email support, and mobile-friendly access. In-year HMRC quarterly updates for self-employment are available when your HMRC account is connected.",
+      "Every plan includes income and expense tracking, receipt and CSV uploads, monthly records for MTD, deadline reminders, submission history, secure document storage, email support, and mobile-friendly access. In-year HMRC quarterly updates for self-employment and UK property can be prepared when your HMRC account is connected. Live submit stays off until the controlled rollout.",
   },
   {
     id: "trial",

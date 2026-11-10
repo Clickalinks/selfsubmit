@@ -8,6 +8,7 @@ import { getHmrcConnectionStatus } from "@/lib/hmrc-connection-server";
 import { getHmrcConfig } from "@/lib/hmrc-config";
 import { isHmrcSandboxFilingEnabled } from "@/lib/hmrc-filing-status";
 import type { HmrcFraudClientContext } from "@/lib/hmrc-fraud-context";
+import { resolveHmrcIncomeSource, type HmrcIncomeSource } from "@/lib/hmrc-income-source";
 import { buildQuarterlyPreview, type QuarterlyPreview } from "@/lib/hmrc-quarterly-mapper";
 import { currentUkTaxYearLabel } from "@/lib/hmrc-tax-year";
 import { assertQuarterlySubmitWindowOpen } from "@/lib/quarterly-submit-window";
@@ -16,7 +17,12 @@ import { getDecryptedTaxIds } from "@/lib/tax-ids-server";
 export async function assertSandboxQuarterlyReady(
   userId: string,
   businessId: string,
-): Promise<{ nino: string; hmrcBusinessId: string; businessCategory: string }> {
+): Promise<{
+  nino: string;
+  hmrcBusinessId: string;
+  businessCategory: string;
+  incomeSource: HmrcIncomeSource;
+}> {
   if (!isHmrcSandboxFilingEnabled()) {
     throw new Error("HMRC sandbox filing is not enabled on this server.");
   }
@@ -37,7 +43,7 @@ export async function assertSandboxQuarterlyReady(
 
   const business = await prisma.business.findFirst({
     where: { id: businessId, userId },
-    select: { hmrcBusinessId: true, category: true },
+    select: { hmrcBusinessId: true, category: true, hmrcTypeOfBusiness: true },
   });
   if (!business) {
     throw new Error("Business not found");
@@ -50,6 +56,10 @@ export async function assertSandboxQuarterlyReady(
     nino: taxIds.niNumber,
     hmrcBusinessId: business.hmrcBusinessId,
     businessCategory: business.category,
+    incomeSource: resolveHmrcIncomeSource({
+      category: business.category,
+      hmrcTypeOfBusiness: business.hmrcTypeOfBusiness,
+    }),
   };
 }
 
@@ -94,6 +104,7 @@ export async function submitSandboxQuarterlyUpdate(input: {
     nino: ready.nino,
     businessId: ready.hmrcBusinessId,
     taxYear: preview.taxYear,
+    incomeSource: ready.incomeSource,
     body: preview.hmrcPayload,
     fraudContext: input.fraudContext,
     userLoginId: input.userLoginId,
@@ -110,6 +121,7 @@ export async function submitSandboxQuarterlyUpdate(input: {
     nino: ready.nino,
     businessId: ready.hmrcBusinessId,
     taxYear: preview.taxYear,
+    incomeSource: ready.incomeSource,
     fraudContext: input.fraudContext,
     userLoginId: input.userLoginId,
   });
@@ -140,7 +152,7 @@ export async function submitSandboxQuarterlyUpdate(input: {
       netProfitGbp: preview.netProfit,
       hmrcReference: result.reference,
       hmrcStatus: "accepted",
-      hmrcMessage: `Submitted to HMRC sandbox (cumulative quarterly update).${retrieveNote}`,
+      hmrcMessage: `Submitted to HMRC sandbox (${ready.incomeSource} cumulative quarterly update).${retrieveNote}`,
     },
   });
 
@@ -169,6 +181,7 @@ export async function retrieveSandboxQuarterlySummary(input: {
     nino: ready.nino,
     businessId: ready.hmrcBusinessId,
     taxYear,
+    incomeSource: ready.incomeSource,
     fraudContext: input.fraudContext,
     userLoginId: input.userLoginId,
   });

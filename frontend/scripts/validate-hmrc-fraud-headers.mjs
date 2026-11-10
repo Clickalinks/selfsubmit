@@ -7,7 +7,7 @@
  *
  * Prereqs:
  * 1. Sandbox app "SelfSubmit" subscribed to "Test Fraud Prevention Headers"
- * 2. Same sandbox app subscribed to Obligations / Self Employment / Business Details
+ * 2. Same sandbox app subscribed to Obligations / Self Employment / Business Details / Property Business
  * 3. HMRC_CLIENT_ID / HMRC_CLIENT_SECRET / HMRC_API_BASE in .env.local (sandbox)
  *
  * Run from frontend/:
@@ -136,6 +136,7 @@ async function runFeedback(token) {
   const apis = [
     "obligations-mtd",
     "self-employment-business-mtd",
+    "property-business-mtd",
     "business-details-mtd",
   ];
 

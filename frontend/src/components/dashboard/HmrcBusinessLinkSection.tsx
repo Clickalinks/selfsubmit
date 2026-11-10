@@ -5,12 +5,14 @@ import { Building2, Check, Link2, Loader2, Unlink } from "lucide-react";
 
 import { DashboardCard } from "@/components/dashboard/DashboardCard";
 import { ensureHmrcFraudContext } from "@/lib/hmrc-fraud-client";
+import { expectedHmrcTypeOfBusiness } from "@/lib/hmrc-income-source";
 
 type LocalBusinessLink = {
   id: string;
   name: string;
   category: string;
   hmrcBusinessId: string | null;
+  hmrcTypeOfBusiness?: string | null;
 };
 
 type HmrcBusinessRow = {
@@ -115,8 +117,10 @@ export function HmrcBusinessLinkSection() {
             : `Loaded ${data.businesses!.length} HMRC business(es).`,
         );
         if (!selectedHmrcId && data.businesses?.[0]) {
-          const selfEmployment = data.businesses.find((b) => b.typeOfBusiness === "self-employment");
-          setSelectedHmrcId(selfEmployment?.businessId ?? data.businesses[0].businessId);
+          const local = localBusinesses.find((b) => b.id === selectedBusinessId);
+          const wanted = local ? expectedHmrcTypeOfBusiness(local.category) : "self-employment";
+          const preferred = data.businesses.find((b) => b.typeOfBusiness === wanted);
+          setSelectedHmrcId(preferred?.businessId ?? data.businesses[0].businessId);
         }
       }
     } catch {
@@ -135,10 +139,15 @@ export function HmrcBusinessLinkSection() {
     setError(null);
     setMessage(null);
     try {
+      const hmrcType = hmrcBusinesses?.find((b) => b.businessId === hmrcBusinessId)?.typeOfBusiness ?? null;
       const res = await fetch("/api/hmrc/business-links", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ businessId: selectedBusinessId, hmrcBusinessId }),
+        body: JSON.stringify({
+          businessId: selectedBusinessId,
+          hmrcBusinessId,
+          typeOfBusiness: hmrcType,
+        }),
       });
       const data = (await res.json().catch(() => ({}))) as { error?: string };
       if (!res.ok) {
@@ -185,7 +194,7 @@ export function HmrcBusinessLinkSection() {
   return (
     <DashboardCard
       title="HMRC business link"
-      description="Link one of your SelfSubmit businesses to the matching HMRC income source."
+      description="Link a SelfSubmit trade to a self-employment HMRC source, or a landlord business to a UK property HMRC source."
     >
       {message ? (
         <p className="mb-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
@@ -216,6 +225,7 @@ export function HmrcBusinessLinkSection() {
                   <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-800">
                     <Check className="h-3 w-3" />
                     {business.hmrcBusinessId}
+                    {business.hmrcTypeOfBusiness ? ` · ${business.hmrcTypeOfBusiness.replace(/-/g, " ")}` : ""}
                   </span>
                 ) : (
                   <span className="rounded-full bg-slate-200 px-2 py-0.5 text-xs font-medium text-slate-600">
@@ -285,7 +295,8 @@ export function HmrcBusinessLinkSection() {
               />
             )}
             <p className="mt-1 text-xs text-slate-500">
-              Load from HMRC or paste the ID from your obligations table (self-employment IDs start with XBIS).
+              Load from HMRC or paste the ID from your obligations table. Self-employment IDs often start with XBIS;
+              UK property IDs often start with XPIS.
             </p>
           </div>
         </div>

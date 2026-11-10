@@ -211,7 +211,8 @@ export async function getMtdDashboardSnapshot(
     todayMessage = "Connect your HMRC account to link your business.";
     todayTone = "info";
   } else if (!activeBusinessHmrcId) {
-    todayMessage = "Link your business to HMRC — this happens automatically when HMRC returns one self-employment business.";
+    todayMessage =
+      "Link your business to HMRC — this happens automatically when HMRC returns one matching income source.";
     todayTone = "info";
   } else if (pendingQuarter && now.getTime() > pendingQuarter.deadline.getTime()) {
     todayMessage = `Your ${pendingQuarter.label} update is overdue — submit it as soon as you can.`;

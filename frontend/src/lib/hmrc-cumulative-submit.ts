@@ -2,7 +2,11 @@ import { hmrcApiRequest } from "@/lib/hmrc-api-client";
 import { getHmrcConfig } from "@/lib/hmrc-config";
 import { HMRC_LIVE_FILING_ENABLED } from "@/lib/hmrc-filing-status";
 import type { HmrcFraudClientContext } from "@/lib/hmrc-fraud-context";
-import type { HmrcCumulativeUpdateBody } from "@/lib/hmrc-quarterly-mapper";
+import type { HmrcIncomeSource } from "@/lib/hmrc-income-source";
+import {
+  isUkPropertyCumulativeBody,
+  type HmrcCumulativeUpdateBody,
+} from "@/lib/hmrc-quarterly-mapper";
 
 export type HmrcCumulativeRetrieved = {
   periodDates: {
@@ -34,8 +38,36 @@ export type HmrcCumulativeRetrieved = {
   };
 };
 
-function cumulativePath(nino: string, businessId: string, taxYear: string): string {
+type PropertyCumulativeRetrieved = {
+  fromDate?: string;
+  toDate?: string;
+  ukProperty?: {
+    income?: {
+      periodAmount?: number;
+      otherIncome?: number;
+    };
+    expenses?: {
+      consolidatedExpenses?: number;
+    };
+  };
+};
+
+function selfEmploymentCumulativePath(nino: string, businessId: string, taxYear: string): string {
   return `/individuals/business/self-employment/${encodeURIComponent(nino)}/${encodeURIComponent(businessId)}/cumulative/${encodeURIComponent(taxYear)}`;
+}
+
+function ukPropertyCumulativePath(nino: string, businessId: string, taxYear: string): string {
+  return `/individuals/business/property/uk/${encodeURIComponent(nino)}/${encodeURIComponent(businessId)}/cumulative/${encodeURIComponent(taxYear)}`;
+}
+
+function acceptForSource(source: HmrcIncomeSource): string {
+  return source === "uk-property" ? "application/vnd.hmrc.6.0+json" : "application/vnd.hmrc.5.0+json";
+}
+
+function pathForSource(source: HmrcIncomeSource, nino: string, businessId: string, taxYear: string): string {
+  return source === "uk-property"
+    ? ukPropertyCumulativePath(nino, businessId, taxYear)
+    : selfEmploymentCumulativePath(nino, businessId, taxYear);
 }
 
 function isSandboxApiBase(): boolean {
@@ -59,18 +91,49 @@ function formatHmrcError(code: string, message: string): string {
   return `${code}: ${message}`;
 }
 
+function periodReference(body: HmrcCumulativeUpdateBody): string {
+  if (isUkPropertyCumulativeBody(body)) {
+    return `${body.fromDate}_${body.toDate}`;
+  }
+  return `${body.periodDates.periodStartDate}_${body.periodDates.periodEndDate}`;
+}
+
+function normalizePropertyRetrieved(data: PropertyCumulativeRetrieved): HmrcCumulativeRetrieved {
+  return {
+    periodDates: {
+      periodStartDate: data.fromDate ?? "",
+      periodEndDate: data.toDate ?? "",
+    },
+    periodIncome: {
+      turnover: data.ukProperty?.income?.periodAmount,
+      other: data.ukProperty?.income?.otherIncome,
+    },
+    periodExpenses: {
+      consolidatedExpenses: data.ukProperty?.expenses?.consolidatedExpenses,
+    },
+  };
+}
+
 export async function submitHmrcCumulativeQuarterlyUpdate(input: {
   userId: string;
   request: Request;
   nino: string;
   businessId: string;
   taxYear: string;
+  incomeSource: HmrcIncomeSource;
   body: HmrcCumulativeUpdateBody;
   fraudContext?: HmrcFraudClientContext | null;
   userLoginId?: string | null;
 }): Promise<{ reference: string } | { error: string }> {
+  if (input.incomeSource === "uk-property" && !isUkPropertyCumulativeBody(input.body)) {
+    return { error: "UK property submit received a self-employment payload." };
+  }
+  if (input.incomeSource === "self-employment" && isUkPropertyCumulativeBody(input.body)) {
+    return { error: "Self-employment submit received a UK property payload." };
+  }
+
   const nino = input.nino.replace(/\s/g, "").toUpperCase();
-  const path = cumulativePath(nino, input.businessId, input.taxYear);
+  const path = pathForSource(input.incomeSource, nino, input.businessId, input.taxYear);
   const sandbox = isSandboxApiBase();
 
   if (!sandbox && !HMRC_LIVE_FILING_ENABLED) {
@@ -85,8 +148,7 @@ export async function submitHmrcCumulativeQuarterlyUpdate(input: {
     body: input.body,
     fraudContext: input.fraudContext,
     userLoginId: input.userLoginId,
-    accept: "application/vnd.hmrc.5.0+json",
-    // STATEFUL needs a Test Support API business — omit by default so sandbox DEFAULT succeeds.
+    accept: acceptForSource(input.incomeSource),
     govTestScenario: sandbox && wantStatefulSandbox() ? "STATEFUL" : undefined,
   });
 
@@ -94,8 +156,7 @@ export async function submitHmrcCumulativeQuarterlyUpdate(input: {
     return { error: formatHmrcError(result.error.code, result.error.message) };
   }
 
-  const reference = `${input.body.periodDates.periodStartDate}_${input.body.periodDates.periodEndDate}`;
-  return { reference };
+  return { reference: periodReference(input.body) };
 }
 
 /** Retrieve the cumulative period summary held by HMRC for this tax year (In-Year checklist). */
@@ -105,29 +166,31 @@ export async function retrieveHmrcCumulativeQuarterlyUpdate(input: {
   nino: string;
   businessId: string;
   taxYear: string;
+  incomeSource: HmrcIncomeSource;
   fraudContext?: HmrcFraudClientContext | null;
   userLoginId?: string | null;
 }): Promise<{ summary: HmrcCumulativeRetrieved } | { error: string; status?: number }> {
   const nino = input.nino.replace(/\s/g, "").toUpperCase();
-  const path = cumulativePath(nino, input.businessId, input.taxYear);
+  const path = pathForSource(input.incomeSource, nino, input.businessId, input.taxYear);
   const sandbox = isSandboxApiBase();
 
-  // Sandbox: CONSOLIDATED_EXPENSES returns a success body so Retrieve + FPH can be evidenced.
-  // Production: no Gov-Test-Scenario (real HMRC data after live submit).
-  // Optional STATEFUL when HMRC_SANDBOX_STATEFUL=true and Test Support business is used.
   let scenario: string | undefined;
   if (sandbox) {
-    scenario = wantStatefulSandbox() ? "STATEFUL" : "CONSOLIDATED_EXPENSES";
+    if (wantStatefulSandbox()) {
+      scenario = "STATEFUL";
+    } else if (input.incomeSource === "self-employment") {
+      scenario = "CONSOLIDATED_EXPENSES";
+    }
   }
 
-  const result = await hmrcApiRequest<HmrcCumulativeRetrieved>({
+  const result = await hmrcApiRequest<HmrcCumulativeRetrieved & PropertyCumulativeRetrieved>({
     userId: input.userId,
     request: input.request,
     path,
     method: "GET",
     fraudContext: input.fraudContext,
     userLoginId: input.userLoginId,
-    accept: "application/vnd.hmrc.5.0+json",
+    accept: acceptForSource(input.incomeSource),
     govTestScenario: scenario,
   });
 
@@ -136,6 +199,10 @@ export async function retrieveHmrcCumulativeQuarterlyUpdate(input: {
       error: formatHmrcError(result.error.code, result.error.message),
       status: result.error.status,
     };
+  }
+
+  if (input.incomeSource === "uk-property") {
+    return { summary: normalizePropertyRetrieved(result.data) };
   }
 
   return { summary: result.data };

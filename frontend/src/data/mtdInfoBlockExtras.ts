@@ -132,7 +132,7 @@ export const MTD_INFO_BLOCK_EXTRAS: Record<string, MtdInfoBlockExtras> = {
       "Missing allowable repairs because receipts were personal",
     ],
     selfSubmitTip:
-      "Landlords can keep rent and expense records in SelfSubmit now. HMRC quarterly filing for UK property (and foreign property) is planned for a later update, after HMRC production approval for those APIs. Until then, in-year filing through SelfSubmit is self-employment only — for property MTD filing today, use HMRC’s compatible software list.",
+      "Landlords can keep rent and expense records in SelfSubmit now and link a UK property HMRC income source. Live quarterly submit stays off until the controlled pilot. Foreign property filing is not available yet.",
   },
   "hmrc-approved-software": {
     cardIntro:

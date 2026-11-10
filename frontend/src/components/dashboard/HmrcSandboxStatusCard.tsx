@@ -18,6 +18,8 @@ type QuarterlyPreview = {
   taxYear: string;
   periodStartDate: string;
   periodEndDate: string;
+  incomeSource?: "self-employment" | "uk-property";
+  incomeSourceLabel?: string;
   turnover: number;
   otherIncome: number;
   consolidatedExpenses: number;
@@ -333,6 +335,12 @@ export function HmrcSandboxStatusCard({
               {preview ? (
                 <dl className="grid gap-2 text-sm sm:grid-cols-2">
                   <div>
+                    <dt className="text-slate-500">Income source</dt>
+                    <dd className="font-medium text-slate-900">
+                      {preview.incomeSourceLabel ?? "Self-employment"}
+                    </dd>
+                  </div>
+                  <div>
                     <dt className="text-slate-500">Tax year</dt>
                     <dd className="font-medium text-slate-900">{preview.taxYear}</dd>
                   </div>
@@ -343,7 +351,11 @@ export function HmrcSandboxStatusCard({
                     </dd>
                   </div>
                   <div>
-                    <dt className="text-slate-500">Turnover (cumulative)</dt>
+                    <dt className="text-slate-500">
+                      {preview.incomeSource === "uk-property"
+                        ? "Rental income (cumulative)"
+                        : "Turnover (cumulative)"}
+                    </dt>
                     <dd className="font-medium text-slate-900">{formatGbp(preview.turnover)}</dd>
                   </div>
                   <div>

@@ -63,10 +63,11 @@ export async function POST(request: Request) {
     }
 
     const messages: Record<typeof result.reason, string> = {
-      no_business: "HMRC did not return a self-employment business for your account.",
+      no_business:
+        "HMRC did not return a matching income source for this business (self-employment or UK property).",
       multiple:
-        "HMRC returned more than one self-employment business. Link manually on HMRC connect.",
-      api_error: "Could not load businesses from HMRC. Check your NI number matches your HMRC test user.",
+        "HMRC returned more than one matching income source. Link manually on HMRC connect.",
+      api_error: "Could not load businesses from HMRC. Check your NI number matches your HMRC account.",
       missing_nino: "Add your National Insurance number before linking.",
       not_found: "Could not link this business.",
     };

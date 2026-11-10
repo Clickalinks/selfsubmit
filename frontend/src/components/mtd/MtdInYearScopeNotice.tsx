@@ -22,8 +22,10 @@ export function MtdInYearScopeNotice({ className = "" }: { className?: string })
       <ul className="mt-2 list-disc space-y-1.5 pl-5 leading-relaxed">
         <li>
           <strong className="text-slate-900">In-year MTD for Income Tax</strong> for{" "}
-          <strong className="text-slate-900">self-employment</strong>: digital records, obligations, and
-          cumulative quarterly updates to HMRC when your account is connected.
+          <strong className="text-slate-900">self-employment</strong> and{" "}
+          <strong className="text-slate-900">UK property</strong>: digital records, obligations, and
+          cumulative quarterly updates when your HMRC account is connected. Live submit to HMRC stays off until
+          the controlled pilot.
         </li>
         <li>
           SelfSubmit does <strong className="text-slate-900">not yet submit a Final Declaration</strong> or
@@ -50,9 +52,9 @@ export function MtdInYearScopeNotice({ className = "" }: { className?: string })
           that supports Final Declaration.
         </li>
         <li>
-          <strong className="text-slate-900">UK property / foreign property</strong> MTD API filing is not
-          included in this release. You can keep records in SelfSubmit now; property filing to HMRC is planned
-          after production approval for those APIs. Until then, for property MTD filing see the{" "}
+          <strong className="text-slate-900">Foreign property</strong> HMRC filing is not available yet. You can
+          keep UK landlord records in SelfSubmit now and link a UK property income source. Until live submit is
+          on, for other MTD products see the{" "}
           <a
             href={GOVUK_MTD_COMPATIBLE_SOFTWARE_FINDER}
             target="_blank"

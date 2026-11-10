@@ -87,6 +87,8 @@ model Business {
   category       String
   /// HMRC income-source business ID (e.g. XBIS12345678901) when linked for MTD filing
   hmrcBusinessId String?
+  /// HMRC typeOfBusiness at link time (self-employment | uk-property). Used to pick the cumulative API.
+  hmrcTypeOfBusiness String?
   createdAt      DateTime @default(now())
 
   @@index([userId])

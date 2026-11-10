@@ -1,6 +1,8 @@
 import { fetchHmrcBusinessDetails, fetchHmrcBusinessList } from "@/lib/hmrc-business-details";
 import { linkBusinessToHmrc } from "@/lib/hmrc-business-server";
+import { prisma } from "@/lib/db";
 import type { HmrcFraudClientContext } from "@/lib/hmrc-fraud-context";
+import { expectedHmrcTypeOfBusiness } from "@/lib/hmrc-income-source";
 import { getDecryptedTaxIds } from "@/lib/tax-ids-server";
 
 export type HmrcAutoLinkResult =
@@ -19,6 +21,16 @@ export async function autoLinkHmrcBusinessForUser(input: {
     return { linked: false, reason: "missing_nino" };
   }
 
+  const local = await prisma.business.findFirst({
+    where: { id: input.businessId, userId: input.userId },
+    select: { category: true },
+  });
+  if (!local) {
+    return { linked: false, reason: "not_found" };
+  }
+
+  const wantedType = expectedHmrcTypeOfBusiness(local.category);
+
   const callCtx = {
     userId: input.userId,
     request: input.request,
@@ -33,14 +45,13 @@ export async function autoLinkHmrcBusinessForUser(input: {
     return { linked: false, reason: "api_error" };
   }
 
-  const selfEmployment = list.businesses.filter((b) => b.typeOfBusiness === "self-employment");
-  if (selfEmployment.length !== 1) {
-    return { linked: false, reason: selfEmployment.length === 0 ? "no_business" : "multiple" };
+  const matches = list.businesses.filter((b) => b.typeOfBusiness === wantedType);
+  if (matches.length !== 1) {
+    return { linked: false, reason: matches.length === 0 ? "no_business" : "multiple" };
   }
 
-  const hmrcBusinessId = selfEmployment[0].businessId;
+  const hmrcBusinessId = matches[0].businessId;
 
-  // HMRC production sample check requires Retrieve Business Details (not only List).
   const retrieved = await fetchHmrcBusinessDetails({
     ...callCtx,
     businessId: hmrcBusinessId,
@@ -50,7 +61,12 @@ export async function autoLinkHmrcBusinessForUser(input: {
   }
 
   try {
-    await linkBusinessToHmrc(input.userId, input.businessId, hmrcBusinessId);
+    await linkBusinessToHmrc(
+      input.userId,
+      input.businessId,
+      hmrcBusinessId,
+      retrieved.details.typeOfBusiness || wantedType,
+    );
     return { linked: true, hmrcBusinessId };
   } catch {
     return { linked: false, reason: "not_found" };
