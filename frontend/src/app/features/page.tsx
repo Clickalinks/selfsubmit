@@ -9,7 +9,7 @@ import { ALL_PLAN_FEATURES, SITE_FEATURE_GROUPS } from "@/data/siteFeatures";
 export const metadata: Metadata = {
   title: "Features — SelfSubmit",
     description:
-    "Income and expense tracking, receipt uploads, MTD record-keeping, deadline reminders, and secure storage for UK self-employed people.",
+    "Income and expense tracking, receipt uploads, MTD record-keeping, deadline reminders, and secure storage for UK self-employed people and landlords.",
 };
 
 export default function FeaturesPage() {
@@ -18,7 +18,7 @@ export default function FeaturesPage() {
       <SitePageHero
         eyebrow="Product"
         title="Core MTD record-keeping and submission features"
-        description="SelfSubmit brings together monthly digital records, receipt storage, deadline reminders, and HMRC quarterly updates for UK sole traders."
+        description="SelfSubmit brings together monthly digital records, receipt storage, deadline reminders, and HMRC quarterly updates for UK sole traders and landlords."
       />
 
       <div className="mx-auto max-w-[1400px] px-5 py-12 sm:px-8 sm:py-16 lg:px-10">

@@ -1,3 +1,5 @@
+import { selfSubmitHmrcRecognitionCopy } from "@/lib/hmrc-software-choices";
+
 export type FaqItem = {
   id: string;
   question: string;
@@ -21,13 +23,13 @@ export const FAQ_ITEMS: FaqItem[] = [
     id: "hmrc-filing",
     question: "Does SelfSubmit file directly with HMRC?",
     answer:
-      "SelfSubmit connects to HMRC so you can link your self-employment business and keep digital records for Making Tax Digital. We always show clearly when a submission is a draft or a live filing. Live quarterly filing will be switched on after a controlled rollout. SelfSubmit is not described as HMRC recognised, approved or certified.",
+      `SelfSubmit connects to HMRC so you can link your self-employment business and keep digital records for Making Tax Digital. We always show clearly when a submission is a draft or a live filing. Live quarterly filing will be switched on after a controlled rollout. ${selfSubmitHmrcRecognitionCopy()}`,
   },
   {
     id: "uk-property",
     question: "Can I file UK property or landlord income to HMRC?",
     answer:
-      "You can keep rent and property cost records in SelfSubmit now, and link a UK property HMRC income source so quarterly totals can be prepared the same way as self-employment. Live quarterly submit to HMRC is not enabled yet. Foreign property filing is not available. Until live submit is on, you can also use HMRC’s compatible software list on GOV.UK.",
+      "Yes. UK property is included in SelfSubmit now: keep rent and property costs, link a UK property HMRC income source, and prepare quarterly totals the same way as self-employment. Live quarterly submit to HMRC stays off until the controlled pilot. Foreign property filing is not available.",
   },
   {
     id: "mtd-income-tax",

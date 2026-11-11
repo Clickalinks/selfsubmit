@@ -108,7 +108,14 @@ const nextConfig: NextConfig = {
     return [{ source: "/(.*)", headers: securityHeaders }];
   },
   async redirects() {
-    return [{ source: "/mtd", destination: "/#mtd-info-blocks", permanent: true }];
+    return [
+      { source: "/mtd", destination: "/#mtd-info-blocks", permanent: true },
+      {
+        source: "/mtd/hmrc-approved-software",
+        destination: "/mtd/mtd-compatible-software",
+        permanent: true,
+      },
+    ];
   },
 };
 

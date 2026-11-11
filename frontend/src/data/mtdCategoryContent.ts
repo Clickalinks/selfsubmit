@@ -17,6 +17,14 @@ import {
   Wallet,
 } from "lucide-react";
 
+import {
+  HMRC_RECOGNISED_TERM,
+  HMRC_SOFTWARE_CHOICES_LISTED,
+  MTD_SOFTWARE_GUIDE_SLUG,
+  mtdSoftwareGuideTitle,
+  selfSubmitHmrcRecognitionCopy,
+} from "@/lib/hmrc-software-choices";
+
 export type MtdCategoryContent = {
   id: number;
   slug: string;
@@ -152,7 +160,7 @@ export const MTD_CATEGORY_CONTENT: MtdCategoryContent[] = [
       "Keep records for at least 5 years after the 31 January submission deadline (Self Assessment rules).",
     ],
     keyPoints: [
-      "You can use spreadsheets only if they meet digital link rules — most people use approved software.",
+      "You can use spreadsheets only if they meet digital link rules — most people use compatible software.",
       "Simplified expenses (e.g. mileage) still need supporting records.",
     ],
     hmrcLinks: [
@@ -213,22 +221,24 @@ export const MTD_CATEGORY_CONTENT: MtdCategoryContent[] = [
   },
   {
     id: 8,
-    slug: "hmrc-approved-software",
-    title: "HMRC Approved Software",
+    slug: MTD_SOFTWARE_GUIDE_SLUG,
+    title: mtdSoftwareGuideTitle(),
     icon: Laptop,
-    summary:
-      "You must use functional compatible software that can send MTD updates to HMRC securely.",
-    whatItIs:
-      "HMRC does not approve individual products by name in all cases — they publish lists of software that supports Making Tax Digital. Software must be able to keep digital records and submit updates to HMRC via their APIs.",
+    summary: HMRC_SOFTWARE_CHOICES_LISTED
+      ? `SelfSubmit is ${HMRC_RECOGNISED_TERM}. Use compatible software that can send MTD updates to HMRC securely.`
+      : "You must use compatible software that can send MTD updates to HMRC securely.",
+    whatItIs: HMRC_SOFTWARE_CHOICES_LISTED
+      ? `HMRC does not approve, certify or Kitemark software. They publish a Software Choices list of products that support Making Tax Digital. The only permitted term for a product on that list is “${HMRC_RECOGNISED_TERM}”. ${selfSubmitHmrcRecognitionCopy()}`
+      : `HMRC does not approve, certify or Kitemark software. They publish a Software Choices list of products that support Making Tax Digital. The only permitted term for a product on that list is “${HMRC_RECOGNISED_TERM}”. SelfSubmit will use that term only after it appears on the list.`,
     whoItAppliesTo:
-      "Anyone required to follow MTD for Income Tax or MTD for VAT must use software that HMRC recognises as compatible for that obligation.",
+      "Anyone required to follow MTD for Income Tax or MTD for VAT must use compatible software that can keep digital records and send updates to HMRC for that obligation.",
     whatYouNeedToDo: [
-      "Choose software from HMRC’s compatible software lists.",
+      "Choose software from HMRC’s Software Choices list on GOV.UK.",
       "Connect your HMRC account through the software’s authorisation process.",
       "Check the software covers all your income streams and VAT if applicable.",
     ],
     keyPoints: [
-      "Free options exist for simple cases; paid software may suit multiple businesses.",
+      "HMRC does not describe software as approved, certified or Kitemarked.",
       "Bridging software can submit figures from spreadsheets in limited cases.",
     ],
     hmrcLinks: [

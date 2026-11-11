@@ -49,7 +49,7 @@ const HOMEPAGE_BLOCK_PAIRS: [string, string][] = [
   ["record-keeping", "digital-records"],
   ["allowable-expenses", "tax-calculations"],
   ["final-declaration", "mtd-sign-up"],
-  ["hmrc-approved-software", "hmrc-online-services"],
+  ["mtd-compatible-software", "hmrc-online-services"],
   ["mtd-exemptions", "penalties-and-fines"],
   ["agent-services", "help-and-support"],
 ];

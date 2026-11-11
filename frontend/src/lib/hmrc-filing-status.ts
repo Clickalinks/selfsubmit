@@ -1,3 +1,8 @@
+import {
+  HMRC_RECOGNISED_TERM,
+  HMRC_SOFTWARE_CHOICES_LISTED,
+} from "@/lib/hmrc-software-choices";
+
 /** Flip to true once live HMRC MTD API filing is enabled in production. */
 export const HMRC_LIVE_FILING_ENABLED = false;
 
@@ -25,17 +30,17 @@ export const MTD_PLATFORM_FEATURES = [
   {
     label: "Quarterly MTD updates",
     status: "live" as const,
-    detail: "Preview, submit, and retrieve cumulative self-employment quarterly updates when HMRC is connected.",
+    detail: "Preview, submit, and retrieve cumulative self-employment quarterly updates when HMRC is connected. UK property totals can be prepared the same way.",
   },
   {
-    label: "UK Property HMRC quarterly filing",
-    status: "planned" as const,
-    detail: "Landlord records are in SelfSubmit. Link a UK property HMRC income source and prepare cumulative quarterly updates. Live submit stays off until the controlled pilot.",
+    label: "UK Property (landlords)",
+    status: "live" as const,
+    detail: "Keep rent and allowable property expenses, link a UK property HMRC income source, and prepare quarterly totals. Live submit to HMRC stays off until the controlled pilot.",
   },
   {
     label: "Production HMRC filing",
     status: "in_development" as const,
-    detail: "HMRC production APIs are approved. Live quarterly submit will be turned on after a controlled pilot.",
+    detail: "HMRC production APIs are connected. Live quarterly submit will be turned on after a controlled pilot.",
   },
   {
     label: "Final Declaration (end of year)",
@@ -43,9 +48,11 @@ export const MTD_PLATFORM_FEATURES = [
     detail: "Year-end Final Declaration in SelfSubmit — until then, use HMRC Personal Tax Account or other compatible software.",
   },
   {
-    label: "GOV.UK compatible software listing",
-    status: "planned" as const,
-    detail: "Listed on GOV.UK after HMRC production approval.",
+    label: "GOV.UK Software Choices listing",
+    status: HMRC_SOFTWARE_CHOICES_LISTED ? ("live" as const) : ("planned" as const),
+    detail: HMRC_SOFTWARE_CHOICES_LISTED
+      ? `SelfSubmit is ${HMRC_RECOGNISED_TERM} and appears on HMRC’s Software Choices list.`
+      : "Not listed yet. We will use “Recognised by HMRC” only after SelfSubmit appears on the GOV.UK Software Choices page.",
   },
 ] as const;
 

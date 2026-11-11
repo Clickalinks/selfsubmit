@@ -63,7 +63,7 @@ export function PricingBanner({ interactive = false, footer }: PricingBannerProp
         <div className="mx-auto max-w-3xl text-center">
           <p className="text-xs font-bold uppercase tracking-[0.2em] text-brand-green sm:text-sm">Subscriptions</p>
           <h2 className="mt-3 text-xl font-bold tracking-tight text-white sm:text-2xl lg:text-3xl">
-            Simple plans for self-employed MTD
+            Simple plans for self-employed and landlord MTD
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-white selection:bg-brand-green selection:text-white lg:text-base">
             Every plan includes the same {PLAN_CORE_FEATURE_COUNT} core features — income and expense tracking, receipt

@@ -1,3 +1,5 @@
+import { selfSubmitHmrcRecognitionCopy } from "@/lib/hmrc-software-choices";
+
 /** Extra copy for homepage cards and detail pages — keyed by info block slug. */
 export type MtdInfoBlockExtras = {
   cardIntro: string;
@@ -134,23 +136,22 @@ export const MTD_INFO_BLOCK_EXTRAS: Record<string, MtdInfoBlockExtras> = {
     selfSubmitTip:
       "Landlords can keep rent and expense records in SelfSubmit now and link a UK property HMRC income source. Live quarterly submit stays off until the controlled pilot. Foreign property filing is not available yet.",
   },
-  "hmrc-approved-software": {
+  "mtd-compatible-software": {
     cardIntro:
-      "HMRC requires functional compatible software that keeps digital records and submits MTD updates securely. You choose from published compatible products listed on GOV.UK.",
+      "HMRC requires compatible software that keeps digital records and submits MTD updates securely. You choose from products on the GOV.UK Software Choices list.",
     highlights: [
       "Software must connect to HMRC APIs for submissions",
-      "Free and paid options exist for different complexity levels",
-      "Bridging tools exist for limited spreadsheet workflows",
+      "HMRC does not approve, certify or Kitemark products",
+      "The only permitted term for listed software is “Recognised by HMRC”",
     ],
     additionalDetail:
-      "Check HMRC’s current software lists for MTD for Income Tax and VAT separately. Authorise each product through Government Gateway. One product may cover multiple businesses if it supports your setup.",
+      "Check HMRC’s current Software Choices lists for MTD for Income Tax and VAT separately. Authorise each product through Government Gateway. One product may cover multiple businesses if it supports your setup.",
     commonMistakes: [
       "Buying software that only does invoicing without MTD submission",
       "Not completing HMRC authorisation so submissions silently fail",
       "Using incompatible spreadsheets and typing figures manually each quarter",
     ],
-    selfSubmitTip:
-      "SelfSubmit helps you maintain monthly digital records aligned with MTD principles. Connect your HMRC account to preview and submit quarterly updates from your dashboard.",
+    selfSubmitTip: `${selfSubmitHmrcRecognitionCopy()} SelfSubmit helps you maintain monthly digital records aligned with MTD principles. Connect your HMRC account to preview and submit quarterly updates from your dashboard.`,
   },
   "mtd-exemptions": {
     cardIntro:

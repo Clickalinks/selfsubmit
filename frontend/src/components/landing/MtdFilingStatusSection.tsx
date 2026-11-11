@@ -19,8 +19,9 @@ export function MtdFilingStatusSection() {
     <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
       <h2 className="text-xl font-bold text-brand-black sm:text-2xl">What SelfSubmit includes</h2>
       <p className="mt-2 max-w-3xl text-sm leading-relaxed text-brand-muted sm:text-base">
-        SelfSubmit is a subscription service for UK self-employed record-keeping and Making Tax Digital quarterly
-        updates. Every plan includes the same core tools — you only pay more when you need additional businesses.
+        SelfSubmit is a subscription service for UK self-employed people and landlords: digital records and Making Tax
+        Digital quarterly updates. Every plan includes the same core tools — you only pay more when you need additional
+        businesses.
       </p>
       <ul className="mt-6 space-y-4">
         {MTD_PLATFORM_FEATURES.map((item) => (
