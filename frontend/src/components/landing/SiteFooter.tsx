@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Facebook, Instagram, Linkedin } from "lucide-react";
 
+import { RecognisedByHmrcBadge } from "@/components/brand/RecognisedByHmrcBadge";
 import { SelfSubmitLogo } from "@/components/brand/SelfSubmitLogo";
 import { FooterCopyright } from "@/components/legal/CompanyDetails";
 
@@ -13,11 +14,20 @@ function XIcon({ className }: { className?: string }) {
   );
 }
 
-const linkClass = "text-sm text-gray-300 transition hover:text-brand-green";
+function TikTokIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+      <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.34 6.34 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z" />
+    </svg>
+  );
+}
+
+const linkClass = "text-sm text-gray-300 no-underline transition hover:text-brand-green";
 
 export function SiteFooter() {
   return (
     <footer className="relative z-20 mt-auto w-full border-t border-white/10 bg-[#1a1d1f] text-white">
+      <RecognisedByHmrcBadge size="footer" />
       <div className="mx-auto max-w-[1400px] px-5 py-12 sm:px-8 sm:py-14 lg:px-10">
         <div className="grid gap-10 lg:grid-cols-[1.35fr_2fr] lg:gap-14">
           <div>
@@ -29,9 +39,10 @@ export function SiteFooter() {
             </p>
             <div className="mt-6 flex gap-3">
               {[
-                { label: "Facebook", href: "https://facebook.com", Icon: Facebook },
+                { label: "Facebook", href: "https://facebook.com/selfsubmit.uk", Icon: Facebook },
                 { label: "X", href: "https://x.com", Icon: XIcon },
-                { label: "Instagram", href: "https://instagram.com", Icon: Instagram },
+                { label: "TikTok", href: "https://www.tiktok.com/", Icon: TikTokIcon },
+                { label: "Instagram", href: "https://instagram.com/clicado_media_uk_ltd/", Icon: Instagram },
                 { label: "LinkedIn", href: "https://linkedin.com", Icon: Linkedin },
               ].map(({ label, href, Icon }) => (
                 <a
@@ -40,7 +51,7 @@ export function SiteFooter() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={label}
-                  className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-600 text-gray-200 transition hover:border-brand-green hover:bg-brand-green/10 hover:text-brand-green"
+                  className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-600 text-gray-200 no-underline transition hover:border-brand-green hover:bg-brand-green/10 hover:text-brand-green"
                 >
                   <Icon className="h-4 w-4" />
                 </a>

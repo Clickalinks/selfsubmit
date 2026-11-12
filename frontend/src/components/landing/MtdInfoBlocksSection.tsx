@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
+import { RecognisedByHmrcBadge } from "@/components/brand/RecognisedByHmrcBadge";
 import { HOMEPAGE_MTD_INFO_BLOCKS } from "@/data/mtdInfoBlocks";
 
 export function MtdInfoBlocksSection() {
@@ -18,6 +19,10 @@ export function MtdInfoBlocksSection() {
         }}
         aria-hidden
       />
+
+      <div className="relative z-10">
+        <RecognisedByHmrcBadge size="header" />
+      </div>
 
       <div className="relative flex flex-1 flex-col px-3 py-6 pb-10 sm:px-8 sm:py-10 sm:pb-12 lg:px-12 lg:py-12 lg:pb-14">
         <div className="mx-auto w-full max-w-[1600px] text-center">
