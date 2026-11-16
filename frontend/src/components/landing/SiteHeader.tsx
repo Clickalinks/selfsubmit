@@ -14,9 +14,9 @@ const mobileLinkClass =
   "block rounded-xl px-4 py-3 text-base font-semibold text-brand-black no-underline transition hover:bg-brand-mint";
 
 const NAV_LINKS = [
+  { href: "/how-to-use", label: "How to use" },
   { href: "/features", label: "Features" },
   { href: "/pricing", label: "Pricing" },
-  { href: "/how-it-works", label: "How it works" },
   { href: "/faq", label: "FAQ" },
   { href: "/contact", label: "Contact" },
 ] as const;

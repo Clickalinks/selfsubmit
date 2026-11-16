@@ -39,11 +39,11 @@ export function SiteFooter() {
             </p>
             <div className="mt-6 flex gap-3">
               {[
-                { label: "Facebook", href: "https://facebook.com/selfsubmit.uk", Icon: Facebook },
-                { label: "X", href: "https://x.com", Icon: XIcon },
-                { label: "TikTok", href: "https://www.tiktok.com/", Icon: TikTokIcon },
-                { label: "Instagram", href: "https://instagram.com/clicado_media_uk_ltd/", Icon: Instagram },
-                { label: "LinkedIn", href: "https://linkedin.com", Icon: Linkedin },
+                { label: "Facebook", href: "https://www.facebook.com/profile.php?id=61596502893667", Icon: Facebook },
+                { label: "X", href: "https://x.com/Selfsubmit", Icon: XIcon },
+                { label: "TikTok", href: "https://www.tiktok.com/@selfsubmit", Icon: TikTokIcon },
+                { label: "Instagram", href: "https://www.instagram.com/selfsubmit/", Icon: Instagram },
+                { label: "LinkedIn", href: "https://www.linkedin.com/in/clicado-media-uk-025a7539b", Icon: Linkedin },
               ].map(({ label, href, Icon }) => (
                 <a
                   key={label}
@@ -64,6 +64,7 @@ export function SiteFooter() {
               title="Product"
               links={[
                 { href: "/", label: "Home" },
+                { href: "/how-to-use", label: "How to use" },
                 { href: "/features", label: "Features" },
                 { href: "/pricing", label: "Pricing" },
                 { href: "/business-types", label: "Business types" },
@@ -101,6 +102,7 @@ export function SiteFooter() {
             <FooterColumn
               title="Support"
               links={[
+                { href: "/how-to-use", label: "How to use" },
                 { href: "/how-it-works", label: "How it works" },
                 { href: "/status", label: "Status" },
                 { href: "/faq", label: "FAQ" },

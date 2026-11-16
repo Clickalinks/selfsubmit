@@ -39,6 +39,15 @@ export function MtdInfoBlocksSection() {
             Ten topic blocks covering income tax, VAT, deadlines, record-keeping, and more — each links to two full
             HMRC-aligned guides.
           </p>
+          <div className="mt-5">
+            <Link
+              href="/how-to-use"
+              className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-bold text-brand-black no-underline shadow-sm transition hover:bg-brand-mint"
+            >
+              How to use SelfSubmit
+              <ArrowRight className="h-4 w-4" strokeWidth={2.5} aria-hidden />
+            </Link>
+          </div>
         </div>
 
         <div className="mx-auto mt-6 grid w-full max-w-[1600px] flex-1 auto-rows-fr grid-cols-1 gap-3 min-[420px]:grid-cols-2 sm:mt-10 sm:gap-4 md:grid-cols-3 lg:grid-cols-5 lg:gap-5">

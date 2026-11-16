@@ -6,6 +6,7 @@ import { getSiteUrl } from "@/lib/site-url";
 
 const PUBLIC_STATIC_PATHS = [
   "",
+  "/how-to-use",
   "/pricing",
   "/features",
   "/how-it-works",
@@ -46,7 +47,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     url: `${base}${path}`,
     lastModified,
     changeFrequency: path === "" || path === "/pricing" ? "weekly" : "monthly",
-    priority: path === "" ? 1 : path === "/pricing" || path === "/features" ? 0.9 : 0.7,
+    priority: path === "" ? 1 : path === "/pricing" || path === "/features" || path === "/how-to-use" ? 0.9 : 0.7,
   }));
 
   const mtdEntries: MetadataRoute.Sitemap = MTD_CATEGORY_CONTENT.map((guide) => ({
