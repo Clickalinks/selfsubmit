@@ -1,12 +1,8 @@
-import { randomBytes } from "crypto";
-
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
 import { autoLinkHmrcBusinessForUser } from "@/lib/hmrc-auto-link";
-import { prisma } from "@/lib/db";
-import { encryptField, isEncryptionConfigured } from "@/lib/field-encryption";
 import { saveHmrcConnection } from "@/lib/hmrc-connection-server";
 import { readFraudContextCookie } from "@/lib/hmrc-fraud-context";
 import { exchangeHmrcAuthorizationCode } from "@/lib/hmrc-oauth";
@@ -38,28 +34,6 @@ export async function GET(request: Request) {
   }
 
   if (!userId || !code) {
-    // Temporary sandbox-test pickup: only for states we mint as sspickup-*.
-    // Lets us exchange the code against the sandbox app without touching live tokens.
-    if (code && state?.startsWith("sspickup-") && isEncryptionConfigured()) {
-      try {
-        await prisma.$executeRawUnsafe(`
-          CREATE TABLE IF NOT EXISTS "HmrcOauthPickup" (
-            "id" TEXT PRIMARY KEY,
-            "payload" TEXT NOT NULL,
-            "state" TEXT NOT NULL,
-            "created_at" TIMESTAMPTZ NOT NULL DEFAULT NOW()
-          )
-        `);
-        const id = randomBytes(16).toString("hex");
-        const payload = encryptField(JSON.stringify({ code, state }));
-        await prisma.$executeRaw`
-          INSERT INTO "HmrcOauthPickup" (id, payload, state)
-          VALUES (${id}, ${payload}, ${state})
-        `;
-      } catch (err) {
-        console.error("[hmrc-oauth] sandbox pickup store failed", err);
-      }
-    }
     return dashboardRedirect("/dashboard?setup=hmrc-error&reason=missing");
   }
 
