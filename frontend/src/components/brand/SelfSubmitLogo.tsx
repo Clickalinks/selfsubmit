@@ -7,6 +7,8 @@ type SelfSubmitLogoProps = {
   showWordmark?: boolean;
   /** Smaller mark for narrow mobile headers */
   compact?: boolean;
+  /** Override wordmark size. Keep smaller than the tick. */
+  wordmarkSize?: string;
 };
 
 export function SelfSubmitLogo({
@@ -14,13 +16,15 @@ export function SelfSubmitLogo({
   className = "",
   showWordmark = true,
   compact = false,
+  wordmarkSize,
 }: SelfSubmitLogoProps) {
   const isLight = variant === "light";
   const textClass = isLight ? "text-white" : "text-brand-black";
 
   const iconSize = compact ? "h-9 w-9" : "h-10 w-10 sm:h-11 sm:w-11";
   const iconPx = compact ? 36 : 44;
-  const wordSize = compact ? "text-lg sm:text-2xl" : "text-xl sm:text-2xl";
+  const wordSize =
+    wordmarkSize ?? (compact ? "text-lg sm:text-2xl" : "text-xl sm:text-2xl");
 
   return (
     <span className={`inline-flex min-w-0 items-center gap-2 sm:gap-2.5 ${className}`}>
@@ -36,7 +40,7 @@ export function SelfSubmitLogo({
         />
       </span>
       {showWordmark ? (
-        <span className={`whitespace-nowrap font-bold tracking-tight ${wordSize} ${textClass}`}>
+        <span className={`whitespace-nowrap font-bold leading-none tracking-tight ${wordSize} ${textClass}`}>
           Self<span className="text-brand-green">Submit</span>
         </span>
       ) : null}

@@ -34,7 +34,7 @@ export function SiteHeader({ showHmrcMark = true }: { showHmrcMark?: boolean } =
 
   return (
     <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-white shadow-sm supports-[padding:max(0px)]:pt-[max(0px,env(safe-area-inset-top))]">
-      <div className="mx-auto flex max-w-[1400px] items-center justify-between gap-2 px-3 py-2.5 sm:gap-4 sm:px-6 sm:py-4 lg:px-8">
+      <div className="mx-auto flex max-w-[1400px] items-center justify-between gap-2 px-3 py-1 sm:gap-4 sm:px-6 sm:py-1.5 lg:px-8">
         <Logo />
 
         <nav className="hidden items-center gap-1 md:flex" aria-label="Primary">
@@ -93,7 +93,7 @@ function Logo() {
       className="inline-flex shrink-0 items-center outline-offset-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-green/50"
       aria-label="SelfSubmit home"
     >
-      <SelfSubmitLogo variant="dark" compact />
+      <SelfSubmitLogo variant="dark" wordmarkSize="text-2xl sm:text-[1.75rem]" />
     </Link>
   );
 }
