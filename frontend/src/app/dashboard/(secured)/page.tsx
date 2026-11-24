@@ -16,7 +16,7 @@ import { HmrcSandboxStatusCard } from "@/components/dashboard/HmrcSandboxStatusC
 import { MtdInYearScopeNotice } from "@/components/mtd/MtdInYearScopeNotice";
 import { isEncryptionConfigured } from "@/lib/field-encryption";
 import { isHmrcOAuthConfigured } from "@/lib/hmrc-config";
-import { isHmrcSandboxFilingEnabled } from "@/lib/hmrc-filing-status";
+import { getHmrcFilingMode } from "@/lib/hmrc-filing-status";
 import { emptyMtdDashboardSnapshot, formatGbp, getMtdDashboardSnapshot } from "@/lib/mtd-dashboard";
 import { getClientProfile } from "@/lib/profile-server";
 import { SubscriptionAccessBanner } from "@/components/dashboard/SubscriptionAccessBanner";
@@ -180,7 +180,7 @@ export default async function DashboardPage({
         <HmrcSandboxStatusCard
           hmrcConnected={snapshot.hmrcConnected}
           hmrcSandboxReady={snapshot.hmrcSandboxReady}
-          sandboxFilingEnabled={isHmrcSandboxFilingEnabled()}
+          filingMode={getHmrcFilingMode()}
           activeBusinessId={snapshot.activeBusinessId}
           activeBusinessName={snapshot.activeBusinessName}
           activeBusinessHmrcId={snapshot.activeBusinessHmrcId}

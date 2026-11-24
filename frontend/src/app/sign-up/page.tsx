@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { SignUpWizard } from "@/components/auth/SignUpWizard";
+import { HmrcMtdRecognisedMark } from "@/components/brand/HmrcMtdRecognisedMark";
 import { safeAppRedirectPath } from "@/lib/auth-redirect";
 import { getClientProfile } from "@/lib/profile-server";
 import { getOptionalUserId } from "@/lib/safe-auth";
@@ -37,7 +38,10 @@ export default async function SignUpPage({ searchParams }: Props) {
           <Link href="/" className="text-sm font-semibold text-brand-green underline-offset-4 hover:underline">
             ← Home
           </Link>
-          <span className="text-sm font-medium text-slate-500">New client registration</span>
+          <div className="flex items-center gap-3">
+            <HmrcMtdRecognisedMark size="header" />
+            <span className="hidden text-sm font-medium text-slate-500 sm:inline">New client registration</span>
+          </div>
         </div>
       </div>
 

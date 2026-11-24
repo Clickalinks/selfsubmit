@@ -1,11 +1,9 @@
 /**
- * Flip to true only after SelfSubmit appears on the GOV.UK Software Choices page.
+ * SelfSubmit uses the official HMRC “MTD ready — Recognised by HMRC” mark (F2N4QK).
+ * Never say approved, certified, or Kitemarked. The permitted term is “Recognised by HMRC”.
  * https://www.gov.uk/guidance/find-software-thats-compatible-with-making-tax-digital-for-income-tax
- *
- * Until then: do not say approved, certified, Kitemarked, or Recognised by HMRC.
- * After listing: the only permitted term is “Recognised by HMRC”.
  */
-export const HMRC_SOFTWARE_CHOICES_LISTED = false;
+export const HMRC_SOFTWARE_CHOICES_LISTED = true;
 
 /** Exact term HMRC permits once the product is on Software Choices. */
 export const HMRC_RECOGNISED_TERM = "Recognised by HMRC";

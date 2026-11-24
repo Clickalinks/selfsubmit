@@ -1,14 +1,28 @@
+import { isHmrcSandboxApiBase } from "@/lib/hmrc-config";
 import {
   HMRC_RECOGNISED_TERM,
   HMRC_SOFTWARE_CHOICES_LISTED,
 } from "@/lib/hmrc-software-choices";
 
 /** Flip to true once live HMRC MTD API filing is enabled in production. */
-export const HMRC_LIVE_FILING_ENABLED = false;
+export const HMRC_LIVE_FILING_ENABLED = true;
 
 /** Sandbox cumulative quarterly updates to HMRC test API (Phase 3). */
 export function isHmrcSandboxFilingEnabled(): boolean {
   return process.env.HMRC_SANDBOX_FILING_ENABLED === "true";
+}
+
+export type HmrcFilingMode = "live" | "sandbox" | "off";
+
+export function getHmrcFilingMode(): HmrcFilingMode {
+  const sandboxApi = isHmrcSandboxApiBase();
+  if (sandboxApi && isHmrcSandboxFilingEnabled()) return "sandbox";
+  if (!sandboxApi && HMRC_LIVE_FILING_ENABLED) return "live";
+  return "off";
+}
+
+export function isHmrcQuarterlySubmitEnabled(): boolean {
+  return getHmrcFilingMode() !== "off";
 }
 
 export const MTD_PLATFORM_FEATURES = [
@@ -35,12 +49,12 @@ export const MTD_PLATFORM_FEATURES = [
   {
     label: "UK Property (landlords)",
     status: "live" as const,
-    detail: "Keep rent and allowable property expenses, link a UK property HMRC income source, and prepare quarterly totals. Live submit to HMRC stays off until the controlled pilot.",
+    detail: "Keep rent and allowable property expenses, link a UK property HMRC income source, and send quarterly updates when your HMRC account is connected.",
   },
   {
     label: "Production HMRC filing",
-    status: "in_development" as const,
-    detail: "HMRC production APIs are connected. Live quarterly submit will be turned on after a controlled pilot.",
+    status: "live" as const,
+    detail: "Live quarterly updates to HMRC for self-employment and UK property when your account is connected.",
   },
   {
     label: "Final Declaration (end of year)",
@@ -88,6 +102,14 @@ export function getSubmissionFilingDisplay(input: {
   const sandbox =
     input.status === "sandbox_submitted" ||
     (input.hmrcReference && isSandboxHmrcReference(input.hmrcReference));
+
+  if (input.status === "hmrc_submitted") {
+    return {
+      label: "Filed to HMRC",
+      detail: input.hmrcReference,
+      tone: "live",
+    };
+  }
 
   if (HMRC_LIVE_FILING_ENABLED && input.hmrcReference && !isPracticeHmrcReference(input.hmrcReference) && !sandbox) {
     return {

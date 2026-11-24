@@ -6,12 +6,15 @@ import {
 } from "@/lib/hmrc-cumulative-submit";
 import { getHmrcConnectionStatus } from "@/lib/hmrc-connection-server";
 import { getHmrcConfig } from "@/lib/hmrc-config";
-import { isHmrcSandboxFilingEnabled } from "@/lib/hmrc-filing-status";
+import { getHmrcFilingMode } from "@/lib/hmrc-filing-status";
 import type { HmrcFraudClientContext } from "@/lib/hmrc-fraud-context";
 import { resolveHmrcIncomeSource, type HmrcIncomeSource } from "@/lib/hmrc-income-source";
 import { buildQuarterlyPreview, type QuarterlyPreview } from "@/lib/hmrc-quarterly-mapper";
 import { currentUkTaxYearLabel } from "@/lib/hmrc-tax-year";
-import { assertQuarterlySubmitWindowOpen } from "@/lib/quarterly-submit-window";
+import {
+  assertQuarterlySubmitWindowOpen,
+  resolveQuarterlySubmitWindow,
+} from "@/lib/quarterly-submit-window";
 import { getDecryptedTaxIds } from "@/lib/tax-ids-server";
 
 export async function assertSandboxQuarterlyReady(
@@ -23,12 +26,22 @@ export async function assertSandboxQuarterlyReady(
   businessCategory: string;
   incomeSource: HmrcIncomeSource;
 }> {
-  if (!isHmrcSandboxFilingEnabled()) {
-    throw new Error("HMRC sandbox filing is not enabled on this server.");
+  const mode = getHmrcFilingMode();
+  if (mode === "off") {
+    const sandboxApi = getHmrcConfig().apiBase.includes("test-api.service.hmrc.gov.uk");
+    throw new Error(
+      sandboxApi
+        ? "HMRC sandbox filing is not enabled on this server."
+        : "Live HMRC filing is not enabled.",
+    );
   }
 
-  if (!getHmrcConfig().apiBase.includes("test-api.service.hmrc.gov.uk")) {
+  const sandboxApi = getHmrcConfig().apiBase.includes("test-api.service.hmrc.gov.uk");
+  if (mode === "sandbox" && !sandboxApi) {
     throw new Error("Sandbox filing cannot run against the production HMRC API.");
+  }
+  if (mode === "live" && sandboxApi) {
+    throw new Error("Live filing cannot run against the HMRC sandbox API.");
   }
 
   const connection = await getHmrcConnectionStatus(userId);
@@ -69,7 +82,9 @@ export async function getSandboxQuarterlyPreview(
   periodEndDate?: string,
 ): Promise<QuarterlyPreview> {
   await assertSandboxQuarterlyReady(userId, businessId);
-  const window = assertQuarterlySubmitWindowOpen(undefined, { sandboxTesting: true });
+  const window = resolveQuarterlySubmitWindow(new Date(), {
+    sandboxTesting: getHmrcFilingMode() === "sandbox",
+  });
   return buildQuarterlyPreview({
     userId,
     businessId,
@@ -91,7 +106,8 @@ export async function submitSandboxQuarterlyUpdate(input: {
   retrieved: HmrcCumulativeRetrieved | null;
 }> {
   const ready = await assertSandboxQuarterlyReady(input.userId, input.businessId);
-  const window = assertQuarterlySubmitWindowOpen(undefined, { sandboxTesting: true });
+  const mode = getHmrcFilingMode();
+  const window = assertQuarterlySubmitWindowOpen(new Date(), { sandboxTesting: mode === "sandbox" });
   const preview = await buildQuarterlyPreview({
     userId: input.userId,
     businessId: input.businessId,
@@ -139,9 +155,9 @@ export async function submitSandboxQuarterlyUpdate(input: {
       trade: ready.businessCategory,
       periodFrom: new Date(`${preview.periodStartDate}T12:00:00.000Z`),
       periodTo: new Date(`${preview.periodEndDate}T12:00:00.000Z`),
-      templateId: "hmrc_sandbox_quarterly",
-      submissionType: "quarterly_hmrc_sandbox",
-      status: "sandbox_submitted",
+      templateId: mode === "live" ? "hmrc_quarterly" : "hmrc_sandbox_quarterly",
+      submissionType: mode === "live" ? "quarterly_hmrc" : "quarterly_hmrc_sandbox",
+      status: mode === "live" ? "hmrc_submitted" : "sandbox_submitted",
       payloadJson: JSON.stringify({
         hmrcPayload: preview.hmrcPayload,
         preview,
@@ -152,7 +168,10 @@ export async function submitSandboxQuarterlyUpdate(input: {
       netProfitGbp: preview.netProfit,
       hmrcReference: result.reference,
       hmrcStatus: "accepted",
-      hmrcMessage: `Submitted to HMRC sandbox (${ready.incomeSource} cumulative quarterly update).${retrieveNote}`,
+      hmrcMessage:
+        mode === "live"
+          ? `Submitted to HMRC (${ready.incomeSource} cumulative quarterly update).${retrieveNote}`
+          : `Submitted to HMRC sandbox (${ready.incomeSource} cumulative quarterly update).${retrieveNote}`,
     },
   });
 

@@ -5,6 +5,7 @@ import { useState } from "react";
 import { UserButton } from "@clerk/nextjs";
 import { Bell, Menu } from "lucide-react";
 
+import { HmrcMtdRecognisedMark } from "@/components/brand/HmrcMtdRecognisedMark";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import { BusinessSwitcher } from "@/components/dashboard/BusinessSwitcher";
 import type { DashboardShellProfile } from "@/lib/dashboard-profile";
@@ -61,6 +62,7 @@ export function DashboardShell({
           >
             <Bell className="h-5 w-5" />
           </button>
+          <HmrcMtdRecognisedMark size="header" />
           <UserButton
             appearance={{
               elements: { avatarBox: "h-9 w-9 ring-2 ring-brand-green/25" },

@@ -1,5 +1,5 @@
 import { hmrcApiRequest } from "@/lib/hmrc-api-client";
-import { getHmrcConfig } from "@/lib/hmrc-config";
+import { isHmrcSandboxApiBase } from "@/lib/hmrc-config";
 import { HMRC_LIVE_FILING_ENABLED } from "@/lib/hmrc-filing-status";
 import type { HmrcFraudClientContext } from "@/lib/hmrc-fraud-context";
 import type { HmrcIncomeSource } from "@/lib/hmrc-income-source";
@@ -71,11 +71,7 @@ function pathForSource(source: HmrcIncomeSource, nino: string, businessId: strin
 }
 
 function isSandboxApiBase(): boolean {
-  try {
-    return getHmrcConfig().apiBase.includes("test-api.service.hmrc.gov.uk");
-  } catch {
-    return false;
-  }
+  return isHmrcSandboxApiBase();
 }
 
 /**

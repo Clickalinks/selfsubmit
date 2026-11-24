@@ -3,6 +3,8 @@ import { UserButton } from "@clerk/nextjs";
 import type { ReactNode } from "react";
 import { Shield } from "lucide-react";
 
+import { HmrcMtdRecognisedMark } from "@/components/brand/HmrcMtdRecognisedMark";
+
 type Props = {
   role: string;
   children: ReactNode;
@@ -21,6 +23,7 @@ export function AdminShell({ role, children }: Props) {
             </div>
           </div>
           <nav className="flex items-center gap-3 text-sm">
+            <HmrcMtdRecognisedMark size="header" onDark />
             <Link href="/admin" className="text-slate-200 hover:text-white">
               Overview
             </Link>
@@ -36,6 +39,11 @@ export function AdminShell({ role, children }: Props) {
         </div>
       </header>
       <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6">{children}</main>
+      <footer className="border-t border-slate-200 bg-white px-4 py-6 sm:px-6">
+        <div className="mx-auto flex max-w-5xl justify-end">
+          <HmrcMtdRecognisedMark size="footer" />
+        </div>
+      </footer>
     </div>
   );
 }

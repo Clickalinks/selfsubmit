@@ -36,7 +36,7 @@ export function SelfSubmitLogo({
         />
       </span>
       {showWordmark ? (
-        <span className={`truncate font-bold tracking-tight ${wordSize} ${textClass}`}>
+        <span className={`whitespace-nowrap font-bold tracking-tight ${wordSize} ${textClass}`}>
           Self<span className="text-brand-green">Submit</span>
         </span>
       ) : null}

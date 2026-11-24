@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
-import { RecognisedByHmrcBadge } from "@/components/brand/RecognisedByHmrcBadge";
+import { HmrcMtdRecognisedMark } from "@/components/brand/HmrcMtdRecognisedMark";
 import { HOMEPAGE_MTD_INFO_BLOCKS } from "@/data/mtdInfoBlocks";
 
 export function MtdInfoBlocksSection() {
@@ -20,21 +20,20 @@ export function MtdInfoBlocksSection() {
         aria-hidden
       />
 
-      <div className="relative z-10">
-        <RecognisedByHmrcBadge size="header" />
-      </div>
-
       <div className="relative flex flex-1 flex-col px-3 py-6 pb-10 sm:px-8 sm:py-10 sm:pb-12 lg:px-12 lg:py-12 lg:pb-14">
         <div className="mx-auto w-full max-w-[1600px] text-center">
           <p className="text-xs font-bold uppercase tracking-[0.25em] text-emerald-200/95 sm:text-sm">
             Making Tax Digital
           </p>
-          <h1
-            id="mtd-info-blocks-heading"
-            className="mt-2 text-2xl font-bold text-white sm:text-3xl lg:text-4xl"
-          >
-            MTD information &amp; Guide
-          </h1>
+          <div className="mt-2 flex flex-wrap items-center justify-center gap-3 sm:gap-4">
+            <h1
+              id="mtd-info-blocks-heading"
+              className="text-2xl font-bold text-white sm:text-3xl lg:text-4xl"
+            >
+              MTD information &amp; Guide
+            </h1>
+            <HmrcMtdRecognisedMark size="footer" onDark />
+          </div>
           <p className="mx-auto mt-3 max-w-2xl text-sm text-white/85 sm:text-base">
             Ten topic blocks covering income tax, VAT, deadlines, record-keeping, and more — each links to two full
             HMRC-aligned guides.

@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useState } from "react";
 
 import { HeaderAuth } from "@/components/auth/HeaderAuth";
+import { HmrcMtdRecognisedMark } from "@/components/brand/HmrcMtdRecognisedMark";
+import { FooterCopyright } from "@/components/legal/CompanyDetails";
 import { TaxCalculator } from "@/components/tax/TaxCalculator";
 import { ALL_PROFESSIONS } from "@/data/expenseCategories";
 
@@ -13,7 +15,7 @@ export default function TaxCalculatorPage() {
   );
 
   return (
-    <div className="min-h-screen pb-20">
+    <div className="flex min-h-screen flex-col">
       <div className="border-b border-black/10 bg-white/80 shadow-sm shadow-black/[0.04] backdrop-blur-md backdrop-saturate-150 supports-[backdrop-filter]:bg-white/70">
         <div className="mx-auto flex max-w-content items-center justify-between gap-4 px-5 py-4 min-[900px]:px-10">
           <Link
@@ -26,6 +28,7 @@ export default function TaxCalculatorPage() {
             <span className="hidden truncate text-sm font-medium text-brand-muted min-[520px]:inline">
               Tax calculator
             </span>
+            <HmrcMtdRecognisedMark size="header" />
             <HeaderAuth />
           </div>
         </div>
@@ -66,6 +69,12 @@ export default function TaxCalculatorPage() {
           <TaxCalculator profession={profession} expenses={[]} />
         </div>
       </div>
+      <footer className="mt-auto border-t border-black/10 bg-white px-5 py-8 min-[900px]:px-10">
+        <div className="mx-auto flex max-w-content flex-col items-center justify-between gap-4 sm:flex-row sm:items-end">
+          <FooterCopyright />
+          <HmrcMtdRecognisedMark size="footer" />
+        </div>
+      </footer>
     </div>
   );
 }

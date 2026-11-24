@@ -47,7 +47,7 @@ export async function GET(request: Request) {
     const raw = error instanceof Error ? error.message : "Could not retrieve HMRC cumulative summary.";
     const notFound = /not found|matching resource/i.test(raw);
     const message = notFound
-      ? "HMRC has no cumulative summary for this business yet. Preview and Submit to HMRC sandbox first, then Retrieve."
+      ? "HMRC has no cumulative summary for this business yet. Preview and Submit first, then Retrieve."
       : raw;
     const status =
       message.includes("not enabled")

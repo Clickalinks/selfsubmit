@@ -131,7 +131,7 @@ const STEPS: Step[] = [
     summary: "Your months roll into quarterly totals. Preview them on the dashboard before anything is sent.",
     details: [
       "Check every figure. Quarterly updates are a summary of the period — they are not your tax bill.",
-      "Live send to HMRC is turned on after a controlled pilot. Until then you still keep the records so you are ready.",
+      "When the quarterly window is open, preview your totals on the dashboard and submit them to HMRC.",
       "SelfSubmit does not yet submit a Final Declaration at year end. Use your HMRC Personal Tax Account or other compatible software for that step.",
     ],
     Icon: CalendarDays,

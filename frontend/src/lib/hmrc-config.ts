@@ -18,6 +18,11 @@ export function isHmrcOAuthConfigured(): boolean {
   );
 }
 
+export function isHmrcSandboxApiBase(): boolean {
+  const base = process.env.HMRC_API_BASE?.trim().replace(/\/$/, "") ?? "";
+  return base.includes("test-api.service.hmrc.gov.uk");
+}
+
 export function getHmrcConfig(): HmrcConfig {
   const clientId = process.env.HMRC_CLIENT_ID?.trim();
   const clientSecret = process.env.HMRC_CLIENT_SECRET?.trim();

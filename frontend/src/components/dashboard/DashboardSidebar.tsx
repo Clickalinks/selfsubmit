@@ -18,6 +18,7 @@ import {
   X,
 } from "lucide-react";
 
+import { HmrcMtdRecognisedMark } from "@/components/brand/HmrcMtdRecognisedMark";
 import type { DashboardShellProfile } from "@/lib/dashboard-profile";
 
 type NavItem = {
@@ -142,6 +143,9 @@ export function DashboardSidebar({
         </nav>
 
         <div className="border-t border-white/10 px-5 py-4">
+          <div className="mb-3 flex justify-center">
+            <HmrcMtdRecognisedMark size="sidebar" onDark />
+          </div>
           <div className="flex items-center gap-3 rounded-xl bg-white/5 px-3 py-3">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand-green-bright to-brand-green-dark text-sm font-bold text-white">
               {profile.firstName.charAt(0)}

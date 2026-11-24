@@ -179,7 +179,7 @@ export function HmrcConnectionSection() {
   return (
     <DashboardCard
       title="HMRC account"
-      description="Connect your HMRC account to view obligations and link your business. Quarterly filing to HMRC is not enabled yet."
+      description="Connect your HMRC account to view obligations, link your business, and send quarterly updates."
     >
       {loading ? (
         <p className="flex items-center gap-2 text-sm text-slate-500">

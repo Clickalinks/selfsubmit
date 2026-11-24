@@ -5,10 +5,11 @@ import { Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { HeaderAuth } from "@/components/auth/HeaderAuth";
+import { HmrcMtdRecognisedMark } from "@/components/brand/HmrcMtdRecognisedMark";
 import { SelfSubmitLogo } from "@/components/brand/SelfSubmitLogo";
 
 const linkClass =
-  "rounded-lg px-3 py-2 text-[15px] font-medium text-brand-grey no-underline transition hover:bg-brand-mint hover:text-brand-green";
+  "whitespace-nowrap rounded-lg px-2 py-2 text-[15px] font-medium text-brand-grey no-underline transition hover:bg-brand-mint hover:text-brand-green lg:px-3";
 
 const mobileLinkClass =
   "block rounded-xl px-4 py-3 text-base font-semibold text-brand-black no-underline transition hover:bg-brand-mint";
@@ -21,7 +22,7 @@ const NAV_LINKS = [
   { href: "/contact", label: "Contact" },
 ] as const;
 
-export function SiteHeader() {
+export function SiteHeader({ showHmrcMark = true }: { showHmrcMark?: boolean } = {}) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -44,7 +45,8 @@ export function SiteHeader() {
           ))}
         </nav>
 
-        <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+        <div className="flex shrink-0 items-center gap-1.5 sm:gap-3">
+          {showHmrcMark ? <HmrcMtdRecognisedMark size="header" /> : null}
           <HeaderAuth />
           <button
             type="button"
@@ -88,7 +90,7 @@ function Logo() {
   return (
     <Link
       href="/"
-      className="inline-flex min-w-0 shrink items-center outline-offset-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-green/50"
+      className="inline-flex shrink-0 items-center outline-offset-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-green/50"
       aria-label="SelfSubmit home"
     >
       <SelfSubmitLogo variant="dark" compact />

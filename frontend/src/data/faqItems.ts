@@ -17,19 +17,19 @@ export const FAQ_ITEMS: FaqItem[] = [
     id: "who-is-it-for",
     question: "Who is SelfSubmit for?",
     answer:
-      "Anyone who is self-employed and needs straightforward monthly record-keeping with profession-specific expense categories — from tradespeople and drivers to freelancers. Landlords can keep rental records in SelfSubmit and link a UK property HMRC income source. Live quarterly submit stays off until a controlled rollout. You choose your trade when you add a business so the form matches how you work.",
+      "Anyone who is self-employed and needs straightforward monthly record-keeping with profession-specific expense categories — from tradespeople and drivers to freelancers. Landlords can keep rental records in SelfSubmit and link a UK property HMRC income source. You choose your trade when you add a business so the form matches how you work.",
   },
   {
     id: "hmrc-filing",
     question: "Does SelfSubmit file directly with HMRC?",
     answer:
-      `SelfSubmit connects to HMRC so you can link your self-employment business and keep digital records for Making Tax Digital. We always show clearly when a submission is a draft or a live filing. Live quarterly filing will be switched on after a controlled rollout. ${selfSubmitHmrcRecognitionCopy()}`,
+      `SelfSubmit connects to HMRC so you can link your self-employment or UK property income source and send Making Tax Digital quarterly updates. We always show clearly when a submission is a draft or a live filing. ${selfSubmitHmrcRecognitionCopy()}`,
   },
   {
     id: "uk-property",
     question: "Can I file UK property or landlord income to HMRC?",
     answer:
-      "Yes. UK property is included in SelfSubmit now: keep rent and property costs, link a UK property HMRC income source, and prepare quarterly totals the same way as self-employment. Live quarterly submit to HMRC stays off until the controlled pilot. Foreign property filing is not available.",
+      "Yes. UK property is included in SelfSubmit now: keep rent and property costs, link a UK property HMRC income source, and send quarterly updates the same way as self-employment. Foreign property filing is not available.",
   },
   {
     id: "mtd-income-tax",
@@ -53,7 +53,7 @@ export const FAQ_ITEMS: FaqItem[] = [
     id: "included-features",
     question: "What is included in every plan?",
     answer:
-      "Every plan includes income and expense tracking, receipt and CSV uploads, monthly records for MTD, deadline reminders, submission history, secure document storage, email support, and mobile-friendly access. In-year HMRC quarterly updates for self-employment and UK property can be prepared when your HMRC account is connected. Live submit stays off until the controlled rollout.",
+      "Every plan includes income and expense tracking, receipt and CSV uploads, monthly records for MTD, deadline reminders, submission history, secure document storage, email support, and mobile-friendly access. In-year HMRC quarterly updates for self-employment and UK property can be sent when your HMRC account is connected.",
   },
   {
     id: "trial",

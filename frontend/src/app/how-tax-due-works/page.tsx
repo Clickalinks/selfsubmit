@@ -90,8 +90,8 @@ export default function HowTaxDueWorksPage() {
       <LegalH2 id="selfsubmit">3. SelfSubmit scope</LegalH2>
       <LegalP>
         <strong className="text-brand-black">Included:</strong> recording income and expenses, storing receipts,
-        tracking obligations, and preparing MTD <em>in-year</em> quarterly updates for self-employment and UK property
-        when your HMRC connection and product settings allow. Live submit stays off until the controlled pilot.
+        tracking obligations, and sending MTD <em>in-year</em> quarterly updates for self-employment and UK property
+        when your HMRC account is connected.
       </LegalP>
       <LegalP>
         <strong className="text-brand-black">Not included yet:</strong> submitting a Final Declaration from SelfSubmit,

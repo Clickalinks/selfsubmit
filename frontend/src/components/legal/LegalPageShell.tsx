@@ -2,7 +2,9 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { HeaderAuth } from "@/components/auth/HeaderAuth";
+import { HmrcMtdRecognisedMark } from "@/components/brand/HmrcMtdRecognisedMark";
 import { LegalPoliciesNav } from "@/components/legal/LegalPoliciesNav";
+import { FooterCopyright } from "@/components/legal/CompanyDetails";
 import type { LegalPolicyHref } from "@/lib/legal-policies";
 
 export function LegalPageShell({
@@ -20,13 +22,16 @@ export function LegalPageShell({
   children: ReactNode;
 }) {
   return (
-    <div className="min-h-screen pb-20">
+    <div className="flex min-h-screen flex-col pb-8">
       <div className="border-b border-black/10 bg-white/80 shadow-sm shadow-black/[0.04] backdrop-blur-md backdrop-saturate-150 supports-[backdrop-filter]:bg-white/70">
         <div className="mx-auto flex max-w-content items-center justify-between gap-4 px-5 py-4 min-[900px]:px-10">
           <Link href="/" className="text-sm font-semibold text-brand-green underline-offset-4 hover:underline">
             ← Home
           </Link>
-          <HeaderAuth />
+          <div className="flex items-center gap-3">
+            <HmrcMtdRecognisedMark size="header" />
+            <HeaderAuth />
+          </div>
         </div>
       </div>
       <article
@@ -39,6 +44,12 @@ export function LegalPageShell({
         {lastUpdated ? <p className="mt-3 text-sm text-brand-muted">Last updated: {lastUpdated}</p> : null}
         <div className="mt-10">{children}</div>
       </article>
+      <footer className="mt-auto border-t border-black/10 bg-white px-5 py-8 min-[900px]:px-10">
+        <div className="mx-auto flex max-w-content flex-col items-center justify-between gap-4 sm:flex-row sm:items-end">
+          <FooterCopyright />
+          <HmrcMtdRecognisedMark size="footer" />
+        </div>
+      </footer>
     </div>
   );
 }

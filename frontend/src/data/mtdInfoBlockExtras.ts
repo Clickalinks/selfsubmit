@@ -134,7 +134,7 @@ export const MTD_INFO_BLOCK_EXTRAS: Record<string, MtdInfoBlockExtras> = {
       "Missing allowable repairs because receipts were personal",
     ],
     selfSubmitTip:
-      "Landlords can keep rent and expense records in SelfSubmit now and link a UK property HMRC income source. Live quarterly submit stays off until the controlled pilot. Foreign property filing is not available yet.",
+      "Landlords can keep rent and expense records in SelfSubmit now, link a UK property HMRC income source, and send quarterly updates. Foreign property filing is not available yet.",
   },
   "mtd-compatible-software": {
     cardIntro:
@@ -205,7 +205,7 @@ export const MTD_INFO_BLOCK_EXTRAS: Record<string, MtdInfoBlockExtras> = {
       "Forgetting property or second trade income in one update",
     ],
     selfSubmitTip:
-      "SelfSubmit monthly records roll up into clear totals ready for your quarterly HMRC update when live filing is enabled.",
+      "SelfSubmit monthly records roll up into clear totals ready for your quarterly HMRC update.",
   },
   "final-declaration": {
     cardIntro:

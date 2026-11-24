@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Facebook, Instagram, Linkedin } from "lucide-react";
 
-import { RecognisedByHmrcBadge } from "@/components/brand/RecognisedByHmrcBadge";
+import { HmrcMtdRecognisedMark } from "@/components/brand/HmrcMtdRecognisedMark";
 import { SelfSubmitLogo } from "@/components/brand/SelfSubmitLogo";
 import { FooterCopyright } from "@/components/legal/CompanyDetails";
 
@@ -27,13 +27,15 @@ const linkClass = "text-sm text-gray-300 no-underline transition hover:text-bran
 export function SiteFooter() {
   return (
     <footer className="relative z-20 mt-auto w-full border-t border-white/10 bg-[#1a1d1f] text-white">
-      <RecognisedByHmrcBadge size="footer" />
       <div className="mx-auto max-w-[1400px] px-5 py-12 sm:px-8 sm:py-14 lg:px-10">
         <div className="grid gap-10 lg:grid-cols-[1.35fr_2fr] lg:gap-14">
           <div>
-            <Link href="/" className="inline-block" aria-label="SelfSubmit home">
-              <SelfSubmitLogo variant="light" className="scale-100 sm:scale-105" />
-            </Link>
+            <div className="flex flex-wrap items-center gap-4 sm:gap-5">
+              <Link href="/" className="inline-flex shrink-0" aria-label="SelfSubmit home">
+                <SelfSubmitLogo variant="light" className="scale-100 sm:scale-105" />
+              </Link>
+              <HmrcMtdRecognisedMark size="footer" onDark />
+            </div>
             <p className="mt-5 max-w-sm text-sm leading-relaxed text-gray-400">
               Making Tax Digital record-keeping software for UK sole traders and landlords.
             </p>

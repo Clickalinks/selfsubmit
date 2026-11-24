@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 
+import { HmrcMtdRecognisedMark } from "@/components/brand/HmrcMtdRecognisedMark";
 import { MfaRequiredNotice } from "@/components/dashboard/MfaRequiredNotice";
 import { MfaSettingsSection } from "@/components/dashboard/MfaSettingsSection";
 import { getClientProfile } from "@/lib/profile-server";
@@ -42,7 +43,10 @@ export default async function SetupMfaPage({ searchParams }: Props) {
           <Link href="/" className="text-sm font-semibold text-brand-green underline-offset-4 hover:underline">
             ← Home
           </Link>
-          <span className="text-sm font-medium text-slate-500">Account security</span>
+          <div className="flex items-center gap-3">
+            <HmrcMtdRecognisedMark size="header" />
+            <span className="text-sm font-medium text-slate-500">Account security</span>
+          </div>
         </div>
       </div>
 

@@ -22,7 +22,7 @@ export function LandingView() {
 
   return (
     <div className="flex min-h-screen flex-col overflow-x-hidden bg-white">
-      <SiteHeader />
+      <SiteHeader showHmrcMark={false} />
       <MtdInfoBlocksSection />
       <MtdInsightsSection />
       <MtdCtaBanner />

@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/db";
 import { getActiveBusinessContext } from "@/lib/active-business";
 import { getHmrcConnectionStatus } from "@/lib/hmrc-connection-server";
-import { isHmrcSandboxFilingEnabled } from "@/lib/hmrc-filing-status";
+import { getHmrcFilingMode } from "@/lib/hmrc-filing-status";
 import { resolveQuarterlySubmitWindow } from "@/lib/quarterly-submit-window";
 import { getCurrentQuarter, getUkTaxYearQuarters, type MtdQuarter } from "@/lib/mtd-quarters";
 import { getTaxIdsStatus } from "@/lib/tax-ids-server";
@@ -153,8 +153,9 @@ export async function getMtdDashboardSnapshot(
   const hasBusiness = businessCount > 0;
   const hasTaxIds = taxIds.complete;
   const hmrcSandboxReady = hmrcConnected && hasTaxIds && Boolean(activeBusinessHmrcId);
+  const filingMode = getHmrcFilingMode();
   const quarterlyWindow = resolveQuarterlySubmitWindow(now, {
-    sandboxTesting: isHmrcSandboxFilingEnabled(),
+    sandboxTesting: filingMode === "sandbox",
   });
 
   const quarterSubmissions = monthlySubmissions.filter((s) =>
@@ -222,13 +223,16 @@ export async function getMtdDashboardSnapshot(
     todayTone = daysUntilDeadline <= 3 ? "urgent" : "warning";
   } else if (
     hmrcSandboxReady &&
-    isHmrcSandboxFilingEnabled() &&
+    filingMode !== "off" &&
     quarterlyWindow.open &&
     quarterIncomeGbp + quarterExpensesGbp > 0
   ) {
-    todayMessage = "Preview and submit your cumulative quarterly update to HMRC sandbox from the card below.";
+    todayMessage =
+      filingMode === "live"
+        ? "Preview and submit your cumulative quarterly update to HMRC from the card below."
+        : "Preview and submit your cumulative quarterly update to HMRC sandbox from the card below.";
     todayTone = "info";
-  } else if (hmrcSandboxReady && isHmrcSandboxFilingEnabled() && !quarterlyWindow.open) {
+  } else if (hmrcSandboxReady && filingMode !== "off" && !quarterlyWindow.open) {
     todayMessage = quarterlyWindow.message;
     todayTone = "info";
   } else if (hmrcConnected && anyBusinessHmrcLinked && !activeBusinessHmrcId) {

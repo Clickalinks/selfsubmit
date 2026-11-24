@@ -3,6 +3,7 @@ import Link from "next/link";
 import { SignIn } from "@clerk/nextjs";
 
 import { ClerkSignInFieldHints } from "@/components/auth/ClerkSignInFieldHints";
+import { HmrcMtdRecognisedMark } from "@/components/brand/HmrcMtdRecognisedMark";
 import { SignInLoginProtection } from "@/components/auth/SignInLoginProtection";
 import { SignInInactiveNotice } from "@/components/auth/SignInInactiveNotice";
 import { NOINDEX_ROBOTS } from "@/lib/seo";
@@ -44,7 +45,10 @@ export default async function SignInPage({
           <Link href="/" className="text-sm font-semibold text-brand-green underline-offset-4 hover:underline">
             ← Home
           </Link>
-          <span className="text-sm font-medium text-brand-muted">Sign in</span>
+          <div className="flex items-center gap-3">
+            <HmrcMtdRecognisedMark size="header" />
+            <span className="text-sm font-medium text-brand-muted">Sign in</span>
+          </div>
         </div>
       </div>
 

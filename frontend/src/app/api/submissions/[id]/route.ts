@@ -31,7 +31,10 @@ export async function GET(_req: Request, context: RouteContext) {
   let expenses = normalizePayloadLines(parsed?.expenses);
 
   const isQuarterly =
-    submission.submissionType === "quarterly_hmrc_sandbox" || submission.status === "sandbox_submitted";
+    submission.submissionType === "quarterly_hmrc_sandbox" ||
+    submission.submissionType === "quarterly_hmrc" ||
+    submission.status === "sandbox_submitted" ||
+    submission.status === "hmrc_submitted";
 
   let monthlyBreakdown: Array<{
     id: string;
