@@ -19,7 +19,6 @@ const PUBLIC_STATIC_PATHS = [
   "/contact",
   "/partners",
   "/status",
-  "/infrastructure",
   "/security",
   "/hmrc-agent",
   "/terms",

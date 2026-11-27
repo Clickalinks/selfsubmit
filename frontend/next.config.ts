@@ -105,10 +105,21 @@ const nextConfig: NextConfig = {
     NEXT_PUBLIC_CLERK_PROXY_URL: resolvedPublicClerkProxyUrl(),
   },
   async headers() {
-    return [{ source: "/(.*)", headers: securityHeaders }];
+    return [
+      { source: "/(.*)", headers: securityHeaders },
+      {
+        source: "/status",
+        headers: [{ key: "Cache-Control", value: "no-store, max-age=0, must-revalidate" }],
+      },
+      {
+        source: "/api/status/health",
+        headers: [{ key: "Cache-Control", value: "no-store, max-age=0, must-revalidate" }],
+      },
+    ];
   },
   async redirects() {
     return [
+      { source: "/infrastructure", destination: "/security", permanent: true },
       { source: "/mtd", destination: "/#mtd-info-blocks", permanent: true },
       {
         source: "/mtd/hmrc-approved-software",
